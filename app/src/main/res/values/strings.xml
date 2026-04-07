@@ -1,0 +1,92 @@
+<resources>
+    <string name="app_name">Hotel Booking</string>
+
+    <!-- Auth -->
+    <string name="login_title">Đăng Nhập</string>
+    <string name="register_title">Đăng Ký</string>
+    <string name="email_label">Email</string>
+    <string name="password_label">Mật khẩu</string>
+    <string name="confirm_password_label">Xác nhận mật khẩu</string>
+    <string name="login_button">Đăng Nhập</string>
+    <string name="register_button">Đăng Ký</string>
+    <string name="no_account">Chưa có tài khoản?</string>
+    <string name="has_account">Đã có tài khoản?</string>
+    <string name="full_name_label">Họ và tên</string>
+    <string name="phone_label">Số điện thoại</string>
+    <string name="role_customer">Khách hàng</string>
+    <string name="role_manager">Quản lý khách sạn</string>
+
+    <!-- Home -->
+    <string name="home_title">Trang Chủ</string>
+    <string name="search_placeholder">Tìm kiếm khách sạn…</string>
+    <string name="popular_hotels">Khách sạn phổ biến</string>
+    <string name="nearby_hotels">Gần bạn</string>
+    <string name="see_all">Xem tất cả</string>
+
+    <!-- Hotel Detail -->
+    <string name="hotel_detail_title">Chi Tiết Khách Sạn</string>
+    <string name="description">Mô tả</string>
+    <string name="amenities">Tiện ích</string>
+    <string name="available_rooms">Phòng trống</string>
+    <string name="book_now">Đặt Ngay</string>
+    <string name="per_night">/đêm</string>
+    <string name="reviews">Đánh giá</string>
+    <string name="location">Vị trí</string>
+
+    <!-- Booking -->
+    <string name="booking_title">Đặt Phòng</string>
+    <string name="my_bookings">Đặt Chỗ Của Tôi</string>
+    <string name="check_in">Ngày nhận phòng</string>
+    <string name="check_out">Ngày trả phòng</string>
+    <string name="guests">Số khách</string>
+    <string name="total_price">Tổng tiền</string>
+    <string name="confirm_booking">Xác Nhận Đặt</string>
+    <string name="cancel_booking">Hủy Đặt</string>
+    <string name="status_pending">Chờ xác nhận</string>
+    <string name="status_confirmed">Đã xác nhận</string>
+    <string name="status_cancelled">Đã hủy</string>
+    <string name="status_completed">Hoàn thành</string>
+    <string name="no_bookings">Bạn chưa có đặt chỗ nào</string>
+
+    <!-- Chat -->
+    <string name="chat_title">Tin Nhắn</string>
+    <string name="chat_placeholder">Nhập tin nhắn…</string>
+    <string name="send">Gửi</string>
+    <string name="no_messages">Chưa có tin nhắn</string>
+
+    <!-- Profile -->
+    <string name="profile_title">Hồ Sơ</string>
+    <string name="edit_profile">Chỉnh sửa hồ sơ</string>
+    <string name="logout">Đăng Xuất</string>
+    <string name="settings">Cài đặt</string>
+    <string name="dark_mode">Chế độ tối</string>
+    <string name="language">Ngôn ngữ</string>
+    <string name="about">Về ứng dụng</string>
+
+    <!-- Manager -->
+    <string name="manager_dashboard">Quản Lý</string>
+    <string name="add_hotel">Thêm Khách Sạn</string>
+    <string name="edit_hotel">Sửa Khách Sạn</string>
+    <string name="manage_rooms">Quản lý phòng</string>
+    <string name="manage_bookings">Quản lý đặt chỗ</string>
+    <string name="hotel_name">Tên khách sạn</string>
+    <string name="hotel_address">Địa chỉ</string>
+    <string name="hotel_city">Thành phố</string>
+    <string name="hotel_description">Mô tả khách sạn</string>
+    <string name="save">Lưu</string>
+    <string name="delete">Xóa</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_home">Trang chủ</string>
+    <string name="nav_bookings">Đặt chỗ</string>
+    <string name="nav_chat">Tin nhắn</string>
+    <string name="nav_profile">Hồ sơ</string>
+
+    <!-- General -->
+    <string name="loading">Đang tải…</string>
+    <string name="error_general">Đã có lỗi xảy ra. Vui lòng thử lại.</string>
+    <string name="retry">Thử lại</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Hủy</string>
+    <string name="success">Thành công!</string>
+</resources>

@@ -1,0 +1,67 @@
+# Built application files
+*.apk
+*.aar
+*.ap_
+*.aab
+
+# Files for the ART/Dalvik VM
+*.dex
+
+# Java class files
+*.class
+
+# Generated files
+bin/
+gen/
+out/
+release/
+
+# Gradle files
+.gradle/
+build/
+
+# Local configuration file
+local.properties
+
+# Android Studio
+*.iml
+.idea/
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/gradle.xml
+.idea/assetWizardSettings.xml
+.idea/dictionaries
+.idea/libraries
+.idea/caches
+.navigation/
+
+# Keystore files
+*.jks
+*.keystore
+
+# Firebase
+google-services.json
+
+# AI Rules & Prompts (keep local, don't push to git)
+.cursorrules
+.gemini/
+.github/copilot-instructions.md
+RULES.md
+
+# External native build folder generated in Android Studio 2.2 and later
+.externalNativeBuild
+.cxx/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Captures
+captures/
+
+# IntelliJ
+*.iws
+*.ipr
+
+# Node (if using Firebase Functions)
+node_modules/

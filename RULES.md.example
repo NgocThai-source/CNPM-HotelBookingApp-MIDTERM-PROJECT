@@ -1,0 +1,288 @@
+# 📋 QUY TẮC DỰ ÁN - HOTEL BOOKING APP
+
+## 📌 Thông tin dự án
+
+| Mục | Chi tiết |
+|-----|---------|
+| **Tên dự án** | Hotel Booking App |
+| **Môn học** | Công nghệ Phần mềm (Software Engineering) |
+| **Phương pháp** | Scrum / Agile |
+| **Nền tảng** | Android (Kotlin + Jetpack Compose) |
+| **Backend** | Firebase (Auth, Firestore, FCM) |
+| **IDE** | Android Studio |
+
+---
+
+## 👥 Phân công nhóm
+
+| Thành viên | Vai trò | Nhiệm vụ chính |
+|-----------|---------|----------------|
+| Đoàn Văn Nguyên | Backend Developer | Quản lý kiến trúc Firebase, Auth, Firestore, Security Rules, review code |
+| Nguyễn Ngọc Thái | UI/UX Designer | Thiết kế giao diện, Material Design, prototype Figma, cung cấp design assets |
+| Nguyễn Mạnh Kiên | Backend Developer | Backend hotel listing, booking services, Cloud Functions, Firestore queries |
+| Trần Xuân Thức | Backend Developer | Backend chat real-time, FCM notifications, cloud messaging config |
+| Lê Văn Kiệt | Frontend Developer | Phát triển UI Android (Kotlin/Compose), navigation, kết nối Firebase |
+
+---
+
+## 🏗️ Kiến trúc ứng dụng
+
+### Mô hình: MVVM + Repository Pattern
+
+```
+┌─────────────────────────────────────────┐
+│              UI Layer                    │
+│  (Jetpack Compose Screens/Components)   │
+│         ↕ State (StateFlow)             │
+│           ViewModel Layer               │
+│         ↕ Data operations               │
+│          Repository Layer               │
+│         ↕ Firebase SDK                  │
+│            Data Layer                   │
+│  (Firebase Auth / Firestore / FCM)      │
+└─────────────────────────────────────────┘
+```
+
+### Cấu trúc package
+
+```
+com.hotelbooking.app/
+├── data/
+│   ├── model/          → Data classes: Hotel, User, Booking, Room, Message
+│   ├── repository/     → HotelRepository, BookingRepository, ChatRepository, AuthRepository
+│   └── remote/         → FirebaseAuthService, FirestoreService, FCMService
+├── di/                 → AppModule.kt, RepositoryModule.kt (Hilt)
+├── ui/
+│   ├── theme/          → Color.kt, Type.kt, Shape.kt, Theme.kt
+│   ├── components/     → HotelCard, SearchBar, BookingCard, RatingStars, ...
+│   ├── navigation/     → NavGraph.kt, Routes.kt
+│   └── screens/
+│       ├── auth/       → LoginScreen, RegisterScreen, AuthViewModel
+│       ├── home/       → HomeScreen, HomeViewModel
+│       ├── detail/     → HotelDetailScreen, HotelDetailViewModel
+│       ├── booking/    → BookingScreen, BookingViewModel, MyBookingsScreen
+│       ├── chat/       → ChatScreen, ChatViewModel, ChatListScreen
+│       ├── profile/    → ProfileScreen, ProfileViewModel
+│       └── manager/    → ManagerDashboard, AddHotelScreen, ManageRoomsScreen
+├── util/               → Constants.kt, Extensions.kt, DateUtils.kt
+├── service/            → FCMNotificationService.kt
+└── HotelBookingApp.kt  → @HiltAndroidApp Application class
+```
+
+---
+
+## 🗃️ Cấu trúc Firestore Database
+
+### Collections
+
+```
+users/
+  └── {userId}/
+      ├── email: String
+      ├── displayName: String
+      ├── role: String ("customer" | "manager")
+      ├── phoneNumber: String
+      ├── avatarUrl: String
+      └── createdAt: Timestamp
+
+hotels/
+  └── {hotelId}/
+      ├── name: String
+      ├── description: String
+      ├── address: String
+      ├── city: String
+      ├── rating: Double
+      ├── imageUrls: List<String>
+      ├── amenities: List<String>
+      ├── priceRange: Map {min, max}
+      ├── managerId: String (ref → users)
+      ├── createdAt: Timestamp
+      └── rooms/ (subcollection)
+          └── {roomId}/
+              ├── type: String
+              ├── price: Double
+              ├── capacity: Int
+              ├── isAvailable: Boolean
+              └── imageUrl: String
+
+bookings/
+  └── {bookingId}/
+      ├── userId: String (ref → users)
+      ├── hotelId: String (ref → hotels)
+      ├── roomId: String (ref → rooms)
+      ├── checkIn: Timestamp
+      ├── checkOut: Timestamp
+      ├── totalPrice: Double
+      ├── status: String ("pending" | "confirmed" | "cancelled" | "completed")
+      ├── guestCount: Int
+      └── createdAt: Timestamp
+
+messages/
+  └── {chatId}/
+      ├── participants: List<String> [userId, managerId]
+      ├── lastMessage: String
+      ├── lastMessageAt: Timestamp
+      └── messages/ (subcollection)
+          └── {messageId}/
+              ├── senderId: String
+              ├── text: String
+              ├── timestamp: Timestamp
+              └── isRead: Boolean
+```
+
+---
+
+## 🎨 Quy tắc thiết kế UI/UX
+
+### Bảng màu
+
+| Vai trò | Light Mode | Dark Mode | Mô tả |
+|---------|-----------|-----------|-------|
+| Primary | `#1E88E5` | `#90CAF9` | Xanh dương - tin cậy |
+| Secondary | `#FF9800` | `#FFB74D` | Cam - CTA, điểm nhấn |
+| Background | `#FFFFFF` | `#121212` | Nền chính |
+| Surface | `#F5F5F5` | `#1E1E1E` | Card, dialog |
+| Error | `#D32F2F` | `#EF5350` | Lỗi, cảnh báo |
+| On Primary | `#FFFFFF` | `#000000` | Text trên primary |
+
+### Typography (Google Fonts: Inter / Poppins)
+
+| Style | Size | Weight | Sử dụng |
+|-------|------|--------|---------|
+| Display | 32sp | Bold | Tiêu đề trang |
+| Headline | 24sp | SemiBold | Tên khách sạn |
+| Title | 20sp | Medium | Section headers |
+| Body | 16sp | Regular | Nội dung chính |
+| Label | 14sp | Medium | Buttons, labels |
+| Caption | 12sp | Regular | Thông tin phụ |
+
+### Nguyên tắc thiết kế
+- ✅ Bo góc card: **16dp**
+- ✅ Padding chuẩn: **16dp** (ngoài), **8dp** (trong)
+- ✅ Elevation card: **4dp**
+- ✅ Hỗ trợ **Dark Mode** đầy đủ
+- ✅ Bottom Navigation cho điều hướng chính
+- ✅ Skeleton loading thay vì spinner
+- ✅ Pull-to-refresh cho danh sách
+- ✅ Animation chuyển trang mượt mà
+
+---
+
+## 📱 Danh sách màn hình chính
+
+| # | Màn hình | Mô tả | Người phụ trách |
+|---|---------|-------|----------------|
+| 1 | Splash Screen | Logo + loading | Kiệt (Frontend) |
+| 2 | Login | Đăng nhập email/password | Kiệt + Nguyên (Auth) |
+| 3 | Register | Đăng ký tài khoản (Customer/Manager) | Kiệt + Nguyên |
+| 4 | Home | Danh sách khách sạn, search, filter | Kiệt + Kiên (Backend) |
+| 5 | Hotel Detail | Chi tiết khách sạn, phòng, giá, tiện ích | Kiệt + Kiên |
+| 6 | Booking | Chọn phòng, ngày, xác nhận đặt | Kiệt + Kiên |
+| 7 | My Bookings | Danh sách booking của user | Kiệt + Kiên |
+| 8 | Chat List | Danh sách cuộc hội thoại | Kiệt + Thức (Chat) |
+| 9 | Chat Detail | Chat real-time với hotel | Kiệt + Thức |
+| 10 | Profile | Thông tin cá nhân, settings | Kiệt + Nguyên |
+| 11 | Manager Dashboard | Quản lý khách sạn (cho Manager) | Kiệt + Kiên |
+| 12 | Add/Edit Hotel | Thêm/sửa thông tin khách sạn | Kiệt + Kiên |
+
+---
+
+## 🔧 Công nghệ & Dependencies
+
+```kotlin
+// build.gradle.kts (app level)
+dependencies {
+    // Jetpack Compose
+    implementation(platform("androidx.compose:compose-bom:2024.10.00"))
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.activity:activity-compose")
+    implementation("androidx.navigation:navigation-compose")
+
+    // Lifecycle & ViewModel
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose")
+
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("com.google.firebase:firebase-messaging-ktx")
+    implementation("com.google.firebase:firebase-storage-ktx")
+
+    // Hilt (DI)
+    implementation("com.google.dagger:hilt-android:2.51.1")
+    kapt("com.google.dagger:hilt-compiler:2.51.1")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+
+    // Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services")
+
+    // Image Loading
+    implementation("io.coil-kt:coil-compose:2.7.0")
+
+    // Testing
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("io.mockk:mockk:1.13.12")
+    testImplementation("app.cash.turbine:turbine:1.1.0")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+}
+```
+
+---
+
+## 📏 Quy ước Git
+
+### Branch
+```
+main            → Production code
+develop         → Development branch
+feature/*       → Tính năng mới (feature/auth-login, feature/hotel-listing)
+bugfix/*        → Sửa lỗi
+hotfix/*        → Sửa lỗi khẩn cấp trên main
+```
+
+### Commit Message Format
+```
+type(scope): mô tả ngắn gọn
+
+Ví dụ:
+feat(auth): add login screen with Firebase Authentication
+fix(booking): fix date picker crash on API 26
+refactor(hotel): extract HotelCard composable component
+docs(readme): update project setup instructions
+style(theme): update primary color palette
+test(auth): add unit tests for AuthViewModel
+```
+
+### Quy tắc Pull Request
+- Tiêu đề rõ ràng, mô tả thay đổi
+- Kèm screenshots nếu có thay đổi UI
+- Cần ít nhất 1 người review trước khi merge
+- Không merge code bị lỗi build
+
+---
+
+## 🧪 Quy tắc Testing
+
+| Loại test | Công cụ | Phạm vi |
+|-----------|--------|---------|
+| Unit Test | JUnit + MockK | ViewModel, Repository |
+| Flow Test | Turbine | StateFlow, SharedFlow |
+| UI Test | Compose Testing | Composable components |
+| Integration | Firebase Emulator | Auth, Firestore |
+
+---
+
+## ⚠️ Lưu ý quan trọng
+
+1. **KHÔNG** commit file `google-services.json` lên GitHub
+2. **KHÔNG** hardcode Firebase API keys trong source code
+3. **KHÔNG** sử dụng XML layouts — chỉ dùng Jetpack Compose
+4. **KHÔNG** sử dụng `LiveData` — chỉ dùng `StateFlow/SharedFlow`
+5. **LUÔN** xử lý error states và loading states
+6. **LUÔN** sử dụng `strings.xml` cho UI strings
+7. **LUÔN** test trên cả Light Mode và Dark Mode
+8. **LUÔN** viết code sạch, có comment giải thích logic phức tạp

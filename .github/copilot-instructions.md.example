@@ -1,0 +1,47 @@
+# Hướng dẫn cho AI Assistant - Hotel Booking App
+
+## Ngôn ngữ phản hồi
+LUÔN trả lời bằng **Tiếng Việt**. Comment trong code viết bằng Tiếng Anh.
+
+## Về dự án
+- Đây là ứng dụng Android đặt phòng khách sạn (Hotel Booking App)
+- Sử dụng: Kotlin, Jetpack Compose, Material Design 3, Firebase
+- Kiến trúc: MVVM + Repository Pattern + Hilt (DI)
+- State management: StateFlow/SharedFlow (KHÔNG dùng LiveData)
+- Navigation: Jetpack Navigation Compose
+
+## Khi viết code
+- Sử dụng Kotlin idioms (data class, sealed class, extension functions, coroutines)
+- Ưu tiên immutability (val > var)
+- Xử lý errors bằng sealed class UiState (Loading/Success/Error)
+- Tất cả Firebase operations phải qua Repository layer
+- UI strings đặt trong strings.xml, không hardcode
+- Mọi Composable phải có @Preview
+- Hỗ trợ Dark Mode
+
+## Khi viết UI
+- Material Design 3 (Material You)
+- Primary color: #1E88E5 (xanh dương)
+- Secondary color: #FF9800 (cam)
+- Bo góc: 16dp, padding: 16dp
+- Dùng LazyColumn/LazyRow cho danh sách
+- Skeleton loading thay vì spinner
+
+## Cấu trúc thư mục
+- data/model/ → Data classes
+- data/repository/ → Repository pattern
+- data/remote/ → Firebase services
+- ui/screens/{feature}/ → Screen + ViewModel
+- ui/components/ → Reusable composables
+- ui/theme/ → Material 3 theme
+- di/ → Hilt modules
+
+## Firebase Collections
+- users, hotels, bookings, messages, rooms
+
+## Không được làm
+- KHÔNG dùng XML layouts
+- KHÔNG dùng LiveData
+- KHÔNG hardcode strings
+- KHÔNG để API keys trong source code
+- KHÔNG commit google-services.json

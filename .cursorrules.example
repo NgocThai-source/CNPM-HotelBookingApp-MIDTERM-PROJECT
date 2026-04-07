@@ -1,0 +1,157 @@
+# ==========================================
+# QUY TẮC AI VIBE CODING - HOTEL BOOKING APP
+# ==========================================
+# Ngôn ngữ phản hồi: TIẾNG VIỆT
+# Dự án: Hotel Booking App (Android)
+# Công nghệ: Kotlin, Jetpack Compose, Firebase
+# ==========================================
+
+## NGÔN NGỮ
+- LUÔN trả lời bằng **Tiếng Việt**.
+- Comment trong code viết bằng **Tiếng Anh** để đảm bảo tính chuyên nghiệp.
+- Tên biến, hàm, class viết bằng **Tiếng Anh** theo chuẩn camelCase/PascalCase.
+
+## TỔNG QUAN DỰ ÁN
+- **Tên ứng dụng**: Hotel Booking App
+- **Nền tảng**: Android (minSdk 26, targetSdk 35)
+- **Ngôn ngữ**: Kotlin
+- **UI Framework**: Jetpack Compose + Material Design 3
+- **Backend**: Firebase (Authentication, Firestore, Cloud Messaging)
+- **Architecture**: MVVM (Model-View-ViewModel)
+- **Dependency Injection**: Hilt
+- **Navigation**: Jetpack Navigation Compose
+
+## CẤU TRÚC THƯ MỤC
+```
+com.hotelbooking.app/
+├── data/                    # Tầng dữ liệu
+│   ├── model/               # Data classes (Hotel, Booking, User, Message)
+│   ├── repository/          # Repository pattern (Firebase operations)
+│   └── remote/              # Firebase service classes
+├── di/                      # Dependency Injection modules (Hilt)
+├── ui/                      # Tầng giao diện
+│   ├── theme/               # Material 3 Theme (Color, Type, Shape)
+│   ├── components/          # Composable components tái sử dụng
+│   ├── navigation/          # NavHost, routes, navigation graph
+│   └── screens/             # Các màn hình
+│       ├── auth/            # Login, Register
+│       ├── home/            # Trang chủ, danh sách khách sạn
+│       ├── detail/          # Chi tiết khách sạn
+│       ├── booking/         # Đặt phòng, quản lý booking
+│       ├── chat/            # Chat real-time
+│       ├── profile/         # Hồ sơ người dùng
+│       └── manager/         # Quản lý khách sạn (Hotel Manager)
+├── viewmodel/               # ViewModels cho từng màn hình
+├── util/                    # Utility functions, constants, extensions
+└── HotelBookingApp.kt       # Application class
+```
+
+## QUY TẮC CODE
+
+### Kotlin
+- Sử dụng Kotlin idioms: `data class`, `sealed class`, `extension functions`, `coroutines`
+- Ưu tiên `val` thay vì `var` (immutability)
+- Sử dụng `StateFlow` và `SharedFlow` cho state management
+- Xử lý lỗi bằng `Result<T>` hoặc sealed class `UiState`
+- KHÔNG sử dụng `LiveData` — chỉ dùng `Flow/StateFlow`
+
+### Jetpack Compose
+- Tuân thủ **Material Design 3** (Material You)
+- Sử dụng `remember`, `rememberSaveable` đúng cách
+- Tách UI thành các Composable nhỏ, tái sử dụng được
+- Sử dụng `LazyColumn`/`LazyRow` cho danh sách
+- Preview mọi Composable với `@Preview`
+- Tránh side effects trong Composable — dùng `LaunchedEffect`, `SideEffect`
+
+### Firebase
+- **Authentication**: Email/Password login & register
+- **Firestore**: 
+  - Collections: `users`, `hotels`, `bookings`, `messages`, `rooms`
+  - Sử dụng Security Rules để bảo vệ dữ liệu
+  - Optimistic updates khi có thể
+- **Cloud Messaging (FCM)**: Push notifications cho booking confirmation
+- Sử dụng `kotlinx-coroutines-play-services` để convert Firebase Tasks sang Coroutines
+
+### MVVM Architecture
+```
+View (Composable) → ViewModel → Repository → Firebase
+```
+- **View**: Chỉ hiển thị UI, nhận state từ ViewModel
+- **ViewModel**: Xử lý logic, quản lý UI state
+- **Repository**: Trừu tượng hóa nguồn dữ liệu (Firebase)
+- **Model**: Data classes thuần túy
+
+### State Management
+```kotlin
+// Pattern chuẩn cho UiState
+sealed class UiState<out T> {
+    object Loading : UiState<Nothing>()
+    data class Success<T>(val data: T) : UiState<T>()
+    data class Error(val message: String) : UiState<Nothing>()
+}
+```
+
+### Navigation
+- Sử dụng sealed class/object cho Routes
+- Deep link support cho notifications
+- Truyền argument qua NavBackStackEntry
+
+## QUY TẮC THIẾT KẾ UI/UX
+
+### Màu sắc
+- Primary: Tông xanh dương (#1E88E5) — đại diện cho sự tin cậy
+- Secondary: Tông vàng cam (#FF9800) — điểm nhấn, CTA buttons
+- Background: Trắng (#FFFFFF) / Dark theme (#121212)
+- Surface: Xám nhạt (#F5F5F5) / Dark (#1E1E1E)
+- Hỗ trợ **Dark Mode** đầy đủ
+
+### Typography
+- Sử dụng Google Fonts: **Inter** hoặc **Poppins**
+- Heading: Bold, kích thước lớn
+- Body: Regular, dễ đọc
+- Caption: Light, cho thông tin phụ
+
+### Components
+- Card với bo góc (16dp), shadow nhẹ
+- Bottom Navigation Bar cho điều hướng chính
+- Floating Action Button cho hành động chính
+- Skeleton loading thay vì spinner
+- Pull-to-refresh cho danh sách
+- Snackbar cho thông báo ngắn
+
+## QUY TẮC NAMING
+
+### Files & Classes
+- Screens: `{Feature}Screen.kt` (ví dụ: `HomeScreen.kt`)
+- ViewModels: `{Feature}ViewModel.kt`
+- Repositories: `{Feature}Repository.kt`
+- Models: Tên rõ ràng (`Hotel.kt`, `Booking.kt`)
+- Components: `{Function}Component.kt` hoặc tên mô tả
+
+### Composables
+- Tên bắt đầu bằng chữ HOA: `HotelCard()`, `BookingDialog()`
+- Parameters: `modifier` luôn là param đầu tiên (sau required params)
+
+### Firebase Collections
+- Viết thường, số nhiều: `users`, `hotels`, `bookings`, `messages`, `rooms`
+
+## TESTING
+- Unit test cho ViewModels và Repositories
+- UI test với Compose Testing
+- Sử dụng `fake/mock` repositories cho testing
+- Test framework: JUnit 5, MockK, Turbine (cho Flow testing)
+
+## GIT & COLLABORATION
+- Branch naming: `feature/{tên-feature}`, `bugfix/{mô-tả}`, `hotfix/{mô-tả}`
+- Commit messages bằng tiếng Anh, format: `type(scope): description`
+  - Ví dụ: `feat(auth): add login screen with Firebase Auth`
+- Pull Request phải có mô tả và screenshots (nếu UI)
+
+## QUAN TRỌNG - KHÔNG LÀM
+- ❌ KHÔNG dùng XML layouts — chỉ Jetpack Compose
+- ❌ KHÔNG dùng LiveData — chỉ StateFlow/SharedFlow  
+- ❌ KHÔNG hardcode strings — dùng strings.xml
+- ❌ KHÔNG để API keys trong source code
+- ❌ KHÔNG bỏ qua error handling
+- ❌ KHÔNG tạo God class/function quá lớn
+- ❌ KHÔNG commit file google-services.json lên GitHub
