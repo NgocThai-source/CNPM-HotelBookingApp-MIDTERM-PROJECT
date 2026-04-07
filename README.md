@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://img.icons8.com/3d-fluency/94/hotel-building.png" alt="Hotel Booking App Logo" width="80"/>
+  <img src="logo.png" alt="Hotel Booking App Logo" width="120"/>
 </p>
 
 <h1 align="center">Hotel Booking App</h1>
@@ -165,5 +165,5 @@ This project follows the **Scrum** framework with five one-week sprints:
 ---
 
 <p align="center">
-  <sub>Built with ❤️ by <strong>Team VKU</strong> — Software Engineering Mid-Term Project 2026</sub>
+  <sub>Built with ❤️ by <strong>Team N2TK</strong> — Software Engineering Mid-Term Project VKU 2026</sub>
 </p>
