@@ -20,37 +20,33 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun LoginScreen(onLoginClick: () -> Unit) {
+fun LoginScreen(
+    onLoginClick: () -> Unit,
+    onNavigateToRegister: () -> Unit,
+    onNavigateToForgotPassword: () -> Unit
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    // Tạo nền Gradient đẹp mắt
     val gradientBackground = Brush.verticalGradient(
         colors = listOf(Color(0xFF2196F3), Color(0xFF0D47A1))
     )
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(gradientBackground),
+        modifier = Modifier.fillMaxSize().background(gradientBackground),
         contentAlignment = Alignment.Center
     ) {
         Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
             Column(
-                modifier = Modifier
-                    .padding(32.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.padding(32.dp).fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Tiêu đề
                 Icon(
                     imageVector = Icons.Filled.AccountCircle,
                     contentDescription = "Logo",
@@ -58,21 +54,11 @@ fun LoginScreen(onLoginClick: () -> Unit) {
                     tint = Color(0xFF1976D2)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "Chào mừng trở lại!",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF333333)
-                )
-                Text(
-                    text = "Đăng nhập để đặt phòng ngay",
-                    fontSize = 14.sp,
-                    color = Color.Gray
-                )
+                Text("Chào mừng trở lại!", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF333333))
+                Text("Đăng nhập để đặt phòng ngay", fontSize = 14.sp, color = Color.Gray)
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // Ô nhập Email
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
@@ -80,13 +66,11 @@ fun LoginScreen(onLoginClick: () -> Unit) {
                     leadingIcon = { Icon(Icons.Filled.Email, contentDescription = "Email") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+                    singleLine = true
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Ô nhập Mật khẩu
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
@@ -94,11 +78,7 @@ fun LoginScreen(onLoginClick: () -> Unit) {
                     leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = "Password") },
                     trailingIcon = {
                         TextButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Text(
-                                text = if (passwordVisible) "ẨN" else "HIỆN",
-                                color = Color(0xFF1976D2),
-                                fontWeight = FontWeight.Bold
-                            )
+                            Text(if (passwordVisible) "ẨN" else "HIỆN", color = Color(0xFF1976D2), fontWeight = FontWeight.Bold)
                         }
                     },
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -110,9 +90,8 @@ fun LoginScreen(onLoginClick: () -> Unit) {
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Quên mật khẩu
                 TextButton(
-                    onClick = { /* TODO: Xử lý quên mật khẩu */ },
+                    onClick = onNavigateToForgotPassword,
                     modifier = Modifier.align(Alignment.End)
                 ) {
                     Text("Quên mật khẩu?", color = Color(0xFF1976D2), fontWeight = FontWeight.SemiBold)
@@ -120,12 +99,9 @@ fun LoginScreen(onLoginClick: () -> Unit) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Nút Đăng nhập chính
                 Button(
                     onClick = onLoginClick,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2))
                 ) {
@@ -134,10 +110,10 @@ fun LoginScreen(onLoginClick: () -> Unit) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Chuyển sang Đăng ký
+                //NÚT ĐĂNG KÝ
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Chưa có tài khoản? ", color = Color.Gray)
-                    TextButton(onClick = { /* TODO: Chuyển trang đăng ký */ }) {
+                    TextButton(onClick = onNavigateToRegister) {
                         Text("Đăng ký ngay", color = Color(0xFF1976D2), fontWeight = FontWeight.Bold)
                     }
                 }
