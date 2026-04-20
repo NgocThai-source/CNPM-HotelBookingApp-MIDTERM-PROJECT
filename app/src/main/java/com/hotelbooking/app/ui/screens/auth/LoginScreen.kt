@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun LoginScreen(onLoginClick: () -> Unit) {
+fun LoginScreen(onLoginClick: () -> Unit, onNavigateToRegister: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
@@ -137,7 +137,7 @@ fun LoginScreen(onLoginClick: () -> Unit) {
                 // Chuyển sang Đăng ký
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Chưa có tài khoản? ", color = Color.Gray)
-                    TextButton(onClick = { /* TODO: Chuyển trang đăng ký */ }) {
+                    TextButton(onClick = onNavigateToRegister) {
                         Text("Đăng ký ngay", color = Color(0xFF1976D2), fontWeight = FontWeight.Bold)
                     }
                 }
