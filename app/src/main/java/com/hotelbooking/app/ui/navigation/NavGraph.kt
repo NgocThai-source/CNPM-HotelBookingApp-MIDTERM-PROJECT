@@ -15,6 +15,7 @@ import androidx.navigation.navArgument
 import com.hotelbooking.app.ui.screens.auth.ForgotPasswordScreen
 import com.hotelbooking.app.ui.screens.auth.LoginScreen
 import com.hotelbooking.app.ui.screens.auth.OtpVerificationScreen
+import com.hotelbooking.app.ui.screens.auth.ResetPasswordScreen
 import com.hotelbooking.app.ui.screens.home.HomeScreen
 import java.net.URLDecoder
 import java.net.URLEncoder
@@ -23,6 +24,7 @@ import java.nio.charset.StandardCharsets
 @Composable
 fun NavGraph() {
     val navController = rememberNavController()
+
     val animationDuration = 850
     val easingCurve = FastOutSlowInEasing
 
@@ -38,15 +40,18 @@ fun NavGraph() {
         composable(Routes.LOGIN) {
             LoginScreen(
                 onLoginClick = { navController.navigate(Routes.HOME) { popUpTo(0) { inclusive = true } } },
-                onNavigateToRegister = { },
+                onNavigateToRegister = {
+                    // Nút đăng ký vẫn hiển thị trên UI, nhưng ở nhánh này bấm vào sẽ không làm gì cả.
+                },
                 onNavigateToForgotPassword = { navController.navigate(Routes.FORGOT_PASSWORD) }
             )
         }
 
+        // Đã xóa hoàn toàn composable(Routes.REGISTER) để không bị lỗi parameter
+
         composable(Routes.FORGOT_PASSWORD) {
             ForgotPasswordScreen(
                 onSendClick = { enteredEmail ->
-                    // Lấy email người dùng gõ, mã hóa an toàn rồi ném sang trang OTP
                     val encodedEmail = URLEncoder.encode(enteredEmail, StandardCharsets.UTF_8.toString())
                     navController.navigate("${Routes.VERIFY_OTP}/$encodedEmail")
                 },
@@ -54,21 +59,25 @@ fun NavGraph() {
             )
         }
 
-        // nhận email và hiển thị
         composable(
             route = "${Routes.VERIFY_OTP}/{email}",
             arguments = listOf(navArgument("email") { type = NavType.StringType })
         ) { backStackEntry ->
-            // Giải mã ngược lại để lấy email đẹp
             val rawEmail = backStackEntry.arguments?.getString("email") ?: ""
             val decodedEmail = URLDecoder.decode(rawEmail, StandardCharsets.UTF_8.toString())
 
             OtpVerificationScreen(
-                email = decodedEmail, // Truyền vào UI
-                onVerifySuccess = {
-                    navController.popBackStack(Routes.LOGIN, inclusive = false)
-                },
+                email = decodedEmail,
+                onVerifySuccess = { navController.navigate(Routes.RESET_PASSWORD) },
                 onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable(Routes.RESET_PASSWORD) {
+            ResetPasswordScreen(
+                onResetSuccess = {
+                    navController.navigate(Routes.LOGIN) { popUpTo(Routes.LOGIN) { inclusive = true } }
+                }
             )
         }
 

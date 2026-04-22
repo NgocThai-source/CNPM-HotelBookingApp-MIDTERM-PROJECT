@@ -22,8 +22,8 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun LoginScreen(
     onLoginClick: () -> Unit,
-    onNavigateToRegister: () -> Unit,
-    onNavigateToForgotPassword: () -> Unit
+    onNavigateToRegister: () -> Unit,     //tham số Đăng ký
+    onNavigateToForgotPassword: () -> Unit // Tham số Quên mật khẩu
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -47,6 +47,7 @@ fun LoginScreen(
                 modifier = Modifier.padding(32.dp).fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // Logo / Icon
                 Icon(
                     imageVector = Icons.Filled.AccountCircle,
                     contentDescription = "Logo",
@@ -59,6 +60,7 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
+                // Ô nhập Email
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
@@ -71,6 +73,7 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Ô nhập Mật khẩu
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
@@ -90,6 +93,7 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                // Nút Quên mật khẩu
                 TextButton(
                     onClick = onNavigateToForgotPassword,
                     modifier = Modifier.align(Alignment.End)
@@ -99,6 +103,7 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Nút Đăng nhập
                 Button(
                     onClick = onLoginClick,
                     modifier = Modifier.fillMaxWidth().height(50.dp),
@@ -110,7 +115,7 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                //NÚT ĐĂNG KÝ
+                // NÚT ĐĂNG KÝ
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Chưa có tài khoản? ", color = Color.Gray)
                     TextButton(onClick = onNavigateToRegister) {
