@@ -6,14 +6,17 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.hotelbooking.app.ui.screens.auth.LoginScreen
 import com.hotelbooking.app.ui.screens.home.HomeScreen
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.Modifier
+import com.hotelbooking.app.ui.screens.detail.HotelDetailScreen // Màn hình mới
 
 @Composable
 fun NavGraph() {
@@ -23,7 +26,7 @@ fun NavGraph() {
 
     NavHost(
         navController = navController,
-        startDestination = Routes.LOGIN,
+        startDestination = Routes.LOGIN, // Mặc định vào Login trước
         modifier = Modifier.fillMaxSize(),
         enterTransition = { slideInHorizontally(initialOffsetX = { it / 4 }, animationSpec = tween(animationDuration, easing = easingCurve)) + fadeIn(tween(animationDuration)) },
         exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 4 }, animationSpec = tween(animationDuration, easing = easingCurve)) + fadeOut(tween(animationDuration)) },
@@ -32,16 +35,26 @@ fun NavGraph() {
     ) {
 
         composable(Routes.LOGIN) {
-
             LoginScreen(
                 onLoginClick = {
-                    navController.navigate(Routes.HOME) { popUpTo(0) { inclusive = true } }
+                    navController.navigate(Routes.HOME) { popUpTo(Routes.LOGIN) { inclusive = true } }
                 }
             )
         }
 
         composable(Routes.HOME) {
-            HomeScreen()
+            // Truyền navController vào HomeScreen để nó có thể ra lệnh chuyển trang
+            HomeScreen(navController = navController)
+        }
+
+        // MÀN HÌNH CHI TIẾT
+        composable(
+            route = Routes.DETAIL,
+            arguments = listOf(navArgument("hotelName") { type = NavType.StringType })
+        ) { backStackEntry ->
+            // Lấy tên khách sạn từ đường dẫn URL
+            val hotelName = backStackEntry.arguments?.getString("hotelName") ?: ""
+            HotelDetailScreen(navController = navController, hotelName = hotelName)
         }
     }
 }
