@@ -23,139 +23,183 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.hotelbooking.app.data.model.RegisterRequest
 
 @Composable
-fun RegisterScreen(onRegisterSuccess: () -> Unit, onBackToLogin: () -> Unit) {
+fun RegisterScreen(
+    onRegisterSuccess: () -> Unit,
+    onBackToLogin: () -> Unit,
+    viewModel: AuthViewModel = viewModel()
+) {
     var fullName by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
+    val authState = viewModel.authState
+    val snackbarHostState = remember { SnackbarHostState() }
+
     // Dùng chung tone màu Gradient để đồng bộ với Login
     val gradientBackground = Brush.verticalGradient(
         colors = listOf(Color(0xFF2196F3), Color(0xFF0D47A1))
     )
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(gradientBackground),
-        contentAlignment = Alignment.Center
-    ) {
-        Card(
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Error) {
+            snackbarHostState.showSnackbar(authState.message)
+            viewModel.resetState()
+        } else if (authState is AuthState.Success) {
+            snackbarHostState.showSnackbar(authState.message)
+            onRegisterSuccess()
+        }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+    ) { padding ->
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 32.dp),
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                .fillMaxSize()
+                .padding(padding)
+                .background(gradientBackground),
+            contentAlignment = Alignment.Center
         ) {
-            Column(
+            Card(
                 modifier = Modifier
-                    .padding(32.dp)
                     .fillMaxWidth()
-                    .verticalScroll(rememberScrollState()), // Hỗ trợ cuộn nếu màn hình nhỏ
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(horizontal = 24.dp, vertical = 32.dp),
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
-                Text(
-                    text = "Tạo tài khoản mới",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF333333)
-                )
-                Text(
-                    text = "Trải nghiệm dịch vụ đặt phòng đẳng cấp",
-                    fontSize = 14.sp,
-                    color = Color.Gray
-                )
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                // Họ và Tên
-                OutlinedTextField(
-                    value = fullName,
-                    onValueChange = { fullName = it },
-                    label = { Text("Họ và tên") },
-                    leadingIcon = { Icon(Icons.Filled.AccountBox, contentDescription = "Name") },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    singleLine = true
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Số điện thoại
-                OutlinedTextField(
-                    value = phone,
-                    onValueChange = { phone = it },
-                    label = { Text("Số điện thoại") },
-                    leadingIcon = { Icon(Icons.Filled.Phone, contentDescription = "Phone") },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Email
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Email") },
-                    leadingIcon = { Icon(Icons.Filled.Email, contentDescription = "Email") },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Mật khẩu (Dùng nút chữ ẨN/HIỆN như cũ để tránh lỗi)
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text("Mật khẩu") },
-                    leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = "Password") },
-                    trailingIcon = {
-                        TextButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Text(
-                                text = if (passwordVisible) "ẨN" else "HIỆN",
-                                color = Color(0xFF1976D2),
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    },
-                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
-                )
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                // Nút Đăng ký
-                Button(
-                    onClick = onRegisterSuccess,
+                Column(
                     modifier = Modifier
+                        .padding(32.dp)
                         .fillMaxWidth()
-                        .height(50.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2))
+                        .verticalScroll(rememberScrollState()), // Hỗ trợ cuộn nếu màn hình nhỏ
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Đăng ký", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                }
+                    Text(
+                        text = "Tạo tài khoản mới",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF333333)
+                    )
+                    Text(
+                        text = "Trải nghiệm dịch vụ đặt phòng đẳng cấp",
+                        fontSize = 14.sp,
+                        color = Color.Gray
+                    )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(32.dp))
 
-                // Nút quay lại Login
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Đã có tài khoản? ", color = Color.Gray)
-                    TextButton(onClick = onBackToLogin) {
-                        Text("Đăng nhập ngay", color = Color(0xFF1976D2), fontWeight = FontWeight.Bold)
+                    // Họ và Tên
+                    OutlinedTextField(
+                        value = fullName,
+                        onValueChange = { fullName = it },
+                        label = { Text("Họ và tên") },
+                        leadingIcon = { Icon(Icons.Filled.AccountBox, contentDescription = "Name") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true,
+                        enabled = authState !is AuthState.Loading
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Số điện thoại
+                    OutlinedTextField(
+                        value = phone,
+                        onValueChange = { phone = it },
+                        label = { Text("Số điện thoại") },
+                        leadingIcon = { Icon(Icons.Filled.Phone, contentDescription = "Phone") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                        enabled = authState !is AuthState.Loading
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Email
+                    OutlinedTextField(
+                        value = email,
+                        onValueChange = { email = it },
+                        label = { Text("Email") },
+                        leadingIcon = { Icon(Icons.Filled.Email, contentDescription = "Email") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        enabled = authState !is AuthState.Loading
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Mật khẩu
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = { Text("Mật khẩu") },
+                        leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = "Password") },
+                        trailingIcon = {
+                            TextButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Text(
+                                    text = if (passwordVisible) "ẨN" else "HIỆN",
+                                    color = Color(0xFF1976D2),
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        },
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        enabled = authState !is AuthState.Loading
+                    )
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    // Nút Đăng ký
+                    Button(
+                        onClick = {
+                            if (fullName.isNotBlank() && email.isNotBlank() && password.isNotBlank() && phone.isNotBlank()) {
+                                val request = RegisterRequest(email, password, fullName, phone)
+                                viewModel.register(request) { success ->
+                                    // Logic xử lý thêm nếu cần
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2)),
+                        enabled = authState !is AuthState.Loading
+                    ) {
+                        if (authState is AuthState.Loading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = Color.White,
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text("Đăng ký", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Nút quay lại Login
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("Đã có tài khoản? ", color = Color.Gray)
+                        TextButton(onClick = onBackToLogin) {
+                            Text("Đăng nhập ngay", color = Color(0xFF1976D2), fontWeight = FontWeight.Bold)
+                        }
                     }
                 }
             }
