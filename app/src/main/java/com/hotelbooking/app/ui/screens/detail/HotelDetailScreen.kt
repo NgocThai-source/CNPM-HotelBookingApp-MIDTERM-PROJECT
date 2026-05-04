@@ -42,7 +42,7 @@ import java.util.Locale
 data class Review(val name: String, val date: String, val content: String, val avatarUrl: String)
 
 @Composable
-fun HotelDetailScreen(navController: NavController, hotelName: String) {
+fun HotelDetailScreen(navController: NavController, hotelName: String, isDarkMode: Boolean = false) {
     val hotel = hotelList.find { it.title == hotelName }
     val context = LocalContext.current
 
@@ -51,9 +51,9 @@ fun HotelDetailScreen(navController: NavController, hotelName: String) {
     val currentReviews = remember {
         mutableStateListOf(
             Review(
-                name = "Anh Tùng",
-                date = "28/04/2026",
-                content = "Phòng cực kỳ sạch sẽ, view chụp ảnh sống ảo rất đẹp. Nhân viên nhiệt tình hỗ trợ 24/7. Nhất định sẽ quay lại!",
+                name = "Mr. Tung",
+                date = "04/28/2026",
+                content = "Extremely clean room, beautiful view for amazing photos. Enthusiastic staff supporting 24/7. Will definitely come back!",
                 avatarUrl = "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg"
             )
         )
@@ -64,16 +64,23 @@ fun HotelDetailScreen(navController: NavController, hotelName: String) {
         return
     }
 
+    // --- CẤU HÌNH MÀU SẮC THEO DARK MODE ---
+    val bgColor = if (isDarkMode) Color(0xFF121212) else Color.White
+    val surfaceColor = if (isDarkMode) Color(0xFF1E1E1E) else Color.White
+    val textColor = if (isDarkMode) Color.White else Color.Black
+    val subTextColor = if (isDarkMode) Color.LightGray else Color.Gray
+    val dividerColor = if (isDarkMode) Color.DarkGray else Color.LightGray.copy(alpha = 0.5f)
+
     Scaffold(
         bottomBar = {
-            Surface(modifier = Modifier.fillMaxWidth(), shadowElevation = 16.dp, color = Color.White) {
+            Surface(modifier = Modifier.fillMaxWidth(), shadowElevation = 16.dp, color = surfaceColor) {
                 Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Column {
-                        Text(text = "Giá mỗi đêm", color = Color.Gray, fontSize = 12.sp)
+                        Text(text = "Price per night", color = subTextColor, fontSize = 12.sp)
                         Text(text = hotel.price, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = CyanMain)
                     }
-                    Button(onClick = { /* TODO: Đặt phòng */ }, colors = ButtonDefaults.buttonColors(containerColor = CyanMain), shape = RoundedCornerShape(12.dp), modifier = Modifier.height(50.dp)) {
-                        Text(text = "Đặt phòng ngay", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White, maxLines = 1)
+                    Button(onClick = { /* TODO: Book now action */ }, colors = ButtonDefaults.buttonColors(containerColor = CyanMain), shape = RoundedCornerShape(12.dp), modifier = Modifier.height(50.dp)) {
+                        Text(text = "Book Now", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White, maxLines = 1)
                     }
                 }
             }
@@ -84,20 +91,20 @@ fun HotelDetailScreen(navController: NavController, hotelName: String) {
                 .fillMaxSize()
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
-                .background(Color.White)
+                .background(bgColor)
         ) {
             Box(modifier = Modifier.fillMaxWidth().height(320.dp)) {
                 AsyncImage(model = hotel.imageUrl, contentDescription = hotel.title, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize())
                 Row(modifier = Modifier.fillMaxWidth().padding(top = 16.dp, start = 16.dp, end = 16.dp).align(Alignment.TopCenter), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Box(modifier = Modifier.size(44.dp).clip(CircleShape).background(Color.White).clickable { navController.popBackStack() }, contentAlignment = Alignment.Center) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back", tint = Color.Black)
+                    Box(modifier = Modifier.size(44.dp).clip(CircleShape).background(surfaceColor).clickable { navController.popBackStack() }, contentAlignment = Alignment.Center) {
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back", tint = textColor)
                     }
 
                     Box(
-                        modifier = Modifier.size(44.dp).clip(CircleShape).background(Color.White)
+                        modifier = Modifier.size(44.dp).clip(CircleShape).background(surfaceColor)
                             .clickable {
                                 hotel.isFavorite.value = !hotel.isFavorite.value
-                                val msg = if (hotel.isFavorite.value) "Đã lưu vào danh sách Yêu thích 💖" else "Đã bỏ Yêu thích"
+                                val msg = if (hotel.isFavorite.value) "Saved to Favorites 💖" else "Removed from Favorites"
                                 Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
                             },
                         contentAlignment = Alignment.Center
@@ -105,52 +112,71 @@ fun HotelDetailScreen(navController: NavController, hotelName: String) {
                         Icon(
                             imageVector = if (hotel.isFavorite.value) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                             contentDescription = "Favorite",
-                            tint = if (hotel.isFavorite.value) Color.Red else Color.Black
+                            tint = if (hotel.isFavorite.value) Color.Red else textColor
                         )
                     }
                 }
             }
 
             Column(modifier = Modifier.padding(24.dp)) {
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text(text = hotel.category, color = CyanMain, fontWeight = FontWeight.Bold, fontSize = 14.sp); Row(verticalAlignment = Alignment.CenterVertically) { Icon(Icons.Filled.Star, contentDescription = "Rating", tint = Color(0xFFFFC107), modifier = Modifier.size(18.dp)); Spacer(modifier = Modifier.width(4.dp)); Text(text = hotel.rating, fontWeight = FontWeight.Bold, fontSize = 16.sp) } }
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(text = hotel.category, color = CyanMain, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.Star, contentDescription = "Rating", tint = Color(0xFFFFC107), modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(text = hotel.rating, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = textColor)
+                    }
+                }
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(text = hotel.title, fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black, lineHeight = 34.sp)
+                Text(text = hotel.title, fontSize = 28.sp, fontWeight = FontWeight.Bold, color = textColor, lineHeight = 34.sp)
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(text = "📍 ${hotel.location}", fontSize = 14.sp, color = Color.Gray)
+                Text(text = "📍 ${hotel.location}", fontSize = 14.sp, color = subTextColor)
 
                 Spacer(modifier = Modifier.height(24.dp))
-                Divider(color = Color.LightGray.copy(alpha = 0.5f))
+                Divider(color = dividerColor)
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Text(text = "Tiện nghi nổi bật", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                Text(text = "Top Amenities", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = textColor)
                 Spacer(modifier = Modifier.height(16.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { FacilityItem(icon = Icons.Filled.Wifi, label = "Free Wifi"); FacilityItem(icon = Icons.Filled.Pool, label = "Hồ bơi"); FacilityItem(icon = Icons.Filled.FitnessCenter, label = "Phòng Gym"); FacilityItem(icon = Icons.Filled.LocalDining, label = "Nhà hàng") }
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    FacilityItem(icon = Icons.Filled.Wifi, label = "Free Wifi", isDarkMode = isDarkMode)
+                    FacilityItem(icon = Icons.Filled.Pool, label = "Pool", isDarkMode = isDarkMode)
+                    FacilityItem(icon = Icons.Filled.FitnessCenter, label = "Gym", isDarkMode = isDarkMode)
+                    FacilityItem(icon = Icons.Filled.LocalDining, label = "Restaurant", isDarkMode = isDarkMode)
+                }
 
                 Spacer(modifier = Modifier.height(24.dp))
-                Divider(color = Color.LightGray.copy(alpha = 0.5f))
+                Divider(color = dividerColor)
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Row(verticalAlignment = Alignment.CenterVertically) { AsyncImage(model = hotel.hostAvatarUrl, contentDescription = "Host", modifier = Modifier.size(50.dp).clip(CircleShape), contentScale = ContentScale.Crop); Spacer(modifier = Modifier.width(16.dp)); Column { Text(text = "Được quản lý bởi", color = Color.Gray, fontSize = 12.sp); Text(text = hotel.hostName, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.Black) } }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    AsyncImage(model = hotel.hostAvatarUrl, contentDescription = "Host", modifier = Modifier.size(50.dp).clip(CircleShape), contentScale = ContentScale.Crop)
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column {
+                        Text(text = "Hosted by", color = subTextColor, fontSize = 12.sp)
+                        Text(text = hotel.hostName, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = textColor)
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(24.dp))
-                Divider(color = Color.LightGray.copy(alpha = 0.5f))
+                Divider(color = dividerColor)
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Text(text = "Giới thiệu", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                Text(text = "About this place", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = textColor)
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = "Trải nghiệm kỳ nghỉ tuyệt vời tại ${hotel.title}, nơi kết hợp hoàn hảo giữa thiết kế hiện đại và sự tiện nghi. Tọa lạc tại khu vực đắc địa của ${hotel.location}, chỗ nghỉ này cung cấp cho bạn không gian riêng tư, hồ bơi vô cực và các dịch vụ chuẩn 5 sao cao cấp nhất. \n\nMỗi phòng đều được trang bị giường king-size với nệm êm ái, ban công rộng view nhìn toàn cảnh thành phố và khu vực minibar miễn phí. Nơi đây thực sự là thiên đường lý tưởng để bạn gác lại mọi âu lo, tận hưởng khoảng thời gian thư giãn trọn vẹn bên những người thân yêu.",
-                    color = Color.DarkGray,
+                    text = "Experience a wonderful stay at ${hotel.title}, a perfect blend of modern design and comfort. Located in the prime area of ${hotel.location}, this property offers you a private space, an infinity pool, and the finest 5-star services. \n\nEach room is equipped with a comfortable king-size bed, a spacious balcony with panoramic city views, and a complimentary minibar. This is truly an ideal paradise for you to leave all your worries behind and enjoy a relaxing time with your loved ones.",
+                    color = if (isDarkMode) Color(0xFFCCCCCC) else Color.DarkGray,
                     fontSize = 15.sp,
                     lineHeight = 24.sp
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
-                Divider(color = Color.LightGray.copy(alpha = 0.5f), thickness = 8.dp)
+                Divider(color = dividerColor, thickness = 8.dp)
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // --- KHU VỰC NHẬN XÉT KHÁCH HÀNG ---
-                Text(text = "Nhận xét khách hàng", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                // Khu vực nhận xét khách hàng
+                Text(text = "Guest Reviews", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = textColor)
                 Spacer(modifier = Modifier.height(16.dp))
 
                 currentReviews.forEach { review ->
@@ -158,53 +184,56 @@ fun HotelDetailScreen(navController: NavController, hotelName: String) {
                         name = review.name,
                         date = review.date,
                         content = review.content,
-                        avatarUrl = review.avatarUrl
+                        avatarUrl = review.avatarUrl,
+                        isDarkMode = isDarkMode
                     )
                     Spacer(modifier = Modifier.height(16.dp))
-                    Divider(color = Color.LightGray.copy(alpha = 0.3f))
+                    Divider(color = dividerColor.copy(alpha = 0.3f))
                     Spacer(modifier = Modifier.height(16.dp))
                 }
 
                 OutlinedTextField(
                     value = userReview,
                     onValueChange = { userReview = it },
-                    placeholder = { Text("Chia sẻ trải nghiệm của bạn...", color = Color.Gray) },
+                    placeholder = { Text("Share your experience...", color = subTextColor) },
                     modifier = Modifier.fillMaxWidth().height(100.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = Color.LightGray,
-                        focusedBorderColor = CyanMain
+                        unfocusedBorderColor = if (isDarkMode) Color.Gray else Color.LightGray,
+                        focusedBorderColor = CyanMain,
+                        focusedTextColor = textColor,
+                        unfocusedTextColor = textColor,
+                        cursorColor = CyanMain
                     )
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                     Button(
                         onClick = {
-                            if(userReview.isNotBlank()) {
-                                val currentDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
+                            if (userReview.isNotBlank()) {
+                                val currentDate = SimpleDateFormat("MM/dd/yyyy", Locale.US).format(Date())
 
                                 currentReviews.add(
                                     Review(
-                                        name = "Bạn",
+                                        name = "You",
                                         date = currentDate,
                                         content = userReview,
                                         avatarUrl = "https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg"
                                     )
                                 )
 
-                                Toast.makeText(context, "Đã gửi nhận xét thành công!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Review submitted successfully!", Toast.LENGTH_SHORT).show()
                                 userReview = ""
                             }
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = CyanMain),
                         shape = RoundedCornerShape(20.dp)
                     ) {
-                        Icon(Icons.Filled.Send, contentDescription = "Gửi", modifier = Modifier.size(16.dp))
+                        Icon(Icons.Filled.Send, contentDescription = "Submit", modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Gửi đánh giá", fontWeight = FontWeight.Bold)
+                        Text("Submit Review", fontWeight = FontWeight.Bold)
                     }
                 }
-
                 Spacer(modifier = Modifier.height(32.dp))
             }
         }
@@ -212,12 +241,25 @@ fun HotelDetailScreen(navController: NavController, hotelName: String) {
 }
 
 @Composable
-fun FacilityItem(icon: ImageVector, label: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) { Box(modifier = Modifier.size(60.dp).clip(RoundedCornerShape(16.dp)).background(CyanLight), contentAlignment = Alignment.Center) { Icon(icon, contentDescription = label, tint = CyanMain, modifier = Modifier.size(28.dp)) }; Spacer(modifier = Modifier.height(8.dp)); Text(text = label, fontSize = 12.sp, color = Color.Gray, fontWeight = FontWeight.Medium) }
+fun FacilityItem(icon: ImageVector, label: String, isDarkMode: Boolean) {
+    val boxColor = if (isDarkMode) Color(0xFF1E1E1E) else CyanLight
+    val textColor = if (isDarkMode) Color.LightGray else Color.Gray
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(modifier = Modifier.size(60.dp).clip(RoundedCornerShape(16.dp)).background(boxColor), contentAlignment = Alignment.Center) {
+            Icon(icon, contentDescription = label, tint = CyanMain, modifier = Modifier.size(28.dp))
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = label, fontSize = 12.sp, color = textColor, fontWeight = FontWeight.Medium)
+    }
 }
 
 @Composable
-fun ReviewItem(name: String, date: String, content: String, avatarUrl: String) {
+fun ReviewItem(name: String, date: String, content: String, avatarUrl: String, isDarkMode: Boolean) {
+    val textColor = if (isDarkMode) Color.White else Color.Black
+    val subTextColor = if (isDarkMode) Color.LightGray else Color.Gray
+    val contentColor = if (isDarkMode) Color(0xFFCCCCCC) else Color.DarkGray
+
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             AsyncImage(
@@ -228,11 +270,11 @@ fun ReviewItem(name: String, date: String, content: String, avatarUrl: String) {
             )
             Spacer(modifier = Modifier.width(12.dp))
             Column {
-                Text(text = name, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.Black)
-                Text(text = date, fontSize = 12.sp, color = Color.Gray)
+                Text(text = name, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = textColor)
+                Text(text = date, fontSize = 12.sp, color = subTextColor)
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = content, color = Color.DarkGray, fontSize = 14.sp, lineHeight = 22.sp)
+        Text(text = content, color = contentColor, fontSize = 14.sp, lineHeight = 22.sp)
     }
 }
