@@ -14,6 +14,10 @@ import com.hotelbooking.app.ui.screens.auth.LoginScreen
 import com.hotelbooking.app.ui.screens.home.HomeScreen
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
+import com.hotelbooking.app.ui.screens.profile.ProfileScreen
+import com.hotelbooking.app.ui.screens.chat.ChatDetailScreen
+
+
 
 @Composable
 fun NavGraph() {
@@ -41,7 +45,14 @@ fun NavGraph() {
         }
 
         composable(Routes.HOME) {
-            HomeScreen()
+            HomeScreen(
+                navController = navController
+            )
+        }
+        composable(Routes.PROFILE) {
+            ProfileScreen(
+                navController = navController
+            )
         }
     }
 }

@@ -22,11 +22,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import kotlin.math.roundToInt
+import androidx.compose.material3.RadioButtonDefaults.colors
 
 val CyanMain = Color(0xFF00E5FF)
 val CyanLight = Color(0xFFE0F7FA)
@@ -45,7 +48,7 @@ data class HotelItem(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navController: NavController) {
     var selectedCategory by remember { mutableStateOf("All Stays") }
     var guestCount by remember { mutableStateOf(2) }
     var dateRange by remember { mutableStateOf("Oct 12 - 15") }
@@ -58,22 +61,27 @@ fun HomeScreen() {
     var priceRange by remember { mutableStateOf(0f..1500f) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val dateRangePickerState = rememberDateRangePickerState()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+
+
 
     val allHotelItems = remember {
         listOf(
             HotelItem("https://images.pexels.com/photos/189296/pexels-photo-189296.jpeg", "The Azure Grand Resort", "Maldives", "$450", "4.9", "Resorts", "Vinpearl Group", "Bao gồm bữa sáng", "https://images.pexels.com/photos/712513/pexels-photo-712513.jpeg"),
-            HotelItem("https://images.pexels.com/photos/1001965/pexels-photo-1001965.jpeg", "Emerald Isle Resort", "Bora Bora", "$620", "5.0", "Resorts", "Chủ nhà Trần", "Hủy miễn phí", "https://images.pexels.com/photos/718978/pexels-photo-718978.jpeg"),
+            HotelItem("https://images.pexels.com/photos/1001965/pexels-photo-1001965.jpeg", "Emerald Isle Resort", "Bora Bora", "$620", "5.0", "Resorts", "Mr. Tran", "Hủy miễn phí", "https://images.pexels.com/photos/718978/pexels-photo-718978.jpeg"),
             HotelItem("https://images.pexels.com/photos/338504/pexels-photo-338504.jpeg", "Oasis Sands Resort", "Dubai", "$480", "4.8", "Resorts", "Agoda Homes", "Chỉ còn 2 phòng", "https://images.pexels.com/photos/1212984/pexels-photo-1212984.jpeg"),
             HotelItem("https://images.pexels.com/photos/1320686/pexels-photo-1320686.jpeg", "Amanpuri Hideaway", "Phuket", "$850", "4.9", "Resorts", "Aman Resorts", "Tặng Voucher Spa", "https://images.pexels.com/photos/712513/pexels-photo-712513.jpeg"),
             HotelItem("https://images.pexels.com/photos/3315291/pexels-photo-3315291.jpeg", "Four Seasons Retreat", "Bali", "$520", "4.8", "Resorts", "Mr. Michael", "Bao gồm bữa sáng", "https://images.pexels.com/photos/718978/pexels-photo-718978.jpeg"),
             HotelItem("https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg", "Lumiere Heritage Hotel", "Paris", "$320", "4.7", "Luxury", "Accor Hotels", "Hủy miễn phí", "https://images.pexels.com/photos/1212984/pexels-photo-1212984.jpeg"),
             HotelItem("https://images.pexels.com/photos/2034335/pexels-photo-2034335.jpeg", "Golden Coast Palace", "Miami", "$550", "4.6", "Luxury", "Hilton Group", "View biển", "https://images.pexels.com/photos/712513/pexels-photo-712513.jpeg"),
             HotelItem("https://images.pexels.com/photos/164595/pexels-photo-164595.jpeg", "The Ritz-Carlton Sky", "Tokyo", "$600", "4.9", "Luxury", "Ms. Jessica", "Bao gồm bữa sáng", "https://images.pexels.com/photos/718978/pexels-photo-718978.jpeg"),
-            HotelItem("https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg", "Burj Al Arab Infinity", "Dubai", "$1200", "5.0", "Luxury", "Jumeirah", "Dịch vụ Đưa đón", "https://images.pexels.com/photos/1212984/pexels-photo-1212984.jpeg"),
-            HotelItem("https://images.pexels.com/photos/1457842/pexels-photo-1457842.jpeg", "Silver Peak Mountain Inn", "Colorado", "$280", "4.8", "Boutique", "Airbnb Pro Host", "Chỉ còn 1 phòng", "https://images.pexels.com/photos/712513/pexels-photo-712513.jpeg"),
-            HotelItem("https://images.pexels.com/photos/1134166/pexels-photo-1134166.jpeg", "La Maison de l'Art", "Hoi An", "$150", "4.9", "Boutique", "Chị Lan", "Giảm giá 15%", "https://images.pexels.com/photos/718978/pexels-photo-718978.jpeg"),
-            HotelItem("https://images.pexels.com/photos/2506990/pexels-photo-2506990.jpeg", "The Standard Vintage", "London", "$300", "4.6", "Boutique", "The Standard", "Hủy miễn phí", "https://images.pexels.com/photos/1212984/pexels-photo-1212984.jpeg"),
-            HotelItem("https://images.pexels.com/photos/1034584/pexels-photo-1034584.jpeg", "Hotel nhow Modern", "Berlin", "$220", "4.7", "Boutique", "Ms. Sarah", "Bao gồm bữa sáng", "https://images.pexels.com/photos/712513/pexels-photo-712513.jpeg")
+            HotelItem("https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg", "Burj Al Arab Infinity", "Dubai", "$1200", "5.0", "Luxury", "Jumeirah", "Shuttle Service", "https://images.pexels.com/photos/1212984/pexels-photo-1212984.jpeg"),
+            HotelItem("https://images.pexels.com/photos/1457842/pexels-photo-1457842.jpeg", "Silver Peak Mountain Inn", "Colorado", "$280", "4.8", "Boutique", "Airbnb Pro Host", "Only 1 room left!", "https://images.pexels.com/photos/712513/pexels-photo-712513.jpeg"),
+            HotelItem("https://images.pexels.com/photos/1134166/pexels-photo-1134166.jpeg", "La Maison de l'Art", "Hoi An", "$150", "4.9", "Boutique", "Chị Lan", "15% OFF", "https://images.pexels.com/photos/718978/pexels-photo-718978.jpeg"),
+            HotelItem("https://images.pexels.com/photos/2506990/pexels-photo-2506990.jpeg", "The Standard Vintage", "London", "$300", "4.6", "Boutique", "The Standard", "Free cancellation", "https://images.pexels.com/photos/1212984/pexels-photo-1212984.jpeg"),
+            HotelItem("https://images.pexels.com/photos/1034584/pexels-photo-1034584.jpeg", "Hotel nhow Modern", "Berlin", "$220", "4.7", "Boutique", "Mr. Salah", "Breakfast included", "https://images.pexels.com/photos/712513/pexels-photo-712513.jpeg")
         )
     }
 
@@ -86,7 +94,7 @@ fun HomeScreen() {
     }.sortedBy { item -> item.price.replace("$", "").toFloatOrNull() ?: 0f }
 
     Scaffold(
-        bottomBar = { HomeBottomNav() },
+        bottomBar = { HomeBottomNav(navController) },
         containerColor = Color(0xFFF8F9FA)
     ) { paddingValues ->
         LazyColumn(
@@ -211,6 +219,102 @@ fun SearchAndFilterSection(searchQuery: String, onSearchQueryChange: (String) ->
             InfoBox(icon = Icons.Filled.Person, title = "GUESTS", value = "$guestCount Adults", modifier = Modifier.weight(1f).clickable { onGuestClick() })
             Box(modifier = Modifier.size(50.dp).clip(RoundedCornerShape(12.dp)).background(CyanMain).clickable { onFilterClick() }, contentAlignment = Alignment.Center) { Icon(Icons.Filled.FilterList, contentDescription = "Filter", tint = Color.White) }
         }
+    }
+}
+
+@Composable
+fun HomeBottomNav(navController: NavController) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    NavigationBar(containerColor = Color.White, tonalElevation = 8.dp) {
+        // Search Item
+        NavigationBarItem(
+            icon = { Icon(Icons.Filled.Search, contentDescription = "Search") },
+            label = { Text("Search") },
+            selected = currentRoute == "home",
+            onClick = {
+                if (currentRoute != "home") {
+                    navController.navigate("home") {
+                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = CyanMain,
+                selectedTextColor = CyanMain,
+                indicatorColor = CyanLight
+            )
+        )
+
+        NavigationBarItem(
+            icon = { Icon(Icons.Filled.DateRange, contentDescription = "Bookings") },
+            label = { Text("Bookings") },
+            selected = currentRoute == "bookings",
+            onClick = {
+                if (currentRoute != "bookings") {
+                    navController.navigate("bookings") {
+                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                    }
+            }
+
+        )
+
+        NavigationBarItem(
+            icon = { Icon(Icons.Filled.Chat, contentDescription = "Chat") },
+            label = { Text("Chat") },
+            selected = currentRoute == "chat",
+            onClick = {
+                if (currentRoute != "chat") {
+                    navController.navigate("chat"){
+                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                    }
+            }
+
+        )
+        NavigationBarItem(
+            icon = { Icon(Icons.Filled.VerifiedUser, contentDescription = "Admin") },
+            label = { Text("Admin") },
+            selected = currentRoute == "admin",
+            onClick = {
+                if (currentRoute != "admin"){
+                    navController.navigate("admin"){
+                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            }
+
+        )
+
+        NavigationBarItem(
+            icon = { Icon(Icons.Filled.Settings, contentDescription = "Settings") },
+            label = { Text("Settings") },
+            selected = currentRoute == "profile",
+            onClick = {
+                if (currentRoute != "profile") {
+                    navController.navigate("profile") {
+                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = CyanMain,
+                selectedTextColor = CyanMain,
+                indicatorColor = CyanLight
+            )
+        )
     }
 }
 
