@@ -1,5 +1,6 @@
 package com.hotelbooking.app.ui.screens.auth
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,18 +13,41 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.hotelbooking.app.data.model.LoginRequest
 
 @Composable
-fun LoginScreen(onLoginClick: () -> Unit, onNavigateToRegister: () -> Unit) {
+fun LoginScreen(
+    onLoginClick: () -> Unit,
+    onNavigateToRegister: () -> Unit,
+    // THÊM: Truyền ViewModel vào đây
+    viewModel: AuthViewModel = viewModel()
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+
+    // THÊM: Lấy context để hiện thông báo (Toast) và lấy trạng thái từ ViewModel
+    val context = LocalContext.current
+    val authState = viewModel.authState
+
+    // THÊM: Lắng nghe trạng thái lỗi để báo Toast
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Error) {
+            Toast.makeText(context, authState.message, Toast.LENGTH_LONG).show()
+            viewModel.resetState()
+        } else if (authState is AuthState.Success) {
+            Toast.makeText(context, authState.message, Toast.LENGTH_SHORT).show()
+            viewModel.resetState()
+        }
+    }
 
     // Tạo nền Gradient đẹp mắt
     val gradientBackground = Brush.verticalGradient(
@@ -112,7 +136,7 @@ fun LoginScreen(onLoginClick: () -> Unit, onNavigateToRegister: () -> Unit) {
 
                 // Quên mật khẩu
                 TextButton(
-                    onClick = { /* TODO: Xử lý quên mật khẩu */ },
+                    onClick = { /* TODO: Thêm link sang ForgotPassword nếu muốn */ },
                     modifier = Modifier.align(Alignment.End)
                 ) {
                     Text("Quên mật khẩu?", color = Color(0xFF1976D2), fontWeight = FontWeight.SemiBold)
@@ -120,16 +144,33 @@ fun LoginScreen(onLoginClick: () -> Unit, onNavigateToRegister: () -> Unit) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Nút Đăng nhập chính
+                // THÊM: Cập nhật Nút Đăng nhập chính để gọi API
                 Button(
-                    onClick = onLoginClick,
+                    onClick = {
+                        if (email.isNotBlank() && password.isNotBlank()) {
+                            // Đóng gói dữ liệu và Gửi lên Server
+                            val request = LoginRequest(email, password)
+                            viewModel.login(request) { isSuccess ->
+                                if (isSuccess) {
+                                    onLoginClick() // Gọi hàm chuyển sang màn hình Home
+                                }
+                            }
+                        } else {
+                            Toast.makeText(context, "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show()
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2))
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2)),
+                    enabled = authState !is AuthState.Loading // Khóa nút khi đang load mạng
                 ) {
-                    Text("Đăng nhập", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    if (authState is AuthState.Loading) {
+                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                    } else {
+                        Text("Đăng nhập", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
