@@ -25,7 +25,7 @@ import androidx.navigation.NavController
 import com.hotelbooking.app.ui.navigation.Routes
 
 @Composable
-fun CreateNewPasswordScreen( // Đổi tên cho khớp với NavGraph
+fun CreateNewPasswordScreen(
     navController: NavController,
     viewModel: AuthViewModel // Nhận ViewModel dùng chung
 ) {

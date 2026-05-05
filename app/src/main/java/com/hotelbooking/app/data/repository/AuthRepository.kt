@@ -7,7 +7,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
 
-// Trong file AuthRepository.kt
+
 interface AuthRepository {
     @POST("api/forgot-password")
     suspend fun forgotPassword(@Body request: ForgotPasswordRequest): AuthResponse

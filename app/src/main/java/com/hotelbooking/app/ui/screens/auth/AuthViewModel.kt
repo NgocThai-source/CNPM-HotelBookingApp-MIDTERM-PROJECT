@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hotelbooking.app.data.model.ForgotPasswordRequest
-import com.hotelbooking.app.data.model.VerifyResetRequest // Bạn cần tạo thêm Model này
+import com.hotelbooking.app.data.model.VerifyResetRequest
 import com.hotelbooking.app.service.RetrofitClient
 import kotlinx.coroutines.launch
 

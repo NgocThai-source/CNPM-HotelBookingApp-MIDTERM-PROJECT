@@ -62,7 +62,7 @@ fun ForgotPasswordScreen(
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Icon lớn làm điểm nhấn
+                // Icon làm điểm nhấn
                 Icon(
                     imageVector = Icons.Filled.Lock,
                     contentDescription = "Forgot Password",

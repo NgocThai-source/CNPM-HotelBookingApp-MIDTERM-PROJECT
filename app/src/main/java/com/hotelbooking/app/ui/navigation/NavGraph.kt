@@ -19,7 +19,7 @@ import com.hotelbooking.app.ui.screens.auth.LoginScreen
 import com.hotelbooking.app.ui.screens.home.HomeScreen
 
 @Composable
-fun NavGraph(isDarkMode: Boolean, onThemeToggle: () -> Unit) {
+fun NavGraph() { // ĐÃ BỎ isDarkMode và onThemeToggle
     val navController = rememberNavController()
 
     // KHỞI TẠO VIEWMODEL CHUNG: Đây là "cái túi" giữ Email, OTP và Password
@@ -80,7 +80,7 @@ fun NavGraph(isDarkMode: Boolean, onThemeToggle: () -> Unit) {
             )
         }
 
-        // 4. Bước 3: Tạo mật khẩu mới (Nơi gọi API)
+        // 4. Bước 3: Tạo mật khẩu mới
         composable("create_new_password") {
             CreateNewPasswordScreen(
                 navController = navController,
@@ -88,12 +88,12 @@ fun NavGraph(isDarkMode: Boolean, onThemeToggle: () -> Unit) {
             )
         }
 
-        // 5. Trang chủ
+        // 5. Trang chủ (Đã đưa về nguyên bản, bỏ Dark Mode)
         composable(Routes.HOME) {
             HomeScreen(
-                navController = navController,
-                isDarkMode = isDarkMode,
-                onThemeToggle = onThemeToggle
+                onLogoutClick = {
+                    navController.navigate(Routes.LOGIN) { popUpTo(0) { inclusive = true } }
+                }
             )
         }
     }

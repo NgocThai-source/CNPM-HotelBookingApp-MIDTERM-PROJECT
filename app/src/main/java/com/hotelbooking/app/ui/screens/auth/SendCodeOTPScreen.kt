@@ -24,7 +24,7 @@ import androidx.navigation.NavController
 import kotlinx.coroutines.delay
 
 @Composable
-fun SendCodeOTPScreen( // Đổi tên cho khớp với NavGraph
+fun SendCodeOTPScreen(
     navController: NavController,
     viewModel: AuthViewModel // Nhận túi dữ liệu chung
 ) {
