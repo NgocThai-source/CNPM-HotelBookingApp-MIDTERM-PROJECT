@@ -1,18 +1,20 @@
 package com.hotelbooking.app.ui.screens.auth
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Lock // Đã đổi thành Lock
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -20,8 +22,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun ForgotPasswordScreen(onSendClick: () -> Unit, onBackToLogin: () -> Unit) {
-    var email by remember { mutableStateOf("") }
+fun ForgotPasswordScreen(
+    viewModel: AuthViewModel, // Thêm AuthViewModel vào đây
+    onSendClick: () -> Unit,
+    onBackToLogin: () -> Unit
+) {
+    val context = LocalContext.current
+    val authState = viewModel.authState // Lấy trạng thái từ ViewModel để xử lý Loading/Error
+
+    // Lắng nghe trạng thái lỗi để hiển thị Toast
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Error) {
+            Toast.makeText(context, authState.message, Toast.LENGTH_SHORT).show()
+            viewModel.resetState() // Reset lại trạng thái sau khi thông báo xong
+        }
+    }
 
     val gradientBackground = Brush.verticalGradient(
         colors = listOf(Color(0xFF2196F3), Color(0xFF0D47A1))
@@ -49,7 +64,7 @@ fun ForgotPasswordScreen(onSendClick: () -> Unit, onBackToLogin: () -> Unit) {
             ) {
                 // Icon lớn làm điểm nhấn
                 Icon(
-                    imageVector = Icons.Filled.Lock, // Sử dụng icon Lock cơ bản
+                    imageVector = Icons.Filled.Lock,
                     contentDescription = "Forgot Password",
                     modifier = Modifier.size(64.dp),
                     tint = Color(0xFF1976D2)
@@ -73,8 +88,8 @@ fun ForgotPasswordScreen(onSendClick: () -> Unit, onBackToLogin: () -> Unit) {
                 Spacer(modifier = Modifier.height(32.dp))
 
                 OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
+                    value = viewModel.email, // Lấy email từ túi chung
+                    onValueChange = { viewModel.email = it }, // Lưu trực tiếp vào túi chung
                     label = { Text("Email của bạn") },
                     leadingIcon = { Icon(Icons.Filled.Email, contentDescription = "Email") },
                     modifier = Modifier.fillMaxWidth(),
@@ -86,14 +101,33 @@ fun ForgotPasswordScreen(onSendClick: () -> Unit, onBackToLogin: () -> Unit) {
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Button(
-                    onClick = onSendClick,
+                    onClick = {
+                        if (viewModel.email.isBlank()) {
+                            Toast.makeText(context, "Vui lòng nhập email", Toast.LENGTH_SHORT).show()
+                        } else {
+                            // Gọi hàm gửi API
+                            viewModel.forgotPassword { isSuccess ->
+                                if (isSuccess) {
+                                    Toast.makeText(context, "Đã gửi mã xác nhận!", Toast.LENGTH_SHORT).show()
+                                    viewModel.resetState()
+                                    onSendClick() // Chuyển sang màn hình SendCodeOTP
+                                }
+                            }
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2))
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2)),
+                    enabled = authState != AuthState.Loading // Khóa nút khi đang tải
                 ) {
-                    Text("Gửi mã xác nhận", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    // Hiển thị vòng xoay nếu đang Loading, ngược lại hiện chữ
+                    if (authState == AuthState.Loading) {
+                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                    } else {
+                        Text("Gửi mã xác nhận", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
