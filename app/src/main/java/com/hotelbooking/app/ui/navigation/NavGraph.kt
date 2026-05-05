@@ -13,8 +13,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.hotelbooking.app.ui.screens.auth.AuthViewModel
 import com.hotelbooking.app.ui.screens.auth.ForgotPasswordScreen
-import com.hotelbooking.app.ui.screens.auth.SendCodeOTPScreen // Import file bạn vừa gộp
-import com.hotelbooking.app.ui.screens.auth.CreateNewPasswordScreen // Chuẩn bị sẵn cho bước cuối
+import com.hotelbooking.app.ui.screens.auth.SendCodeOTPScreen
+import com.hotelbooking.app.ui.screens.auth.CreateNewPasswordScreen
 import com.hotelbooking.app.ui.screens.auth.LoginScreen
 import com.hotelbooking.app.ui.screens.home.HomeScreen
 
@@ -50,6 +50,9 @@ fun NavGraph(isDarkMode: Boolean, onThemeToggle: () -> Unit) {
                 onLoginClick = {
                     navController.navigate(Routes.HOME) { popUpTo(Routes.LOGIN) { inclusive = true } }
                 },
+                onNavigateToRegister = {
+                    // Nút đăng ký
+                },
                 onNavigateToForgotPassword = {
                     navController.navigate(Routes.FORGOT_PASSWORD)
                 }
@@ -69,19 +72,19 @@ fun NavGraph(isDarkMode: Boolean, onThemeToggle: () -> Unit) {
             )
         }
 
-        // 3. Bước 2: Nhập OTP (Màn hình bạn vừa gộp nhánh)
+        // 3. Bước 2: Nhập OTP
         composable("send_code_otp") {
             SendCodeOTPScreen(
                 navController = navController,
-                viewModel = authViewModel // Dùng chung túi dữ liệu
+                viewModel = authViewModel
             )
         }
 
-        // 4. Bước 3: Tạo mật khẩu mới (Nơi gọi API verifyAndResetPassword)
+        // 4. Bước 3: Tạo mật khẩu mới (Nơi gọi API)
         composable("create_new_password") {
             CreateNewPasswordScreen(
                 navController = navController,
-                viewModel = authViewModel // Nơi lấy đủ Email + OTP + NewPassword để gửi Backend
+                viewModel = authViewModel
             )
         }
 
