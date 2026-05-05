@@ -7,20 +7,22 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.viewmodel.compose.viewModel // Import thư viện tạo ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.hotelbooking.app.ui.screens.auth.AuthViewModel // Import AuthViewModel của bạn
+import com.hotelbooking.app.ui.screens.auth.AuthViewModel
 import com.hotelbooking.app.ui.screens.auth.ForgotPasswordScreen
+import com.hotelbooking.app.ui.screens.auth.SendCodeOTPScreen // Import file bạn vừa gộp
+import com.hotelbooking.app.ui.screens.auth.CreateNewPasswordScreen // Chuẩn bị sẵn cho bước cuối
 import com.hotelbooking.app.ui.screens.auth.LoginScreen
 import com.hotelbooking.app.ui.screens.home.HomeScreen
 
 @Composable
-fun NavGraph() {
+fun NavGraph(isDarkMode: Boolean, onThemeToggle: () -> Unit) {
     val navController = rememberNavController()
 
-    // Khởi tạo AuthViewModel dùng chung cho toàn bộ chuỗi Quên mật khẩu
+    // KHỞI TẠO VIEWMODEL CHUNG: Đây là "cái túi" giữ Email, OTP và Password
     val authViewModel: AuthViewModel = viewModel()
 
     val animationDuration = 850
@@ -30,40 +32,23 @@ fun NavGraph() {
         navController = navController,
         startDestination = Routes.LOGIN,
         enterTransition = {
-            slideInHorizontally(
-                initialOffsetX = { fullWidth -> fullWidth / 4 },
-                animationSpec = tween(animationDuration, easing = easingCurve)
-            ) + fadeIn(animationSpec = tween(animationDuration))
+            slideInHorizontally(initialOffsetX = { it / 4 }, animationSpec = tween(animationDuration, easing = easingCurve)) + fadeIn(tween(animationDuration))
         },
         exitTransition = {
-            slideOutHorizontally(
-                targetOffsetX = { fullWidth -> -fullWidth / 4 },
-                animationSpec = tween(animationDuration, easing = easingCurve)
-            ) + fadeOut(animationSpec = tween(animationDuration))
+            slideOutHorizontally(targetOffsetX = { -it / 4 }, animationSpec = tween(animationDuration, easing = easingCurve)) + fadeOut(tween(animationDuration))
         },
         popEnterTransition = {
-            slideInHorizontally(
-                initialOffsetX = { fullWidth -> -fullWidth / 4 },
-                animationSpec = tween(animationDuration, easing = easingCurve)
-            ) + fadeIn(animationSpec = tween(animationDuration))
+            slideInHorizontally(initialOffsetX = { -it / 4 }, animationSpec = tween(animationDuration, easing = easingCurve)) + fadeIn(tween(animationDuration))
         },
         popExitTransition = {
-            slideOutHorizontally(
-                targetOffsetX = { fullWidth -> fullWidth / 4 },
-                animationSpec = tween(animationDuration, easing = easingCurve)
-            ) + fadeOut(animationSpec = tween(animationDuration))
+            slideOutHorizontally(targetOffsetX = { it / 4 }, animationSpec = tween(animationDuration, easing = easingCurve)) + fadeOut(tween(animationDuration))
         }
     ) {
-
-        // 1. Nhánh Đăng nhập
+        // 1. Màn hình Đăng nhập
         composable(Routes.LOGIN) {
             LoginScreen(
                 onLoginClick = {
-                    navController.navigate(Routes.HOME) { popUpTo(0) { inclusive = true } }
-                },
-                onNavigateToRegister = {
-                    // Nút Đăng ký ở nhánh này tạm thời để trống, không thực hiện chuyển trang
-                    // Chờ đến khi gộp với nhánh Register sau.
+                    navController.navigate(Routes.HOME) { popUpTo(Routes.LOGIN) { inclusive = true } }
                 },
                 onNavigateToForgotPassword = {
                     navController.navigate(Routes.FORGOT_PASSWORD)
@@ -71,12 +56,11 @@ fun NavGraph() {
             )
         }
 
-        // 2. Nhánh Quên mật khẩu (Bước 1: Nhập Email)
+        // 2. Bước 1: Quên mật khẩu (Nhập Email)
         composable(Routes.FORGOT_PASSWORD) {
             ForgotPasswordScreen(
-                viewModel = authViewModel, // Truyền ViewModel chung vào đây
+                viewModel = authViewModel,
                 onSendClick = {
-                    // Đổi từ popBackStack thành điều hướng sang trang OTP
                     navController.navigate("send_code_otp")
                 },
                 onBackToLogin = {
@@ -85,44 +69,28 @@ fun NavGraph() {
             )
         }
 
-        // 2.1 Nhánh Nhập OTP (Bước 2: Kế thừa từ ForgotPassword)
+        // 3. Bước 2: Nhập OTP (Màn hình bạn vừa gộp nhánh)
         composable("send_code_otp") {
-            // TODO: Bỏ comment khi bạn gửi file SendCodeOTPScreen
-            /* SendCodeOTPScreen(
-                viewModel = authViewModel, // Tiếp tục truyền ViewModel này vào
-                onVerifyClick = {
-                    navController.navigate("create_new_password")
-                },
-                onBackClick = {
-                    navController.popBackStack()
-                }
+            SendCodeOTPScreen(
+                navController = navController,
+                viewModel = authViewModel // Dùng chung túi dữ liệu
             )
-            */
         }
 
-        // 2.2 Nhánh Tạo mật khẩu mới (Bước 3: Gửi 3 thứ lên Backend)
+        // 4. Bước 3: Tạo mật khẩu mới (Nơi gọi API verifyAndResetPassword)
         composable("create_new_password") {
-            // TODO: Bỏ comment khi bạn gửi file CreateNewPasswordScreen
-            /*
             CreateNewPasswordScreen(
-                viewModel = authViewModel, // Nhận đủ bộ Email, OTP từ 2 màn trước
-                onConfirmClick = {
-                    // Thành công thì quay thẳng về màn hình Đăng nhập
-                    navController.navigate(Routes.LOGIN) { popUpTo(Routes.LOGIN) { inclusive = true } }
-                },
-                onBackClick = {
-                    navController.popBackStack()
-                }
+                navController = navController,
+                viewModel = authViewModel // Nơi lấy đủ Email + OTP + NewPassword để gửi Backend
             )
-            */
         }
 
-        // 3. Nhánh Trang chủ
+        // 5. Trang chủ
         composable(Routes.HOME) {
             HomeScreen(
-                onLogoutClick = {
-                    navController.navigate(Routes.LOGIN) { popUpTo(0) { inclusive = true } }
-                }
+                navController = navController,
+                isDarkMode = isDarkMode,
+                onThemeToggle = onThemeToggle
             )
         }
     }

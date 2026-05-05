@@ -23,14 +23,14 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun ForgotPasswordScreen(
-    viewModel: AuthViewModel, // Thêm AuthViewModel vào đây
-    onSendClick: () -> Unit,
+    viewModel: AuthViewModel, // Dùng ViewModel để hứng dữ liệu và gọi Backend
+    onSendClick: () -> Unit,  // Không cần truyền String nữa vì ViewModel đã giữ biến email
     onBackToLogin: () -> Unit
 ) {
     val context = LocalContext.current
-    val authState = viewModel.authState // Lấy trạng thái từ ViewModel để xử lý Loading/Error
+    val authState = viewModel.authState
 
-    // Lắng nghe trạng thái lỗi để hiển thị Toast
+    // Lắng nghe trạng thái lỗi từ Backend để hiển thị Toast
     LaunchedEffect(authState) {
         if (authState is AuthState.Error) {
             Toast.makeText(context, authState.message, Toast.LENGTH_SHORT).show()
@@ -69,6 +69,7 @@ fun ForgotPasswordScreen(
                     modifier = Modifier.size(64.dp),
                     tint = Color(0xFF1976D2)
                 )
+
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
@@ -77,7 +78,9 @@ fun ForgotPasswordScreen(
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF333333)
                 )
+
                 Spacer(modifier = Modifier.height(8.dp))
+
                 Text(
                     text = "Vui lòng nhập địa chỉ email đã đăng ký. Chúng tôi sẽ gửi cho bạn một đường dẫn để đặt lại mật khẩu.",
                     fontSize = 14.sp,
@@ -120,7 +123,7 @@ fun ForgotPasswordScreen(
                         .height(50.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2)),
-                    enabled = authState != AuthState.Loading // Khóa nút khi đang tải
+                    enabled = authState != AuthState.Loading // Khóa nút khi đang tải (đang gọi API)
                 ) {
                     // Hiển thị vòng xoay nếu đang Loading, ngược lại hiện chữ
                     if (authState == AuthState.Loading) {
