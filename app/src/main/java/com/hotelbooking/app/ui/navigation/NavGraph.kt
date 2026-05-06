@@ -65,7 +65,8 @@ fun NavGraph() {
         }
         composable(Routes.BOOKING_HISTORY){
             BookingHistoryItem(
-                navController = navController
+                navController = navController,
+                bookingList = emptyList()
             )
         }
     }
