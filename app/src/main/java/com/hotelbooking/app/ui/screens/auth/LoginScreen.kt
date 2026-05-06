@@ -21,24 +21,22 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.hotelbooking.app.data.model.LoginRequest
+import com.hotelbooking.app.data.model.LoginRequest // Đã thêm import này để không bị lỗi chữ LoginRequest
 
 @Composable
 fun LoginScreen(
     onLoginClick: () -> Unit,
     onNavigateToRegister: () -> Unit,
-    // THÊM: Truyền ViewModel vào đây
     viewModel: AuthViewModel = viewModel()
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    // THÊM: Lấy context để hiện thông báo (Toast) và lấy trạng thái từ ViewModel
     val context = LocalContext.current
     val authState = viewModel.authState
 
-    // THÊM: Lắng nghe trạng thái lỗi để báo Toast
+    // Lắng nghe trạng thái lỗi để báo Toast
     LaunchedEffect(authState) {
         if (authState is AuthState.Error) {
             Toast.makeText(context, authState.message, Toast.LENGTH_LONG).show()
@@ -49,7 +47,7 @@ fun LoginScreen(
         }
     }
 
-    // Tạo nền Gradient đẹp mắt
+    // Tạo nền Gradient
     val gradientBackground = Brush.verticalGradient(
         colors = listOf(Color(0xFF2196F3), Color(0xFF0D47A1))
     )
@@ -144,11 +142,11 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // THÊM: Cập nhật Nút Đăng nhập chính để gọi API
+                // NÚT ĐĂNG NHẬP
                 Button(
                     onClick = {
                         if (email.isNotBlank() && password.isNotBlank()) {
-                            // Đóng gói dữ liệu và Gửi lên Server
+                            // Cập nhật chuẩn xác với ViewModel của bạn
                             val request = LoginRequest(email, password)
                             viewModel.login(request) { isSuccess ->
                                 if (isSuccess) {
