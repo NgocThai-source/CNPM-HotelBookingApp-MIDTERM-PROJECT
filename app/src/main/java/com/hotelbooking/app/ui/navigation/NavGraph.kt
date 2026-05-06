@@ -15,6 +15,10 @@ import com.hotelbooking.app.ui.screens.home.HomeScreen
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import com.hotelbooking.app.ui.screens.profile.ProfileScreen
+import androidx.navigation.NavController
+import androidx.compose.material3.Text
+import com.hotelbooking.app.ui.screens.profile.Routes
+import com.hotelbooking.app.ui.screens.profile.itemprofilesetting.BookingHistoryItem
 import com.hotelbooking.app.ui.screens.chat.ChatDetailScreen
 
 
@@ -49,10 +53,24 @@ fun NavGraph() {
                 navController = navController
             )
         }
+        composable(Routes.EDIT_PROFILE) {
+            EditProfileScreen(
+                navController
+            )
+        }
         composable(Routes.PROFILE) {
             ProfileScreen(
                 navController = navController
             )
         }
+        composable(Routes.BOOKING_HISTORY){
+            BookingHistoryItem(
+                navController = navController
+            )
+        }
     }
+}
+@Composable
+fun EditProfileScreen(navController: NavController) {
+    Text("Edit Profile Screen")
 }

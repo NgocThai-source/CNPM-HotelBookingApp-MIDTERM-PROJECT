@@ -74,36 +74,43 @@ fun ProfileScreen(navController: NavController) {
 
             item { Spacer(modifier = Modifier.height(32.dp)) }
 
-            // --- Section 1: Tài khoản ---
+            //Tài khoản
             item { ProfileSectionTitle("Tài khoản của tôi") }
             item {
                 ProfileCard {
-                    ProfileMenuItem(Icons.Filled.Person, "Thông tin cá nhân")
-                    ProfileMenuItem(Icons.Filled.CreditCard, "Phương thức thanh toán")
-                    ProfileMenuItem(Icons.Filled.Favorite, "Danh sách yêu thích")
-                    ProfileMenuItem(Icons.Filled.History, "Lịch sử đặt phòng", isLast = true)
+                    ProfileMenuItem(Icons.Filled.Person, "Thông tin cá nhân", onClink = { navController.navigate("edit_profile") })
+                    ProfileMenuItem(Icons.Filled.CreditCard, "Phương thức thanh toán", onClink = { navController.navigate("edit_profile") })
+                    ProfileMenuItem(Icons.Filled.Favorite, "Danh sách yêu thích", onClink = { navController.navigate("edit_profile") })
+                    ProfileMenuItem(Icons.Filled.History, "Lịch sử đặt phòng", isLast = true, onClink = { navController.navigate(Routes.BOOKING_HISTORY)})
                 }
             }
 
             item { Spacer(modifier = Modifier.height(24.dp)) }
 
-            // --- Section 2: Cài đặt & Hỗ trợ ---
+            //Cài đặt & Hỗ trợ
             item { ProfileSectionTitle("Cài đặt & Hỗ trợ") }
             item {
                 ProfileCard {
-                    ProfileMenuItem(Icons.Filled.Notifications, "Thông báo")
-                    ProfileMenuItem(Icons.Filled.Security, "Bảo mật & Mật khẩu")
-                    ProfileMenuItem(Icons.Filled.HelpCenter, "Trung tâm trợ giúp")
-                    ProfileMenuItem(Icons.Filled.Language, "Ngôn ngữ", trailingText = "Tiếng Việt", isLast = true)
+                    ProfileMenuItem(Icons.Filled.Notifications, "Thông báo", onClink = { navController.navigate("edit_profile") })
+                    ProfileMenuItem(Icons.Filled.Security, "Bảo mật & Mật khẩu", onClink = { navController.navigate("edit_profile") })
+                    ProfileMenuItem(Icons.Filled.HelpCenter, "Trung tâm trợ giúp", onClink = { navController.navigate("edit_profile") })
+                    ProfileMenuItem(Icons.Filled.Language, "Ngôn ngữ", trailingText = "Tiếng Việt", isLast = true, onClink = { navController.navigate("edit_profile") })
                 }
             }
 
             item { Spacer(modifier = Modifier.height(24.dp)) }
 
-            // --- Nút Đăng xuất ---
+            //Nút Đăng xuất
             item {
                 Button(
-                    onClick = { /* Xử lý đăng xuất */ },
+                    onClick = {
+                        navController.navigate("login"){
+                            popUpTo(navController.graph.startDestinationId){
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth().height(56.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                     shape = RoundedCornerShape(16.dp),
@@ -150,12 +157,13 @@ fun ProfileMenuItem(
     icon: ImageVector,
     title: String,
     trailingText: String? = null,
-    isLast: Boolean = false
+    isLast: Boolean = false,
+    onClink: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { /* Điều hướng */ }
+            .clickable { onClink() }
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
