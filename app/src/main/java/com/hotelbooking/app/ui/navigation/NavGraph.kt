@@ -12,6 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.hotelbooking.app.ui.screens.auth.LoginScreen
 import com.hotelbooking.app.ui.screens.home.HomeScreen
+import com.hotelbooking.app.ui.screens.booking.BookingScreen
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 
@@ -41,7 +42,25 @@ fun NavGraph() {
         }
 
         composable(Routes.HOME) {
-            HomeScreen()
+            HomeScreen(
+                onNavigate = { route ->
+                    navController.navigate(route) {
+                        popUpTo(Routes.HOME) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        composable(Routes.BOOKINGS) {
+            BookingScreen(
+                onNavigate = { route ->
+                    navController.navigate(route) {
+                        popUpTo(Routes.HOME) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+            )
         }
     }
 }
