@@ -28,8 +28,10 @@ import java.util.Date
 import java.util.Locale
 import kotlin.math.roundToInt
 
-val CyanMain = Color(0xFF00E5FF)
-val CyanLight = Color(0xFFE0F7FA)
+import com.hotelbooking.app.ui.components.BottomNavBar
+import com.hotelbooking.app.ui.components.BottomNavItem
+import com.hotelbooking.app.ui.components.CyanMain
+import com.hotelbooking.app.ui.components.CyanLight
 
 data class HotelItem(
     val imageUrl: String,
@@ -45,7 +47,7 @@ data class HotelItem(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(onNavigate: (String) -> Unit = {}) {
     var selectedCategory by remember { mutableStateOf("All Stays") }
     var guestCount by remember { mutableStateOf(2) }
     var dateRange by remember { mutableStateOf("Oct 12 - 15") }
@@ -86,7 +88,12 @@ fun HomeScreen() {
     }.sortedBy { item -> item.price.replace("$", "").toFloatOrNull() ?: 0f }
 
     Scaffold(
-        bottomBar = { HomeBottomNav() },
+        bottomBar = {
+            BottomNavBar(
+                currentRoute = BottomNavItem.SEARCH.route,
+                onItemClick = { item -> onNavigate(item.route) }
+            )
+        },
         containerColor = Color(0xFFF8F9FA)
     ) { paddingValues ->
         LazyColumn(
@@ -292,13 +299,3 @@ fun PropertyCard(name: String, location: String, price: String, rating: String, 
     }
 }
 
-@Composable
-fun HomeBottomNav() {
-    NavigationBar(containerColor = Color.White, tonalElevation = 8.dp) {
-        NavigationBarItem(icon = { Icon(Icons.Filled.Search, contentDescription = "Search") }, label = { Text("Search") }, selected = true, onClick = { }, colors = NavigationBarItemDefaults.colors(selectedIconColor = CyanMain, selectedTextColor = CyanMain, indicatorColor = CyanLight))
-        NavigationBarItem(icon = { Icon(Icons.Filled.DateRange, contentDescription = "Bookings") }, label = { Text("Bookings") }, selected = false, onClick = { })
-        NavigationBarItem(icon = { Icon(Icons.Filled.Chat, contentDescription = "Chat") }, label = { Text("Chat") }, selected = false, onClick = { })
-        NavigationBarItem(icon = { Icon(Icons.Filled.VerifiedUser, contentDescription = "Admin") }, label = { Text("Admin") }, selected = false, onClick = { })
-        NavigationBarItem(icon = { Icon(Icons.Filled.Settings, contentDescription = "Settings") }, label = { Text("Settings") }, selected = false, onClick = { })
-    }
-}

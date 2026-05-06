@@ -12,6 +12,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.hotelbooking.app.ui.screens.auth.LoginScreen
 import com.hotelbooking.app.ui.screens.home.HomeScreen
+import com.hotelbooking.app.ui.screens.booking.BookingScreen
+import com.hotelbooking.app.ui.screens.chat.ChatListScreen
+import com.hotelbooking.app.ui.screens.chat.ChatDetailScreen
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 
@@ -41,7 +46,29 @@ fun NavGraph() {
         }
 
         composable(Routes.HOME) {
-            HomeScreen()
+            HomeScreen(onNavigate = { route -> navController.navigate(route) })
+        }
+
+        composable(Routes.BOOKINGS) {
+            BookingScreen(onNavigate = { route -> navController.navigate(route) })
+        }
+
+        composable(Routes.CHAT) {
+            ChatListScreen(
+                onNavigate = { route -> navController.navigate(route) },
+                onChatClick = { chatId -> navController.navigate("chat_detail/$chatId") }
+            )
+        }
+
+        composable(
+            route = Routes.CHAT_DETAIL,
+            arguments = listOf(navArgument("chatId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val chatId = backStackEntry.arguments?.getString("chatId") ?: ""
+            ChatDetailScreen(
+                chatId = chatId,
+                onBack = { navController.popBackStack() }
+            )
         }
     }
 }
