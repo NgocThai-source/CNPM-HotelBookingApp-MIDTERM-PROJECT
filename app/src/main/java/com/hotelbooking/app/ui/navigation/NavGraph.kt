@@ -20,7 +20,8 @@ import androidx.compose.material3.Text
 import com.hotelbooking.app.ui.screens.profile.Routes
 import com.hotelbooking.app.ui.screens.profile.itemprofilesetting.BookingHistoryItem
 import com.hotelbooking.app.ui.screens.chat.ChatDetailScreen
-
+import com.hotelbooking.app.ui.screens.profile.itemprofilesetting.PaymentItem
+import kotlin.collections.emptyList
 
 
 @Composable
@@ -67,6 +68,11 @@ fun NavGraph() {
             BookingHistoryItem(
                 navController = navController,
                 bookingList = emptyList()
+            )
+        }
+        composable(Routes.PAYMENT_METHOD){
+            PaymentItem(
+                navController = navController
             )
         }
     }

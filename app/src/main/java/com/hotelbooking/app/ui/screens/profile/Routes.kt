@@ -1,6 +1,9 @@
 package com.hotelbooking.app.ui.screens.profile
 
 import androidx.compose.ui.input.pointer.HistoricalChange
+import com.hotelbooking.app.ui.screens.profile.itemprofilesetting.PaymentItem
+
+
 
 object Routes{
     const val HOME = "home"
@@ -12,4 +15,5 @@ object Routes{
     const val CHAT = "chat"
     const val CHAT_DETAIL = "chat_detail"
     const val BOOKING_HISTORY = "booking_history"
+    const val PAYMENT_METHOD = "payment_method"
 }

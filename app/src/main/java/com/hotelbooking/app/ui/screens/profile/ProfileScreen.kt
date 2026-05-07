@@ -79,7 +79,7 @@ fun ProfileScreen(navController: NavController) {
             item {
                 ProfileCard {
                     ProfileMenuItem(Icons.Filled.Person, "Thông tin cá nhân", onClink = { navController.navigate("edit_profile") })
-                    ProfileMenuItem(Icons.Filled.CreditCard, "Phương thức thanh toán", onClink = { navController.navigate("edit_profile") })
+                    ProfileMenuItem(Icons.Filled.CreditCard, "Phương thức thanh toán", onClink = { navController.navigate(Routes.PAYMENT_METHOD) })
                     ProfileMenuItem(Icons.Filled.Favorite, "Danh sách yêu thích", onClink = { navController.navigate("edit_profile") })
                     ProfileMenuItem(Icons.Filled.History, "Lịch sử đặt phòng", isLast = true, onClink = { navController.navigate(Routes.BOOKING_HISTORY)})
                 }
