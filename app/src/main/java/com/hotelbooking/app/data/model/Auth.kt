@@ -1,4 +1,5 @@
 package com.hotelbooking.app.data.model
+
 data class LoginRequest(
     val email: String,
     val password: String
@@ -29,3 +30,28 @@ data class UserData(
     val fullName: String,
     val phone: String,
 )
+
+
+// Model cho bước 1:Gửi mail
+data class ForgotPasswordRequest(
+    val email: String
+)
+
+// Model cho bước 3:Gửi 3 thứ cùng lúc (Email + OTP + Pass mới)
+data class VerifyResetRequest(
+    val email: String,
+    val otp: String,
+    val newPassword: String
+)
+
+// Model chung cho kết quả trả về từ Backend
+data class AuthResponse(
+    val success: Boolean,
+    val message: String
+)
+
+data class ForgotPasswordResponse(
+    val success: Boolean,
+    val message: String
+)
+

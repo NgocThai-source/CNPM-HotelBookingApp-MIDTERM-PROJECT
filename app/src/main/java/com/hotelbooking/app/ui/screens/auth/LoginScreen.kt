@@ -21,13 +21,14 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.hotelbooking.app.data.model.LoginRequest // Đã thêm import này để không bị lỗi chữ LoginRequest
+import com.hotelbooking.app.data.model.LoginRequest
 
 @Composable
 fun LoginScreen(
     onLoginClick: () -> Unit,
     onNavigateToRegister: () -> Unit,
-    viewModel: AuthViewModel = viewModel()
+    onNavigateToForgotPassword: () -> Unit, // Đã gộp tham số từ nhánh forgotpass
+    viewModel: AuthViewModel = viewModel()  // Đã gộp ViewModel từ nhánh HEAD
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -53,26 +54,20 @@ fun LoginScreen(
     )
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(gradientBackground),
+        modifier = Modifier.fillMaxSize().background(gradientBackground),
         contentAlignment = Alignment.Center
     ) {
         Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
             Column(
-                modifier = Modifier
-                    .padding(32.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.padding(32.dp).fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Tiêu đề
+                // Logo / Icon
                 Icon(
                     imageVector = Icons.Filled.AccountCircle,
                     contentDescription = "Logo",
@@ -80,17 +75,8 @@ fun LoginScreen(
                     tint = Color(0xFF1976D2)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "Chào mừng trở lại!",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF333333)
-                )
-                Text(
-                    text = "Đăng nhập để đặt phòng ngay",
-                    fontSize = 14.sp,
-                    color = Color.Gray
-                )
+                Text("Chào mừng trở lại!", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF333333))
+                Text("Đăng nhập để đặt phòng ngay", fontSize = 14.sp, color = Color.Gray)
 
                 Spacer(modifier = Modifier.height(32.dp))
 
@@ -102,8 +88,7 @@ fun LoginScreen(
                     leadingIcon = { Icon(Icons.Filled.Email, contentDescription = "Email") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+                    singleLine = true
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -116,11 +101,7 @@ fun LoginScreen(
                     leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = "Password") },
                     trailingIcon = {
                         TextButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Text(
-                                text = if (passwordVisible) "ẨN" else "HIỆN",
-                                color = Color(0xFF1976D2),
-                                fontWeight = FontWeight.Bold
-                            )
+                            Text(if (passwordVisible) "ẨN" else "HIỆN", color = Color(0xFF1976D2), fontWeight = FontWeight.Bold)
                         }
                     },
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -132,9 +113,9 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Quên mật khẩu
+                // Nút Quên mật khẩu
                 TextButton(
-                    onClick = { /* TODO: Thêm link sang ForgotPassword nếu muốn */ },
+                    onClick = onNavigateToForgotPassword, // Chuyển hướng chuẩn xác
                     modifier = Modifier.align(Alignment.End)
                 ) {
                     Text("Quên mật khẩu?", color = Color(0xFF1976D2), fontWeight = FontWeight.SemiBold)
@@ -146,23 +127,21 @@ fun LoginScreen(
                 Button(
                     onClick = {
                         if (email.isNotBlank() && password.isNotBlank()) {
-                            // Cập nhật chuẩn xác với ViewModel của bạn
+                            // Gọi API qua ViewModel
                             val request = LoginRequest(email, password)
                             viewModel.login(request) { isSuccess ->
                                 if (isSuccess) {
-                                    onLoginClick() // Gọi hàm chuyển sang màn hình Home
+                                    onLoginClick()
                                 }
                             }
                         } else {
                             Toast.makeText(context, "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show()
                         }
                     },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2)),
-                    enabled = authState !is AuthState.Loading // Khóa nút khi đang load mạng
+                    enabled = authState !is AuthState.Loading
                 ) {
                     if (authState is AuthState.Loading) {
                         CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
@@ -173,7 +152,7 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Chuyển sang Đăng ký
+                // NÚT ĐĂNG KÝ
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Chưa có tài khoản? ", color = Color.Gray)
                     TextButton(onClick = onNavigateToRegister) {
