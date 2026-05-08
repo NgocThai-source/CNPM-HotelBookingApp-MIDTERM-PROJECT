@@ -7,6 +7,8 @@ import com.hotelbooking.app.data.model.LoginRequest
 import com.hotelbooking.app.data.model.LoginResponse
 import com.hotelbooking.app.data.model.RegisterRequest
 import com.hotelbooking.app.data.model.RegisterResponse
+import com.hotelbooking.app.data.model.ResetPasswordRequest
+import com.hotelbooking.app.data.model.VerifyOtpRequest
 import com.hotelbooking.app.data.model.VerifyResetRequest
 
 // Import thư viện Retrofit
@@ -33,6 +35,10 @@ interface AuthRepository {
     suspend fun forgotPassword(@Body request: ForgotPasswordRequest): AuthResponse
 
     // API Xác thực OTP và đặt lại mật khẩu mới
-    @POST("api/verify-and-reset-password")
-    suspend fun verifyAndResetPassword(@Body request: VerifyResetRequest): AuthResponse
+    @POST("api/verify-otp")
+    suspend fun verifyOTP(@Body request: VerifyOtpRequest): AuthResponse
+
+    // API : Đổi mật khẩu mới
+    @POST("api/reset-password")
+    suspend fun resetPassword(@Body request: ResetPasswordRequest): AuthResponse
 }

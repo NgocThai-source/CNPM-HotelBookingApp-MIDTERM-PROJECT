@@ -84,21 +84,31 @@ fun SendCodeOTPScreen(
 
                 Button(
                     onClick = {
-                        // Chuyển sang màn hình tạo mật khẩu mới khi bấm xác nhận
-                        navController.navigate("create_new_password")
+                        if (viewModel.otp.isNotBlank()) {
+                            // Gọi hàm check OTP trực tiếp vì viewModel.otp đã chứa sẵn số người dùng gõ
+                            viewModel.verifyOTP { isSuccess ->
+                                if (isSuccess) {
+                                    // CHỈ CHUYỂN TRANG KHI isSuccess == true (OTP đúng)
+                                    navController.navigate("RESET_PASSWORD")
+                                }
+                            }
+                        } else {
+                            Toast.makeText(context, "Vui lòng nhập mã OTP!", Toast.LENGTH_SHORT).show()
+                        }
                     },
                     modifier = Modifier.fillMaxWidth().height(50.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2)),
-                    enabled = viewModel.otp.length == 6 // Phải nhập đủ 6 số mới cho bấm
+                    enabled = viewModel.authState !is AuthState.Loading
                 ) {
-                    Text("Xác nhận mã", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    if (viewModel.authState is AuthState.Loading) {
+                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                    } else {
+                        Text("Xác nhận OTP", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Text("Chưa nhận được mã?", color = Color.Gray, fontSize = 14.sp)
-
+                Spacer(modifier = Modifier.height(16.dp))
                 // NÚT GỬI LẠI MÃ ĐỘNG ĐÃ TÍCH HỢP GỌI BACKEND
                 TextButton(
                     onClick = {

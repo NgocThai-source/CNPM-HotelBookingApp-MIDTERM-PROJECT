@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.hotelbooking.app.data.model.ForgotPasswordRequest
 import com.hotelbooking.app.data.model.LoginRequest
 import com.hotelbooking.app.data.model.RegisterRequest
+import com.hotelbooking.app.data.model.ResetPasswordRequest
+import com.hotelbooking.app.data.model.VerifyOtpRequest
 import com.hotelbooking.app.data.model.VerifyResetRequest
 import com.hotelbooking.app.service.RetrofitClient
 import kotlinx.coroutines.launch
@@ -91,18 +93,36 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    // --- BƯỚC 3: GỌI TẠI MÀN HÌNH CREATENEWPASSWORD ---
-    fun verifyAndResetPassword(onResult: (Boolean) -> Unit) {
+    // --- BƯỚC 2: KIỂM TRA OTP (Gọi ở màn hình nhập OTP) ---
+    fun verifyOTP(onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
             authState = AuthState.Loading
             try {
-                // Backend yêu cầu cả 3: email, otp, newPassword
-                val request = VerifyResetRequest(
-                    email = email,
-                    otp = otp,
-                    newPassword = newPassword
-                )
-                val response = RetrofitClient.apiInterface.verifyAndResetPassword(request)
+                // Gom email (đã lưu) và otp người dùng vừa nhập
+                val request = VerifyOtpRequest(email = email, otp = otp)
+                val response = RetrofitClient.apiInterface.verifyOTP(request)
+
+                if (response.success) {
+                    authState = AuthState.Success(response.message)
+                    onResult(true) // Trả về TRUE -> OTP đúng
+                } else {
+                    authState = AuthState.Error(response.message)
+                    onResult(false) // Trả về FALSE -> OTP sai
+                }
+            } catch (e: Exception) {
+                authState = AuthState.Error(e.message ?: "Lỗi kết nối")
+                onResult(false)
+            }
+        }
+    }
+
+    // --- BƯỚC 3: ĐẶT LẠI MẬT KHẨU (Gọi ở màn hình nhập Pass mới) ---
+    fun resetPassword(onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            authState = AuthState.Loading
+            try {
+                val request = ResetPasswordRequest(email = email, newPassword = newPassword)
+                val response = RetrofitClient.apiInterface.resetPassword(request)
 
                 if (response.success) {
                     authState = AuthState.Success(response.message)
@@ -112,7 +132,7 @@ class AuthViewModel : ViewModel() {
                     onResult(false)
                 }
             } catch (e: Exception) {
-                authState = AuthState.Error(e.message ?: "Đã xảy ra lỗi kết nối")
+                authState = AuthState.Error(e.message ?: "Lỗi kết nối")
                 onResult(false)
             }
         }

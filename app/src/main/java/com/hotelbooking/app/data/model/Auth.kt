@@ -1,4 +1,6 @@
 package com.hotelbooking.app.data.model
+data class VerifyOtpRequest(val email: String, val otp: String)
+data class ResetPasswordRequest(val email: String, val newPassword: String)
 
 data class LoginRequest(
     val email: String,

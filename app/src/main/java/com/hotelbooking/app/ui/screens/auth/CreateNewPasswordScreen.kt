@@ -121,8 +121,14 @@ fun CreateNewPasswordScreen(
 
                 Button(
                     onClick = {
-                        // Gọi hàm chốt hạ để bắn thẳng lên Backend
-                        viewModel.verifyAndResetPassword { _ -> }
+                        viewModel.resetPassword { isSuccess ->
+                            if (isSuccess) {
+                                // Nếu đổi mật khẩu thành công -> Quay thẳng về trang Login
+                                navController.navigate(Routes.LOGIN) {
+                                    popUpTo(Routes.LOGIN) { inclusive = true } // Xóa lịch sử trang để người dùng không bấm Back quay lại trang đổi pass được nữa
+                                }
+                            }
+                        }
                     },
                     modifier = Modifier.fillMaxWidth().height(50.dp),
                     shape = RoundedCornerShape(12.dp),
