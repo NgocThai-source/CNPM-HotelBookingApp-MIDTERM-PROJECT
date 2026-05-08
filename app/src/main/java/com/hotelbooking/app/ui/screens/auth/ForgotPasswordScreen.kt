@@ -8,8 +8,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -29,19 +27,11 @@ fun ForgotPasswordScreen(
     val authState = viewModel.authState
     var email by remember { mutableStateOf("") }
 
-    //  Lắng nghe trạng thái Success để chuyển trang
+    // Chỉ lắng nghe trạng thái Error ở đây để hiện Toast
     LaunchedEffect(authState) {
-        when (authState) {
-            is AuthState.Success -> {
-                Toast.makeText(context, authState.message, Toast.LENGTH_SHORT).show()
-                onNavigateToOTP() // Thực hiện chuyển hướng ngay khi nhận phản hồi thành công
-                viewModel.resetState()
-            }
-            is AuthState.Error -> {
-                Toast.makeText(context, authState.message, Toast.LENGTH_LONG).show()
-                viewModel.resetState()
-            }
-            else -> {}
+        if (authState is AuthState.Error) {
+            Toast.makeText(context, authState.message, Toast.LENGTH_LONG).show()
+            viewModel.resetState()
         }
     }
 
@@ -83,7 +73,13 @@ fun ForgotPasswordScreen(
                     onClick = {
                         if (email.isNotBlank()) {
                             viewModel.email = email
-                            viewModel.forgotPassword { /* Không cần xử lý ở đây nữa vì đã có LaunchedEffect */ }
+                            viewModel.forgotPassword { isSuccess ->
+                                if (isSuccess) {
+                                    Toast.makeText(context, "Mã OTP đã được gửi!", Toast.LENGTH_SHORT).show()
+                                    onNavigateToOTP()
+                                    viewModel.resetState()
+                                }
+                            }
                         } else {
                             Toast.makeText(context, "Vui lòng nhập email", Toast.LENGTH_SHORT).show()
                         }

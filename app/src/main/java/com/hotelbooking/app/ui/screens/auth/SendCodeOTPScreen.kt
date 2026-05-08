@@ -27,22 +27,29 @@ import kotlinx.coroutines.delay
 @Composable
 fun SendCodeOTPScreen(
     navController: NavController,
-    viewModel: AuthViewModel // Nhận túi dữ liệu chung
+    viewModel: AuthViewModel
 ) {
     val context = LocalContext.current
+    val authState = viewModel.authState
 
-    // BIẾN THỜI GIAN ĐẾM NGƯỢC
     var timeLeft by remember { mutableStateOf(60) }
     var isTimerRunning by remember { mutableStateOf(true) }
 
-    // LOGIC ĐẾM NGƯỢC TỰ ĐỘNG
+    // Chỉ lắng nghe trạng thái Lỗi để hiện Toast
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Error) {
+            Toast.makeText(context, authState.message, Toast.LENGTH_LONG).show()
+            viewModel.resetState()
+        }
+    }
+
     LaunchedEffect(key1 = isTimerRunning) {
         if (isTimerRunning) {
             while (timeLeft > 0) {
-                delay(1000L) // Chờ 1 giây
-                timeLeft--   // Trừ đi 1
+                delay(1000L)
+                timeLeft--
             }
-            isTimerRunning = false // Về 0 thì dừng đồng hồ
+            isTimerRunning = false
         }
     }
 
@@ -63,85 +70,72 @@ fun SendCodeOTPScreen(
                 Text("Xác thực Email", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF333333))
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Text("Vui lòng nhập mã OTP gồm 6 chữ số vừa được gửi đến email:", fontSize = 14.sp, color = Color.Gray, textAlign = TextAlign.Center)
-
-                // HIỂN THỊ EMAIL THẬT TỪ VIEWMODEL
-                Text(viewModel.email, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1976D2), textAlign = TextAlign.Center)
+                Text("Vui lòng nhập mã OTP gửi tới:", fontSize = 14.sp, color = Color.Gray, textAlign = TextAlign.Center)
+                Text(viewModel.email, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1976D2))
 
                 Spacer(modifier = Modifier.height(32.dp))
 
                 OutlinedTextField(
-                    value = viewModel.otp, // Lưu thẳng mã OTP vào ViewModel
+                    value = viewModel.otp,
                     onValueChange = { if (it.length <= 6) viewModel.otp = it },
                     modifier = Modifier.fillMaxWidth(0.8f),
                     shape = RoundedCornerShape(12.dp),
                     singleLine = true,
                     textStyle = TextStyle(textAlign = TextAlign.Center, fontSize = 24.sp, letterSpacing = 8.sp, fontWeight = FontWeight.Bold),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    placeholder = { Text("------", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center, letterSpacing = 8.sp) }
+                    placeholder = { Text("------", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center) }
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Button(
                     onClick = {
-                        // 1. Kiểm tra mã OTP trong ViewModel (vì bạn lưu thẳng vào đó rồi)
-                        if (viewModel.otp.isNotBlank()) {
-
-                            // 2. Gọi hàm verifyOTP
+                        if (viewModel.otp.length == 6) {
                             viewModel.verifyOTP { isSuccess ->
                                 if (isSuccess) {
-                                    // 3. CHUYỂN TRANG dùng biến Routes chuẩn đã khai báo ở NavGraph
+                                    // BƯỚC QUAN TRỌNG NHẤT: Xóa trạng thái Success của OTP 
+                                    // trước khi chuyển sang màn hình Reset Password
+                                    viewModel.resetState()
                                     navController.navigate(Routes.RESET_PASSWORD)
                                 }
                             }
                         } else {
-                            Toast.makeText(context, "Vui lòng nhập mã OTP", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Vui lòng nhập đủ 6 số", Toast.LENGTH_SHORT).show()
                         }
                     },
                     modifier = Modifier.fillMaxWidth().height(50.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2)),
-                    enabled = viewModel.authState !is AuthState.Loading
+                    enabled = authState !is AuthState.Loading
                 ) {
-                    if (viewModel.authState is AuthState.Loading) {
+                    if (authState is AuthState.Loading) {
                         CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                     } else {
                         Text("Xác nhận OTP", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                     }
                 }
+                
                 Spacer(modifier = Modifier.height(16.dp))
-                // NÚT GỬI LẠI MÃ ĐỘNG ĐÃ TÍCH HỢP GỌI BACKEND
+
                 TextButton(
                     onClick = {
-                        // Gọi lại hàm quên mật khẩu để Backend gửi OTP mới
                         viewModel.forgotPassword { isSuccess ->
                             if (isSuccess) {
                                 Toast.makeText(context, "Đã gửi lại mã OTP!", Toast.LENGTH_SHORT).show()
-                                // Reset lại đồng hồ về 30s và chạy lại
-                                timeLeft = 30
+                                timeLeft = 60
                                 isTimerRunning = true
                                 viewModel.resetState()
-                            } else {
-                                Toast.makeText(context, "Gửi thất bại, thử lại sau", Toast.LENGTH_SHORT).show()
                             }
                         }
                     },
-                    enabled = !isTimerRunning // Đồng hồ đang chạy thì KHÔNG cho bấm
+                    enabled = !isTimerRunning && authState !is AuthState.Loading
                 ) {
-                    // Nếu đang gọi API thì hiện loading nhỏ, không thì hiện Text
-                    if (viewModel.authState == AuthState.Loading && !isTimerRunning) {
-                        CircularProgressIndicator(color = Color(0xFF1976D2), modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
-                    } else {
-                        Text(
-                            text = if (isTimerRunning) "Gửi lại mã (${timeLeft}s)" else "Gửi lại mã ngay",
-                            color = if (isTimerRunning) Color.Gray else Color(0xFF1976D2),
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    Text(
+                        text = if (isTimerRunning) "Gửi lại mã (${timeLeft}s)" else "Gửi lại mã ngay",
+                        color = if (isTimerRunning) Color.Gray else Color(0xFF1976D2),
+                        fontWeight = FontWeight.Bold
+                    )
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
 
                 TextButton(onClick = { navController.popBackStack() }) {
                     Text("Quay lại", color = Color.Gray)

@@ -27,30 +27,20 @@ import com.hotelbooking.app.ui.navigation.Routes
 @Composable
 fun CreateNewPasswordScreen(
     navController: NavController,
-    viewModel: AuthViewModel // Nhận ViewModel dùng chung
+    viewModel: AuthViewModel
 ) {
     val context = LocalContext.current
-
-    // Biến lưu mật khẩu xác nhận (confirm). Biến mật khẩu chính (newPassword) sẽ nằm trong ViewModel
     var confirmPassword by remember { mutableStateOf("") }
-
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
 
-    // Lắng nghe kết quả từ Backend để xử lý thành công / thất bại
-    LaunchedEffect(viewModel.authState) {
-        when (val state = viewModel.authState) {
-            is AuthState.Success -> {
-                Toast.makeText(context, "Đổi mật khẩu thành công!", Toast.LENGTH_LONG).show()
-                viewModel.resetState()
-                // Xóa toàn bộ stack và đẩy thẳng về trang Đăng nhập
-                navController.navigate(Routes.LOGIN) { popUpTo(0) { inclusive = true } }
-            }
-            is AuthState.Error -> {
-                Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
-                viewModel.resetState()
-            }
-            else -> {}
+    val authState = viewModel.authState
+
+    // Chỉ lắng nghe trạng thái Lỗi để hiện Toast
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Error) {
+            Toast.makeText(context, authState.message, Toast.LENGTH_LONG).show()
+            viewModel.resetState()
         }
     }
 
@@ -62,84 +52,60 @@ fun CreateNewPasswordScreen(
         Card(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
             shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             Column(modifier = Modifier.padding(32.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(imageVector = Icons.Filled.Lock, contentDescription = "Reset Password", modifier = Modifier.size(64.dp), tint = Color(0xFF1976D2))
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text("Đặt lại mật khẩu", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF333333))
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("Vui lòng tạo mật khẩu mới an toàn để bảo vệ tài khoản của bạn.", fontSize = 14.sp, color = Color.Gray, textAlign = TextAlign.Center)
-
+                Icon(Icons.Filled.Lock, contentDescription = null, modifier = Modifier.size(64.dp), tint = Color(0xFF1976D2))
+                Text("Đặt lại mật khẩu", fontSize = 24.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(32.dp))
 
                 OutlinedTextField(
-                    value = viewModel.newPassword, // Lưu thẳng mật khẩu mới vào ViewModel
+                    value = viewModel.newPassword,
                     onValueChange = { viewModel.newPassword = it },
                     label = { Text("Mật khẩu mới") },
-                    leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = "Password") },
-                    trailingIcon = {
-                        TextButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Text(if (passwordVisible) "ẨN" else "HIỆN", color = Color(0xFF1976D2), fontWeight = FontWeight.Bold)
-                        }
-                    },
+                    leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = null) },
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                    shape = RoundedCornerShape(12.dp)
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 OutlinedTextField(
-                    value = confirmPassword, // Biến này giữ nguyên vì Backend không cần
+                    value = confirmPassword,
                     onValueChange = { confirmPassword = it },
                     label = { Text("Xác nhận mật khẩu") },
-                    leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = "Confirm Password") },
-                    trailingIcon = {
-                        TextButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
-                            Text(if (confirmPasswordVisible) "ẨN" else "HIỆN", color = Color(0xFF1976D2), fontWeight = FontWeight.Bold)
-                        }
-                    },
+                    leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = null) },
                     visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    isError = viewModel.newPassword.isNotEmpty() && confirmPassword.isNotEmpty() && viewModel.newPassword != confirmPassword
+                    isError = confirmPassword.isNotEmpty() && confirmPassword != viewModel.newPassword
                 )
-
-                // Cảnh báo nếu 2 mật khẩu không khớp
-                if (viewModel.newPassword.isNotEmpty() && confirmPassword.isNotEmpty() && viewModel.newPassword != confirmPassword) {
-                    Text("Mật khẩu xác nhận không khớp!", color = Color.Red, fontSize = 12.sp, modifier = Modifier.align(Alignment.Start).padding(top = 4.dp))
-                }
 
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Button(
                     onClick = {
-                        viewModel.resetPassword { isSuccess ->
-                            if (isSuccess) {
-                                // Nếu đổi mật khẩu thành công -> Quay thẳng về trang Login
-                                navController.navigate(Routes.LOGIN) {
-                                    popUpTo(Routes.LOGIN) { inclusive = true } // Xóa lịch sử trang để người dùng không bấm Back quay lại trang đổi pass được nữa
+                        if (viewModel.newPassword == confirmPassword) {
+                            viewModel.resetPassword { isSuccess ->
+                                if (isSuccess) {
+                                    Toast.makeText(context, "Đổi mật khẩu thành công!", Toast.LENGTH_SHORT).show()
+                                    viewModel.resetState()
+                                    navController.navigate(Routes.LOGIN) {
+                                        popUpTo(0) { inclusive = true }
+                                    }
                                 }
                             }
                         }
                     },
                     modifier = Modifier.fillMaxWidth().height(50.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2)),
-                    // Nút chỉ sáng lên khi 2 pass giống nhau VÀ không đang trong quá trình tải
-                    enabled = viewModel.newPassword.isNotEmpty() && viewModel.newPassword == confirmPassword && viewModel.authState != AuthState.Loading
+                    enabled = authState !is AuthState.Loading && viewModel.newPassword.isNotEmpty() && viewModel.newPassword == confirmPassword
                 ) {
-                    if (viewModel.authState == AuthState.Loading) {
+                    if (authState is AuthState.Loading) {
                         CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                     } else {
-                        Text("Đổi mật khẩu", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        Text("Xác nhận", fontWeight = FontWeight.Bold)
                     }
                 }
             }
