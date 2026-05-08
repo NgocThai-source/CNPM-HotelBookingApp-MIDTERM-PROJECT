@@ -9,7 +9,6 @@ import com.hotelbooking.app.data.model.RegisterRequest
 import com.hotelbooking.app.data.model.RegisterResponse
 import com.hotelbooking.app.data.model.ResetPasswordRequest
 import com.hotelbooking.app.data.model.VerifyOtpRequest
-import com.hotelbooking.app.data.model.VerifyResetRequest
 
 // Import thư viện Retrofit
 import retrofit2.http.Body

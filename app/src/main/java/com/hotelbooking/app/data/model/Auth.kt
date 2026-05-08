@@ -39,12 +39,6 @@ data class ForgotPasswordRequest(
     val email: String
 )
 
-// Model cho bước 3:Gửi 3 thứ cùng lúc (Email + OTP + Pass mới)
-data class VerifyResetRequest(
-    val email: String,
-    val otp: String,
-    val newPassword: String
-)
 
 // Model chung cho kết quả trả về từ Backend
 data class AuthResponse(

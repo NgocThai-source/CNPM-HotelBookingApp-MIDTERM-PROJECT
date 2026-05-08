@@ -10,7 +10,6 @@ import com.hotelbooking.app.data.model.LoginRequest
 import com.hotelbooking.app.data.model.RegisterRequest
 import com.hotelbooking.app.data.model.ResetPasswordRequest
 import com.hotelbooking.app.data.model.VerifyOtpRequest
-import com.hotelbooking.app.data.model.VerifyResetRequest
 import com.hotelbooking.app.service.RetrofitClient
 import kotlinx.coroutines.launch
 
@@ -94,23 +93,25 @@ class AuthViewModel : ViewModel() {
     }
 
     // --- BƯỚC 2: KIỂM TRA OTP (Gọi ở màn hình nhập OTP) ---
+    // --- BƯỚC 2: CHỈ KIỂM TRA OTP ---
     fun verifyOTP(onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
             authState = AuthState.Loading
             try {
-                // Gom email (đã lưu) và otp người dùng vừa nhập
+                // Đảm bảo dùng VerifyOtpRequest và gọi hàm verifyOTP của Repository
                 val request = VerifyOtpRequest(email = email, otp = otp)
                 val response = RetrofitClient.apiInterface.verifyOTP(request)
 
                 if (response.success) {
+                    // Nếu Backend trả về "OTP hợp lệ", Toast sẽ hiện dòng này
                     authState = AuthState.Success(response.message)
-                    onResult(true) // Trả về TRUE -> OTP đúng
+                    onResult(true)
                 } else {
                     authState = AuthState.Error(response.message)
-                    onResult(false) // Trả về FALSE -> OTP sai
+                    onResult(false)
                 }
             } catch (e: Exception) {
-                authState = AuthState.Error(e.message ?: "Lỗi kết nối")
+                authState = AuthState.Error("Lỗi kết nối: ${e.message}")
                 onResult(false)
             }
         }
