@@ -8,6 +8,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -23,18 +25,23 @@ fun ForgotPasswordScreen(
     onBackToLogin: () -> Unit,
     onNavigateToOTP: () -> Unit
 ){
-    var email by remember { mutableStateOf("") }
     val context = LocalContext.current
     val authState = viewModel.authState
+    var email by remember { mutableStateOf("") }
 
-    // Lắng nghe trạng thái từ ViewModel để báo Toast
+    //  Lắng nghe trạng thái Success để chuyển trang
     LaunchedEffect(authState) {
-        if (authState is AuthState.Error) {
-            Toast.makeText(context, authState.message, Toast.LENGTH_LONG).show()
-            viewModel.resetState()
-        } else if (authState is AuthState.Success) {
-            Toast.makeText(context, authState.message, Toast.LENGTH_SHORT).show()
-            viewModel.resetState()
+        when (authState) {
+            is AuthState.Success -> {
+                Toast.makeText(context, authState.message, Toast.LENGTH_SHORT).show()
+                onNavigateToOTP() // Thực hiện chuyển hướng ngay khi nhận phản hồi thành công
+                viewModel.resetState()
+            }
+            is AuthState.Error -> {
+                Toast.makeText(context, authState.message, Toast.LENGTH_LONG).show()
+                viewModel.resetState()
+            }
+            else -> {}
         }
     }
 
@@ -76,12 +83,7 @@ fun ForgotPasswordScreen(
                     onClick = {
                         if (email.isNotBlank()) {
                             viewModel.email = email
-                            viewModel.forgotPassword { isSuccess ->
-                                if (isSuccess) {
-                                    // Gọi onNavigateToOTP() để sang trang nhập mã
-                                    onNavigateToOTP()
-                                }
-                            }
+                            viewModel.forgotPassword { /* Không cần xử lý ở đây nữa vì đã có LaunchedEffect */ }
                         } else {
                             Toast.makeText(context, "Vui lòng nhập email", Toast.LENGTH_SHORT).show()
                         }
