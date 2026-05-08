@@ -30,8 +30,8 @@ fun SendCodeOTPScreen(
 ) {
     val context = LocalContext.current
 
-    // BIẾN THỜI GIAN ĐẾM NGƯỢC (Giữ nguyên logic cực xịn của Kiệt)
-    var timeLeft by remember { mutableStateOf(30) }
+    // BIẾN THỜI GIAN ĐẾM NGƯỢC
+    var timeLeft by remember { mutableStateOf(60) }
     var isTimerRunning by remember { mutableStateOf(true) }
 
     // LOGIC ĐẾM NGƯỢC TỰ ĐỘNG

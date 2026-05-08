@@ -50,7 +50,18 @@ fun NavGraph() {
                 }
             )
         }
-
+        composable(Routes.VERIFY_OTP) {
+            SendCodeOTPScreen(
+                navController = navController,
+                viewModel = authViewModel
+            )
+        }
+        composable(Routes.RESET_PASSWORD) {
+            CreateNewPasswordScreen(
+                viewModel = authViewModel,
+                navController = navController // Truyền navController vào để đổi xong còn quay về Login
+            )
+        }
         composable(Routes.HOME) {
             HomeScreen()
         }
