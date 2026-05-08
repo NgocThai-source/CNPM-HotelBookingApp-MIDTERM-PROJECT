@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.hotelbooking.app.ui.navigation.Routes
 import kotlinx.coroutines.delay
 
 @Composable
@@ -84,16 +85,18 @@ fun SendCodeOTPScreen(
 
                 Button(
                     onClick = {
+                        // 1. Kiểm tra mã OTP trong ViewModel (vì bạn lưu thẳng vào đó rồi)
                         if (viewModel.otp.isNotBlank()) {
-                            // Gọi hàm check OTP trực tiếp vì viewModel.otp đã chứa sẵn số người dùng gõ
+
+                            // 2. Gọi hàm verifyOTP
                             viewModel.verifyOTP { isSuccess ->
                                 if (isSuccess) {
-                                    // CHỈ CHUYỂN TRANG KHI isSuccess == true (OTP đúng)
-                                    navController.navigate("RESET_PASSWORD")
+                                    // 3. CHUYỂN TRANG dùng biến Routes chuẩn đã khai báo ở NavGraph
+                                    navController.navigate(Routes.RESET_PASSWORD)
                                 }
                             }
                         } else {
-                            Toast.makeText(context, "Vui lòng nhập mã OTP!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Vui lòng nhập mã OTP", Toast.LENGTH_SHORT).show()
                         }
                     },
                     modifier = Modifier.fillMaxWidth().height(50.dp),
@@ -107,7 +110,6 @@ fun SendCodeOTPScreen(
                         Text("Xác nhận OTP", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                     }
                 }
-
                 Spacer(modifier = Modifier.height(16.dp))
                 // NÚT GỬI LẠI MÃ ĐỘNG ĐÃ TÍCH HỢP GỌI BACKEND
                 TextButton(
