@@ -43,7 +43,11 @@ fun NavGraph() {
         composable(Routes.FORGOT_PASSWORD) {
             ForgotPasswordScreen(
                 viewModel = authViewModel,
-                onBackToLogin = { navController.popBackStack() }
+                onBackToLogin = { navController.popBackStack() },
+                onNavigateToOTP = {
+                    // Khi gửi email xong, chuyển sang trang nhập mã OTP
+                    navController.navigate(Routes.VERIFY_OTP)
+                }
             )
         }
 

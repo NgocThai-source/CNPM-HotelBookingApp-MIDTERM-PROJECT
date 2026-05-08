@@ -20,8 +20,9 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun ForgotPasswordScreen(
     viewModel: AuthViewModel,
-    onBackToLogin: () -> Unit
-) {
+    onBackToLogin: () -> Unit,
+    onNavigateToOTP: () -> Unit
+){
     var email by remember { mutableStateOf("") }
     val context = LocalContext.current
     val authState = viewModel.authState
@@ -74,13 +75,11 @@ fun ForgotPasswordScreen(
                 Button(
                     onClick = {
                         if (email.isNotBlank()) {
-                            // 1. Lưu email vào ViewModel
                             viewModel.email = email
-
-                            // 2. Gọi hàm forgotPassword (không truyền tham số email)
                             viewModel.forgotPassword { isSuccess ->
                                 if (isSuccess) {
-                                    onBackToLogin()
+                                    // Gọi onNavigateToOTP() để sang trang nhập mã
+                                    onNavigateToOTP()
                                 }
                             }
                         } else {
