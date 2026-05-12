@@ -1,0 +1,3 @@
+[submodule "backend-for-software-tech"]
+	path = backend-for-software-tech
+	url = https://github.com/VanNguyn07/backend-for-software-tech.git
