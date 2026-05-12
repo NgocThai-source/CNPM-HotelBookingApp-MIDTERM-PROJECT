@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="logo.png" alt="Hotel Booking App Logo" width="120"/>
+  <img src="logo1.png" alt="Hotel Booking App Logo" width="120"/>
 </p>
 
 <h1 align="center">Hotel Booking App</h1>
