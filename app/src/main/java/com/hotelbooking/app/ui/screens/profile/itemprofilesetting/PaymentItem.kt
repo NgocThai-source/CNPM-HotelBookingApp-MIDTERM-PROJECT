@@ -307,11 +307,8 @@ fun VietQRCard(
             // ==============================
 
             AsyncImage(
-
-                model = "https://img.vietqr.io/image/970422-0358296442-compact2.png?amount=50000&addInfo=Test",
-
+                model = transaction.qrUrl, // Sử dụng link được tạo động từ transaction
                 contentDescription = "VietQR",
-
                 modifier = Modifier
                     .size(240.dp)
                     .background(
@@ -319,7 +316,6 @@ fun VietQRCard(
                         RoundedCornerShape(12.dp)
                     )
                     .padding(10.dp),
-
                 contentScale = ContentScale.Fit
             )
 
