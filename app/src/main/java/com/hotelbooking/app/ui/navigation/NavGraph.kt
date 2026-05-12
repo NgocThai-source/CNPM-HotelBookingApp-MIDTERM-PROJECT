@@ -105,16 +105,5 @@ fun NavGraph() {
             )
         }
 
-        composable(
-            route = Routes.DETAIL,
-            arguments = listOf(navArgument("hotelId") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val hotelId = backStackEntry.arguments?.getString("hotelId") ?: ""
-            HotelDetailScreen(
-                navController = navController,
-                hotelId = hotelId,
-                isDarkMode = isDarkMode
-            )
-        }
     }
 }
