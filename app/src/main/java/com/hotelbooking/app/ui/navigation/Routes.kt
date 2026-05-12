@@ -10,4 +10,5 @@ object Routes {
     const val RESET_PASSWORD = "reset_password"
 
     const val HOME = "home"
+    const val DETAIL = "detail/{hotelId}"
 }

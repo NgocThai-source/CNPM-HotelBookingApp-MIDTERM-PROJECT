@@ -50,6 +50,14 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.5.0")
 
 
+
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
+
+
+    
+    // Retrofit & Gson
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.gson)
 
 }
