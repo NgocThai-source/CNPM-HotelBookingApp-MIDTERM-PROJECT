@@ -6,6 +6,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
 import com.hotelbooking.app.ui.screens.home.HomeScreen
 import com.hotelbooking.app.ui.screens.profile.itemprofilesetting.BookingHistoryItem
+import com.hotelbooking.app.ui.screens.profile.itemprofilesetting.ProfileSettingItem
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 
 @Composable
 fun MainAppScreen() {
@@ -29,6 +32,9 @@ fun MainAppScreen() {
                 navController = navController,
                 bookingList = emptyList()
             )
+        }
+        composable("profile_setting"){
+            ProfileScreen(navController = navController)
         }
     }
 }

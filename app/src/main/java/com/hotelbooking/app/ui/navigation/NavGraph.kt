@@ -22,6 +22,12 @@ import com.hotelbooking.app.ui.screens.profile.itemprofilesetting.BookingHistory
 import com.hotelbooking.app.ui.screens.chat.ChatDetailScreen
 import com.hotelbooking.app.ui.screens.profile.itemprofilesetting.PaymentItem
 import kotlin.collections.emptyList
+import com.hotelbooking.app.ui.screens.profile.itemprofilesetting.ProfileSettingItem
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Surface
+import androidx.compose.ui.graphics.Color
+
 
 
 @Composable
@@ -34,10 +40,30 @@ fun NavGraph() {
         navController = navController,
         startDestination = Routes.LOGIN,
         modifier = Modifier.fillMaxSize(),
-        enterTransition = { slideInHorizontally(initialOffsetX = { it / 4 }, animationSpec = tween(animationDuration, easing = easingCurve)) + fadeIn(tween(animationDuration)) },
-        exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 4 }, animationSpec = tween(animationDuration, easing = easingCurve)) + fadeOut(tween(animationDuration)) },
-        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 4 }, animationSpec = tween(animationDuration, easing = easingCurve)) + fadeIn(tween(animationDuration)) },
-        popExitTransition = { slideOutHorizontally(targetOffsetX = { it / 4 }, animationSpec = tween(animationDuration, easing = easingCurve)) + fadeOut(tween(animationDuration)) }
+        enterTransition = {
+            slideInHorizontally(
+                initialOffsetX = { it / 4 },
+                animationSpec = tween(animationDuration, easing = easingCurve)
+            ) + fadeIn(tween(animationDuration))
+        },
+        exitTransition = {
+            slideOutHorizontally(
+                targetOffsetX = { -it / 4 },
+                animationSpec = tween(animationDuration, easing = easingCurve)
+            ) + fadeOut(tween(animationDuration))
+        },
+        popEnterTransition = {
+            slideInHorizontally(
+                initialOffsetX = { -it / 4 },
+                animationSpec = tween(animationDuration, easing = easingCurve)
+            ) + fadeIn(tween(animationDuration))
+        },
+        popExitTransition = {
+            slideOutHorizontally(
+                targetOffsetX = { it / 4 },
+                animationSpec = tween(animationDuration, easing = easingCurve)
+            ) + fadeOut(tween(animationDuration))
+        }
     ) {
 
         composable(Routes.LOGIN) {
@@ -54,30 +80,44 @@ fun NavGraph() {
                 navController = navController
             )
         }
-        composable(Routes.EDIT_PROFILE) {
-            EditProfileScreen(
-                navController
-            )
-        }
         composable(Routes.PROFILE) {
             ProfileScreen(
                 navController = navController
             )
         }
-        composable(Routes.BOOKING_HISTORY){
+        composable(Routes.BOOKING_HISTORY) {
             BookingHistoryItem(
                 navController = navController,
                 bookingList = emptyList()
             )
         }
-        composable(Routes.PAYMENT_METHOD){
+        composable(Routes.PAYMENT_METHOD) {
             PaymentItem(
+                navController = navController
+            )
+        }
+        composable(Routes.EDIT_PROFILE) {
+            EditProfileScreen(
                 navController = navController
             )
         }
     }
 }
+
 @Composable
 fun EditProfileScreen(navController: NavController) {
-    Text("Edit Profile Screen")
+
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = Color(0xFFF8F9FA)
+    ) {
+
+        ProfileSettingItem(
+            fullName = "kiet",
+            email = "kietlv.24it@vku.udn.vn",
+            phone = "0123456",
+            createdDate = "12/05/2026",
+            password = "12345678"
+        )
+    }
 }

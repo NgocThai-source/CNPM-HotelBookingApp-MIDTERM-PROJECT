@@ -78,7 +78,7 @@ fun ProfileScreen(navController: NavController) {
             item { ProfileSectionTitle("Tài khoản của tôi") }
             item {
                 ProfileCard {
-                    ProfileMenuItem(Icons.Filled.Person, "Thông tin cá nhân", onClink = { navController.navigate("edit_profile") })
+                    ProfileMenuItem(Icons.Filled.Person, "Thông tin cá nhân", onClink = { navController.navigate(Routes.EDIT_PROFILE) })
                     ProfileMenuItem(Icons.Filled.CreditCard, "Phương thức thanh toán", onClink = { navController.navigate(Routes.PAYMENT_METHOD) })
                     ProfileMenuItem(Icons.Filled.Favorite, "Danh sách yêu thích", onClink = { navController.navigate("edit_profile") })
                     ProfileMenuItem(Icons.Filled.History, "Lịch sử đặt phòng", isLast = true, onClink = { navController.navigate(Routes.BOOKING_HISTORY)})
