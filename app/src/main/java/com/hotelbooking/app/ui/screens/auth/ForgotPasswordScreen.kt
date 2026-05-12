@@ -10,10 +10,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hotelbooking.app.ui.screens.auth.components.*
+import com.hotelbooking.app.ui.theme.AppColors
 
 @Composable
 fun ForgotPasswordScreen(
@@ -35,7 +35,7 @@ fun ForgotPasswordScreen(
     }
 
     AuthScreenScaffold(isDarkMode = isDarkMode) {
-        // Header
+        // Header with logo
         AuthHeader(
             icon = Icons.Filled.LockReset,
             title = "Forgot Password?",
@@ -43,7 +43,7 @@ fun ForgotPasswordScreen(
             isDarkMode = isDarkMode
         )
 
-        Spacer(modifier = Modifier.height(28.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         // Email field
         AuthTextField(
@@ -55,7 +55,7 @@ fun ForgotPasswordScreen(
             enabled = authState !is AuthState.Loading
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(28.dp))
 
         // Send Code button
         AuthPrimaryButton(
@@ -78,13 +78,13 @@ fun ForgotPasswordScreen(
             enabled = authState !is AuthState.Loading
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         // Back to Login
         TextButton(onClick = onBackToLogin) {
             Text(
                 "Back to Sign In",
-                color = AuthColors.CyanMain,
+                color = AppColors.CyanMain,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 14.sp
             )

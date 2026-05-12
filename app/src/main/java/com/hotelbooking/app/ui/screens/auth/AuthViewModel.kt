@@ -11,7 +11,10 @@ import com.hotelbooking.app.data.model.RegisterRequest
 import com.hotelbooking.app.data.model.ResetPasswordRequest
 import com.hotelbooking.app.data.model.VerifyOtpRequest
 import com.hotelbooking.app.service.RetrofitClient
+import com.google.gson.Gson
+import com.google.gson.JsonObject
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 sealed class AuthState { // Định nghĩa các trạng thái cho AuthViewModel
     object Idle : AuthState() // Nằm im chờ đợi, lúc user gõ email, pass
@@ -29,6 +32,23 @@ class AuthViewModel : ViewModel() {
     var authState by mutableStateOf<AuthState>(AuthState.Idle)
         private set
 
+    // Helper: Parse error message from HTTP error response body
+    private fun parseErrorMessage(e: Exception): String {
+        if (e is HttpException) {
+            try {
+                val errorBody = e.response()?.errorBody()?.string()
+                if (!errorBody.isNullOrBlank()) {
+                    val json = Gson().fromJson(errorBody, JsonObject::class.java)
+                    return json.get("error")?.asString
+                        ?: json.get("message")?.asString
+                        ?: e.message()
+                }
+            } catch (_: Exception) { }
+            return e.message()
+        }
+        return e.message ?: "Connection error"
+    }
+
     // --- HÀM ĐĂNG KÝ ---
     fun register(request: RegisterRequest, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
@@ -43,7 +63,7 @@ class AuthViewModel : ViewModel() {
                     onResult(false)
                 }
             } catch (e: Exception) {
-                authState = AuthState.Error(e.message ?: "Connection error")
+                authState = AuthState.Error(parseErrorMessage(e))
                 onResult(false)
             }
         }
@@ -63,7 +83,7 @@ class AuthViewModel : ViewModel() {
                     onResult(false)
                 }
             } catch (e: Exception) {
-                authState = AuthState.Error(e.message ?: "Connection error")
+                authState = AuthState.Error(parseErrorMessage(e))
                 onResult(false)
             }
         }
@@ -86,7 +106,7 @@ class AuthViewModel : ViewModel() {
                     onResult(false)
                 }
             } catch (e: Exception) {
-                authState = AuthState.Error(e.message ?: "Connection error")
+                authState = AuthState.Error(parseErrorMessage(e))
                 onResult(false)
             }
         }
@@ -111,7 +131,7 @@ class AuthViewModel : ViewModel() {
                     onResult(false)
                 }
             } catch (e: Exception) {
-                authState = AuthState.Error("Connection error: ${e.message}")
+                authState = AuthState.Error(parseErrorMessage(e))
                 onResult(false)
             }
         }
@@ -133,7 +153,7 @@ class AuthViewModel : ViewModel() {
                     onResult(false)
                 }
             } catch (e: Exception) {
-                authState = AuthState.Error(e.message ?: "Connection error")
+                authState = AuthState.Error(parseErrorMessage(e))
                 onResult(false)
             }
         }

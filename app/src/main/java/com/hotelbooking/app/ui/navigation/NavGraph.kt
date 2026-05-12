@@ -31,7 +31,7 @@ fun NavGraph() {
     val animationDuration = 850
     val easingCurve = FastOutSlowInEasing
 
-    // Shared dark mode state, survives configuration changes
+    // Dark mode state lives at NavGraph level, survives config changes via rememberSaveable
     var isDarkMode by rememberSaveable { mutableStateOf(false) }
 
     NavHost(

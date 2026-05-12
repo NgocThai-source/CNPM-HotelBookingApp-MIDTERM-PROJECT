@@ -24,10 +24,14 @@ class HotelDetailViewModel : ViewModel() {
             detailState = HotelDetailState.Loading
             try {
                 // Gọi API lấy dữ liệu từ Supabase/Backend
-                val hotel = RetrofitClient.hotelApi.getHotelById(hotelId)
-                detailState = HotelDetailState.Success(hotel)
+                val response = RetrofitClient.hotelApi.getHotelById(hotelId)
+                if (response.success) {
+                    detailState = HotelDetailState.Success(response.data)
+                } else {
+                    detailState = HotelDetailState.Error("Failed to load hotel details")
+                }
             } catch (e: Exception) {
-                detailState = HotelDetailState.Error(e.message ?: "Lỗi tải chi tiết khách sạn")
+                detailState = HotelDetailState.Error(e.message ?: "Failed to load hotel details")
             }
         }
     }

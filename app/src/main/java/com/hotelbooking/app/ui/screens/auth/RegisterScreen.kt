@@ -9,13 +9,14 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.hotelbooking.app.data.model.RegisterRequest
 import com.hotelbooking.app.ui.screens.auth.components.*
+import com.hotelbooking.app.ui.theme.AppColors
+import kotlinx.coroutines.launch
 
 @Composable
 fun RegisterScreen(
@@ -46,7 +47,7 @@ fun RegisterScreen(
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        containerColor = AuthColors.background(isDarkMode)
+        containerColor = AppColors.background(isDarkMode)
     ) { padding ->
         Box(
             modifier = Modifier
@@ -57,7 +58,7 @@ fun RegisterScreen(
                 Column(
                     modifier = Modifier.verticalScroll(rememberScrollState())
                 ) {
-                    // Header
+                    // Header with logo
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
@@ -125,7 +126,8 @@ fun RegisterScreen(
                                 Icon(
                                     imageVector = if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
                                     contentDescription = if (passwordVisible) "Hide password" else "Show password",
-                                    tint = AuthColors.CyanMain
+                                    tint = AppColors.CyanMain,
+                                    modifier = Modifier.size(20.dp)
                                 )
                             }
                         }
@@ -134,32 +136,40 @@ fun RegisterScreen(
                     Spacer(modifier = Modifier.height(28.dp))
 
                     // Sign Up button
+                    val coroutineScope = rememberCoroutineScope()
                     AuthPrimaryButton(
                         text = "Sign Up",
                         onClick = {
-                            if (fullName.isNotBlank() && email.isNotBlank() && password.isNotBlank() && phone.isNotBlank()) {
-                                val request = RegisterRequest(email, password, fullName, phone)
-                                viewModel.register(request) { /* handled by LaunchedEffect */ }
+                            when {
+                                fullName.isBlank() || email.isBlank() || password.isBlank() || phone.isBlank() -> {
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar("Please fill in all fields")
+                                    }
+                                }
+                                password.length < 6 -> {
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar("Password must be at least 6 characters")
+                                    }
+                                }
+                                else -> {
+                                    val request = RegisterRequest(email.trim(), password, fullName.trim(), phone.trim())
+                                    viewModel.register(request) { /* handled by LaunchedEffect */ }
+                                }
                             }
                         },
                         isLoading = authState is AuthState.Loading,
                         enabled = authState !is AuthState.Loading
                     )
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
 
                     // Back to Login link
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        AuthFooterLink(
-                            normalText = "Already have an account? ",
-                            linkText = "Sign In",
-                            onClick = onBackToLogin,
-                            isDarkMode = isDarkMode
-                        )
-                    }
+                    AuthFooterLink(
+                        normalText = "Already have an account? ",
+                        linkText = "Sign In",
+                        onClick = onBackToLogin,
+                        isDarkMode = isDarkMode
+                    )
                 }
             }
         }
