@@ -43,7 +43,7 @@ class AuthViewModel : ViewModel() {
                     onResult(false)
                 }
             } catch (e: Exception) {
-                authState = AuthState.Error(e.message ?: "Đã xảy ra lỗi kết nối")
+                authState = AuthState.Error(e.message ?: "Connection error")
                 onResult(false)
             }
         }
@@ -63,7 +63,7 @@ class AuthViewModel : ViewModel() {
                     onResult(false)
                 }
             } catch (e: Exception) {
-                authState = AuthState.Error(e.message ?: "Đã xảy ra lỗi kết nối")
+                authState = AuthState.Error(e.message ?: "Connection error")
                 onResult(false)
             }
         }
@@ -86,7 +86,7 @@ class AuthViewModel : ViewModel() {
                     onResult(false)
                 }
             } catch (e: Exception) {
-                authState = AuthState.Error(e.message ?: "Đã xảy ra lỗi kết nối")
+                authState = AuthState.Error(e.message ?: "Connection error")
                 onResult(false)
             }
         }
@@ -111,7 +111,7 @@ class AuthViewModel : ViewModel() {
                     onResult(false)
                 }
             } catch (e: Exception) {
-                authState = AuthState.Error("Lỗi kết nối: ${e.message}")
+                authState = AuthState.Error("Connection error: ${e.message}")
                 onResult(false)
             }
         }
@@ -133,7 +133,7 @@ class AuthViewModel : ViewModel() {
                     onResult(false)
                 }
             } catch (e: Exception) {
-                authState = AuthState.Error(e.message ?: "Lỗi kết nối")
+                authState = AuthState.Error(e.message ?: "Connection error")
                 onResult(false)
             }
         }

@@ -31,7 +31,7 @@ fun NavGraph() {
     val animationDuration = 850
     val easingCurve = FastOutSlowInEasing
 
-    // Biến trạng thái dùng chung toàn app, lưu được khi xoay màn hình
+    // Shared dark mode state, survives configuration changes
     var isDarkMode by rememberSaveable { mutableStateOf(false) }
 
     NavHost(
@@ -46,6 +46,7 @@ fun NavGraph() {
         composable(Routes.LOGIN) {
             LoginScreen(
                 viewModel = authViewModel,
+                isDarkMode = isDarkMode,
                 onLoginClick = {
                     navController.navigate(Routes.HOME) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
@@ -59,6 +60,7 @@ fun NavGraph() {
         composable(Routes.REGISTER) {
             RegisterScreen(
                 viewModel = authViewModel,
+                isDarkMode = isDarkMode,
                 onRegisterSuccess = {
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(Routes.REGISTER) { inclusive = true }
@@ -71,6 +73,7 @@ fun NavGraph() {
         composable(Routes.FORGOT_PASSWORD) {
             ForgotPasswordScreen(
                 viewModel = authViewModel,
+                isDarkMode = isDarkMode,
                 onBackToLogin = { navController.popBackStack() },
                 onNavigateToOTP = {
                     navController.navigate(Routes.VERIFY_OTP)
@@ -81,14 +84,16 @@ fun NavGraph() {
         composable(Routes.VERIFY_OTP) {
             SendCodeOTPScreen(
                 navController = navController,
-                viewModel = authViewModel
+                viewModel = authViewModel,
+                isDarkMode = isDarkMode
             )
         }
 
         composable(Routes.RESET_PASSWORD) {
             CreateNewPasswordScreen(
                 navController = navController,
-                viewModel = authViewModel
+                viewModel = authViewModel,
+                isDarkMode = isDarkMode
             )
         }
 

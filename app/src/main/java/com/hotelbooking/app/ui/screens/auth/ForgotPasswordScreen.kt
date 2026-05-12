@@ -1,33 +1,32 @@
 package com.hotelbooking.app.ui.screens.auth
 
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.LockReset
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hotelbooking.app.ui.screens.auth.components.*
 
 @Composable
 fun ForgotPasswordScreen(
     viewModel: AuthViewModel,
     onBackToLogin: () -> Unit,
-    onNavigateToOTP: () -> Unit
-){
+    onNavigateToOTP: () -> Unit,
+    isDarkMode: Boolean = false
+) {
     val context = LocalContext.current
     val authState = viewModel.authState
     var email by remember { mutableStateOf("") }
 
-    // Chỉ lắng nghe trạng thái Error ở đây để hiện Toast
+    // Listen for error state to show Toast
     LaunchedEffect(authState) {
         if (authState is AuthState.Error) {
             Toast.makeText(context, authState.message, Toast.LENGTH_LONG).show()
@@ -35,73 +34,60 @@ fun ForgotPasswordScreen(
         }
     }
 
-    val gradientBackground = Brush.verticalGradient(
-        colors = listOf(Color(0xFF2196F3), Color(0xFF0D47A1))
-    )
+    AuthScreenScaffold(isDarkMode = isDarkMode) {
+        // Header
+        AuthHeader(
+            icon = Icons.Filled.LockReset,
+            title = "Forgot Password?",
+            subtitle = "Enter your email to receive a recovery code",
+            isDarkMode = isDarkMode
+        )
 
-    Box(
-        modifier = Modifier.fillMaxSize().background(gradientBackground),
-        contentAlignment = Alignment.Center
-    ) {
-        Card(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White)
-        ) {
-            Column(
-                modifier = Modifier.padding(32.dp).fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text("Quên mật khẩu?", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("Nhập email để nhận mã khôi phục", fontSize = 14.sp, color = Color.Gray)
+        Spacer(modifier = Modifier.height(28.dp))
 
-                Spacer(modifier = Modifier.height(32.dp))
+        // Email field
+        AuthTextField(
+            value = email,
+            onValueChange = { email = it },
+            label = "Email Address",
+            leadingIcon = Icons.Filled.Email,
+            isDarkMode = isDarkMode,
+            enabled = authState !is AuthState.Loading
+        )
 
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Email của bạn") },
-                    leadingIcon = { Icon(Icons.Filled.Email, contentDescription = null) },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                )
+        Spacer(modifier = Modifier.height(24.dp))
 
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Button(
-                    onClick = {
-                        if (email.isNotBlank()) {
-                            viewModel.email = email
-                            viewModel.forgotPassword { isSuccess ->
-                                if (isSuccess) {
-                                    Toast.makeText(context, "Mã OTP đã được gửi!", Toast.LENGTH_SHORT).show()
-                                    onNavigateToOTP()
-                                    viewModel.resetState()
-                                }
-                            }
-                        } else {
-                            Toast.makeText(context, "Vui lòng nhập email", Toast.LENGTH_SHORT).show()
+        // Send Code button
+        AuthPrimaryButton(
+            text = "Send Recovery Code",
+            onClick = {
+                if (email.isNotBlank()) {
+                    viewModel.email = email
+                    viewModel.forgotPassword { isSuccess ->
+                        if (isSuccess) {
+                            Toast.makeText(context, "OTP code has been sent!", Toast.LENGTH_SHORT).show()
+                            onNavigateToOTP()
+                            viewModel.resetState()
                         }
-                    },
-                    modifier = Modifier.fillMaxWidth().height(50.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2)),
-                    enabled = authState !is AuthState.Loading
-                ) {
-                    if (authState is AuthState.Loading) {
-                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
-                    } else {
-                        Text("Gửi yêu cầu", fontWeight = FontWeight.Bold)
                     }
+                } else {
+                    Toast.makeText(context, "Please enter your email", Toast.LENGTH_SHORT).show()
                 }
+            },
+            isLoading = authState is AuthState.Loading,
+            enabled = authState !is AuthState.Loading
+        )
 
-                Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-                TextButton(onClick = onBackToLogin) {
-                    Text("Quay lại Đăng nhập", color = Color(0xFF1976D2))
-                }
-            }
+        // Back to Login
+        TextButton(onClick = onBackToLogin) {
+            Text(
+                "Back to Sign In",
+                color = AuthColors.CyanMain,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 14.sp
+            )
         }
     }
 }
