@@ -45,4 +45,14 @@ dependencies {
     implementation("com.google.zxing:core:3.5.1")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+
+    // Gson Converter: Chuyển JSON từ Node.js sang Kotlin Object
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    // ViewModel cho Compose: Quản lý logic dữ liệu cho giao diện
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
+
+    // Runtime Livedata/State (Nếu cần dùng collectAsState)
+    implementation("androidx.compose.runtime:runtime-livedata:1.5.0")
 }

@@ -5,6 +5,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
 import com.hotelbooking.app.ui.screens.home.HomeScreen
+// ĐỔI IMPORT: Import Screen chứ không phải Item
+import com.hotelbooking.app.ui.screens.profile.itemprofilesetting.BookingHistoryScreen
 import com.hotelbooking.app.ui.screens.profile.itemprofilesetting.BookingHistoryItem
 import com.hotelbooking.app.ui.screens.profile.itemprofilesetting.ProfileSettingItem
 import androidx.compose.material.icons.Icons
@@ -27,10 +29,10 @@ fun MainAppScreen() {
             ProfileScreen(navController = navController)
         }
 
+        // SỬA TẠI ĐÂY
         composable("booking_history") {
-            BookingHistoryItem(
-                navController = navController,
-                bookingList = emptyList()
+            BookingHistoryScreen(
+                navController = navController
             )
         }
         composable("profile_setting"){
