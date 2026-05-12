@@ -59,12 +59,12 @@ fun NavGraph() {
 
         composable(
             route = Routes.DETAIL,
-            arguments = listOf(navArgument("hotelName") { type = NavType.StringType })
+            arguments = listOf(navArgument("hotelId") { type = NavType.StringType })
         ) { backStackEntry ->
-            val hotelName = backStackEntry.arguments?.getString("hotelName") ?: ""
+            val hotelId = backStackEntry.arguments?.getString("hotelId") ?: ""
             HotelDetailScreen(
                 navController = navController,
-                hotelName = hotelName,
+                hotelId = hotelId,
                 isDarkMode = isDarkMode
             )
         }
