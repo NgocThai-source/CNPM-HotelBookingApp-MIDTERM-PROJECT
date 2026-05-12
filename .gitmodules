@@ -1,3 +1,6 @@
 [submodule "backend-for-software-tech"]
 	path = backend-for-software-tech
 	url = https://github.com/VanNguyn07/backend-for-software-tech.git
+[submodule "AdminWebPanel"]
+	path = AdminWebPanel
+	url = https://github.com/NgocThai-source/AdminWebPanel_HotelBooking_CNPM_MT.git
