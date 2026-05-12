@@ -35,7 +35,9 @@ import kotlin.math.roundToInt
 val CyanMain = Color(0xFF00E5FF)
 val CyanLight = Color(0xFFE0F7FA)
 
+
 data class HotelItem(
+    val id: String,
     val imageUrl: String,
     val title: String,
     val location: String,
@@ -49,19 +51,19 @@ data class HotelItem(
 )
 
 val hotelList = listOf(
-    HotelItem("https://images.pexels.com/photos/189296/pexels-photo-189296.jpeg", "The Azure Grand Resort", "Maldives", "$450", "4.9", "Resorts", "Vinpearl Group", "Breakfast included", "https://images.pexels.com/photos/712513/pexels-photo-712513.jpeg"),
-    HotelItem("https://images.pexels.com/photos/1001965/pexels-photo-1001965.jpeg", "Emerald Isle Resort", "Bora Bora", "$620", "5.0", "Resorts", "Mr. Tran", "Free cancellation", "https://images.pexels.com/photos/718978/pexels-photo-718978.jpeg"),
-    HotelItem("https://images.pexels.com/photos/338504/pexels-photo-338504.jpeg", "Oasis Sands Resort", "Dubai", "$480", "4.8", "Resorts", "Agoda Homes", "Only 2 rooms left", "https://images.pexels.com/photos/1212984/pexels-photo-1212984.jpeg"),
-    HotelItem("https://images.pexels.com/photos/1320686/pexels-photo-1320686.jpeg", "Amanpuri Hideaway", "Phuket", "$850", "4.9", "Resorts", "Aman Resorts", "Free Spa Voucher", "https://images.pexels.com/photos/712513/pexels-photo-712513.jpeg"),
-    HotelItem("https://images.pexels.com/photos/3315291/pexels-photo-3315291.jpeg", "Four Seasons Retreat", "Bali", "$520", "4.8", "Resorts", "Mr. Michael", "Breakfast included", "https://images.pexels.com/photos/718978/pexels-photo-718978.jpeg"),
-    HotelItem("https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg", "Lumiere Heritage Hotel", "Paris", "$320", "4.7", "Luxury", "Accor Hotels", "Free cancellation", "https://images.pexels.com/photos/1212984/pexels-photo-1212984.jpeg"),
-    HotelItem("https://images.pexels.com/photos/2034335/pexels-photo-2034335.jpeg", "Golden Coast Palace", "Miami", "$550", "4.6", "Luxury", "Hilton Group", "Ocean View", "https://images.pexels.com/photos/712513/pexels-photo-712513.jpeg"),
-    HotelItem("https://images.pexels.com/photos/164595/pexels-photo-164595.jpeg", "The Ritz-Carlton Sky", "Tokyo", "$600", "4.9", "Luxury", "Ms. Jessica", "Breakfast included", "https://images.pexels.com/photos/718978/pexels-photo-718978.jpeg"),
-    HotelItem("https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg", "Burj Al Arab Infinity", "Dubai", "$1200", "5.0", "Luxury", "Jumeirah", "Airport Transfer", "https://images.pexels.com/photos/1212984/pexels-photo-1212984.jpeg"),
-    HotelItem("https://images.pexels.com/photos/1457842/pexels-photo-1457842.jpeg", "Silver Peak Mountain Inn", "Colorado", "$280", "4.8", "Boutique", "Airbnb Pro Host", "Only 1 room left", "https://images.pexels.com/photos/712513/pexels-photo-712513.jpeg"),
-    HotelItem("https://images.pexels.com/photos/1134166/pexels-photo-1134166.jpeg", "La Maison de l'Art", "Hoi An", "$150", "4.9", "Boutique", "Ms. Lan", "15% Off", "https://images.pexels.com/photos/718978/pexels-photo-718978.jpeg"),
-    HotelItem("https://images.pexels.com/photos/2506990/pexels-photo-2506990.jpeg", "The Standard Vintage", "London", "$300", "4.6", "Boutique", "The Standard", "Free cancellation", "https://images.pexels.com/photos/1212984/pexels-photo-1212984.jpeg"),
-    HotelItem("https://images.pexels.com/photos/1034584/pexels-photo-1034584.jpeg", "Hotel nhow Modern", "Berlin", "$220", "4.7", "Boutique", "Mr. Salah", "Breakfast included", "https://images.pexels.com/photos/712513/pexels-photo-712513.jpeg")
+    HotelItem(id = "azure-grand-resort", imageUrl = "https://images.pexels.com/photos/189296/pexels-photo-189296.jpeg", title = "The Azure Grand Resort", location = "Maldives", price = "$450", rating = "4.9", category = "Resorts", hostName = "Vinpearl Group", badgeText = "Breakfast included", hostAvatarUrl = "https://images.pexels.com/photos/712513/pexels-photo-712513.jpeg"),
+    HotelItem(id = "emerald-isle-resort", imageUrl = "https://images.pexels.com/photos/1001965/pexels-photo-1001965.jpeg", title = "Emerald Isle Resort", location = "Bora Bora", price = "$620", rating = "5.0", category = "Resorts", hostName = "Mr. Tran", badgeText = "Free cancellation", hostAvatarUrl = "https://images.pexels.com/photos/718978/pexels-photo-718978.jpeg"),
+    HotelItem(id = "oasis-sands-resort", imageUrl = "https://images.pexels.com/photos/338504/pexels-photo-338504.jpeg", title = "Oasis Sands Resort", location = "Dubai", price = "$480", rating = "4.8", category = "Resorts", hostName = "Agoda Homes", badgeText = "Only 2 rooms left", hostAvatarUrl = "https://images.pexels.com/photos/1212984/pexels-photo-1212984.jpeg"),
+    HotelItem(id = "amanpuri-hideaway", imageUrl = "https://images.pexels.com/photos/1320686/pexels-photo-1320686.jpeg", title = "Amanpuri Hideaway", location = "Phuket", price = "$850", rating = "4.9", category = "Resorts", hostName = "Aman Resorts", badgeText = "Free Spa Voucher", hostAvatarUrl = "https://images.pexels.com/photos/712513/pexels-photo-712513.jpeg"),
+    HotelItem(id = "four-seasons-retreat", imageUrl = "https://images.pexels.com/photos/3315291/pexels-photo-3315291.jpeg", title = "Four Seasons Retreat", location = "Bali", price = "$520", rating = "4.8", category = "Resorts", hostName = "Mr. Michael", badgeText = "Breakfast included", hostAvatarUrl = "https://images.pexels.com/photos/718978/pexels-photo-718978.jpeg"),
+    HotelItem(id = "lumiere-heritage-hotel", imageUrl = "https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg", title = "Lumiere Heritage Hotel", location = "Paris", price = "$320", rating = "4.7", category = "Luxury", hostName = "Accor Hotels", badgeText = "Free cancellation", hostAvatarUrl = "https://images.pexels.com/photos/1212984/pexels-photo-1212984.jpeg"),
+    HotelItem(id = "golden-coast-palace", imageUrl = "https://images.pexels.com/photos/2034335/pexels-photo-2034335.jpeg", title = "Golden Coast Palace", location = "Miami", price = "$550", rating = "4.6", category = "Luxury", hostName = "Hilton Group", badgeText = "Ocean View", hostAvatarUrl = "https://images.pexels.com/photos/712513/pexels-photo-712513.jpeg"),
+    HotelItem(id = "ritz-carlton-sky", imageUrl = "https://images.pexels.com/photos/164595/pexels-photo-164595.jpeg", title = "The Ritz-Carlton Sky", location = "Tokyo", price = "$600", rating = "4.9", category = "Luxury", hostName = "Ms. Jessica", badgeText = "Breakfast included", hostAvatarUrl = "https://images.pexels.com/photos/718978/pexels-photo-718978.jpeg"),
+    HotelItem(id = "burj-al-arab-infinity", imageUrl = "https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg", title = "Burj Al Arab Infinity", location = "Dubai", price = "$1200", rating = "5.0", category = "Luxury", hostName = "Jumeirah", badgeText = "Airport Transfer", hostAvatarUrl = "https://images.pexels.com/photos/1212984/pexels-photo-1212984.jpeg"),
+    HotelItem(id = "silver-peak-mountain-inn", imageUrl = "https://images.pexels.com/photos/1457842/pexels-photo-1457842.jpeg", title = "Silver Peak Mountain Inn", location = "Colorado", price = "$280", rating = "4.8", category = "Boutique", hostName = "Airbnb Pro Host", badgeText = "Only 1 room left", hostAvatarUrl = "https://images.pexels.com/photos/712513/pexels-photo-712513.jpeg"),
+    HotelItem(id = "la-maison-de-lart", imageUrl = "https://images.pexels.com/photos/1134166/pexels-photo-1134166.jpeg", title = "La Maison de l'Art", location = "Hoi An", price = "$150", rating = "4.9", category = "Boutique", hostName = "Ms. Lan", badgeText = "15% Off", hostAvatarUrl = "https://images.pexels.com/photos/718978/pexels-photo-718978.jpeg"),
+    HotelItem(id = "standard-vintage", imageUrl = "https://images.pexels.com/photos/2506990/pexels-photo-2506990.jpeg", title = "The Standard Vintage", location = "London", price = "$300", rating = "4.6", category = "Boutique", hostName = "The Standard", badgeText = "Free cancellation", hostAvatarUrl = "https://images.pexels.com/photos/1212984/pexels-photo-1212984.jpeg"),
+    HotelItem(id = "hotel-nhow-modern", imageUrl = "https://images.pexels.com/photos/1034584/pexels-photo-1034584.jpeg", title = "Hotel nhow Modern", location = "Berlin", price = "$220", rating = "4.7", category = "Boutique", hostName = "Mr. Salah", badgeText = "Breakfast included", hostAvatarUrl = "https://images.pexels.com/photos/712513/pexels-photo-712513.jpeg")
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -121,7 +123,7 @@ fun HomeScreen(navController: NavController, isDarkMode: Boolean, onThemeToggle:
                     PropertyCard(
                         hotel = item,
                         isDarkMode = isDarkMode,
-                        onClick = { navController.navigate(Routes.DETAIL.replace("{hotelName}", item.title)) }
+                        onClick = { navController.navigate(Routes.detailRoute(item.title)) }
                     )
                 }
             }

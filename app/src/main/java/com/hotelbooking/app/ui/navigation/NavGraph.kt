@@ -104,6 +104,17 @@ fun NavGraph() {
                 onThemeToggle = { isDarkMode = !isDarkMode }
             )
         }
+        composable(
+            route = "detail/{hotelName}",
+            arguments = listOf(navArgument("hotelName") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val hotelName = backStackEntry.arguments?.getString("hotelName") ?: ""
+            HotelDetailScreen(
+                hotelName = hotelName,
+                navController = navController,
+                isDarkMode = isDarkMode
+            )
+        }
 
     }
 }
