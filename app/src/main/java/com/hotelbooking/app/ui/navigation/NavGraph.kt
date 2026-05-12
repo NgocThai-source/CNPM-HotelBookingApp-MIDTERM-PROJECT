@@ -6,23 +6,21 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.hotelbooking.app.ui.screens.auth.LoginScreen
 import com.hotelbooking.app.ui.screens.home.HomeScreen
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.Modifier
 import com.hotelbooking.app.ui.screens.profile.ProfileScreen
-import androidx.navigation.NavController
-import androidx.compose.material3.Text
 import com.hotelbooking.app.ui.screens.profile.Routes
-import com.hotelbooking.app.ui.screens.profile.itemprofilesetting.BookingHistoryItem
-import com.hotelbooking.app.ui.screens.chat.ChatDetailScreen
+// QUAN TRỌNG: Import màn hình Screen chứ không phải Item
+import com.hotelbooking.app.ui.screens.profile.itemprofilesetting.BookingHistoryScreen
 import com.hotelbooking.app.ui.screens.profile.itemprofilesetting.PaymentItem
-import kotlin.collections.emptyList
-
 
 @Composable
 fun NavGraph() {
@@ -41,7 +39,6 @@ fun NavGraph() {
     ) {
 
         composable(Routes.LOGIN) {
-
             LoginScreen(
                 onLoginClick = {
                     navController.navigate(Routes.HOME) { popUpTo(0) { inclusive = true } }
@@ -50,33 +47,30 @@ fun NavGraph() {
         }
 
         composable(Routes.HOME) {
-            HomeScreen(
-                navController = navController
-            )
+            HomeScreen(navController = navController)
         }
+
         composable(Routes.EDIT_PROFILE) {
-            EditProfileScreen(
-                navController
-            )
+            EditProfileScreen(navController)
         }
+
         composable(Routes.PROFILE) {
-            ProfileScreen(
+            ProfileScreen(navController = navController)
+        }
+
+        // SỬA TẠI ĐÂY:
+        composable(Routes.BOOKING_HISTORY) {
+            BookingHistoryScreen(
                 navController = navController
             )
         }
-        composable(Routes.BOOKING_HISTORY){
-            BookingHistoryItem(
-                navController = navController,
-                bookingList = emptyList()
-            )
-        }
-        composable(Routes.PAYMENT_METHOD){
-            PaymentItem(
-                navController = navController
-            )
+
+        composable(Routes.PAYMENT_METHOD) {
+            PaymentItem(navController = navController)
         }
     }
 }
+
 @Composable
 fun EditProfileScreen(navController: NavController) {
     Text("Edit Profile Screen")
