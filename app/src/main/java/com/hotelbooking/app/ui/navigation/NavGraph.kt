@@ -7,141 +7,124 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.navigation.NavController
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.hotelbooking.app.ui.screens.auth.LoginScreen
+import androidx.navigation.navArgument
+import com.hotelbooking.app.ui.screens.auth.*
+import com.hotelbooking.app.ui.screens.detail.HotelDetailScreen
 import com.hotelbooking.app.ui.screens.home.HomeScreen
-import com.hotelbooking.app.ui.screens.profile.ProfileScreen
-import com.hotelbooking.app.ui.screens.profile.Routes
-import com.hotelbooking.app.ui.screens.profile.itemprofilesetting.BookingHistoryItem
-import com.hotelbooking.app.ui.screens.profile.itemprofilesetting.PaymentItem
-import com.hotelbooking.app.ui.screens.profile.itemprofilesetting.ProfileSettingItem
-import com.hotelbooking.app.ui.screens.profile.itemprofilesetting.EditProfileScreen
-import com.hotelbooking.app.ui.screens.profile.itemprofilesetting.BookingModel
-import com.hotelbooking.app.ui.screens.profile.ProfileUiState
-import com.hotelbooking.app.ui.screens.profile.ProfileViewModel
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.lifecycle.viewmodel.compose.viewModel
 
+// THÊM IMPORT VIEWMODEL CHO TRANG CHI TIẾT VÀO ĐÂY (Bạn có thể Alt + Enter nếu nó báo đỏ nhé)
+import com.hotelbooking.app.ui.screens.detail.HotelDetailViewModel
 
 @Composable
 fun NavGraph() {
     val navController = rememberNavController()
+    val authViewModel: AuthViewModel = viewModel()
+
     val animationDuration = 850
     val easingCurve = FastOutSlowInEasing
+
+    // Dark mode state lives at NavGraph level, survives config changes via rememberSaveable
+    var isDarkMode by rememberSaveable { mutableStateOf(false) }
 
     NavHost(
         navController = navController,
         startDestination = Routes.LOGIN,
         modifier = Modifier.fillMaxSize(),
-        enterTransition = {
-            slideInHorizontally(
-                initialOffsetX = { it / 4 },
-                animationSpec = tween(animationDuration, easing = easingCurve)
-            ) + fadeIn(tween(animationDuration))
-        },
-        exitTransition = {
-            slideOutHorizontally(
-                targetOffsetX = { -it / 4 },
-                animationSpec = tween(animationDuration, easing = easingCurve)
-            ) + fadeOut(tween(animationDuration))
-        },
-        popEnterTransition = {
-            slideInHorizontally(
-                initialOffsetX = { -it / 4 },
-                animationSpec = tween(animationDuration, easing = easingCurve)
-            ) + fadeIn(tween(animationDuration))
-        },
-        popExitTransition = {
-            slideOutHorizontally(
-                targetOffsetX = { it / 4 },
-                animationSpec = tween(animationDuration, easing = easingCurve)
-            ) + fadeOut(tween(animationDuration))
-        }
+        enterTransition = { slideInHorizontally(initialOffsetX = { it / 4 }, animationSpec = tween(animationDuration, easing = easingCurve)) + fadeIn(tween(animationDuration)) },
+        exitTransition = { slideOutHorizontally(targetOffsetX = { -it / 4 }, animationSpec = tween(animationDuration, easing = easingCurve)) + fadeOut(tween(animationDuration)) },
+        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 4 }, animationSpec = tween(animationDuration, easing = easingCurve)) + fadeIn(tween(animationDuration)) },
+        popExitTransition = { slideOutHorizontally(targetOffsetX = { it / 4 }, animationSpec = tween(animationDuration, easing = easingCurve)) + fadeOut(tween(animationDuration)) }
     ) {
-        // 1. Màn hình Đăng nhập
         composable(Routes.LOGIN) {
             LoginScreen(
+                viewModel = authViewModel,
+                isDarkMode = isDarkMode,
                 onLoginClick = {
-                    navController.navigate(Routes.HOME) { popUpTo(0) { inclusive = true } }
+                    navController.navigate(Routes.HOME) {
+                        popUpTo(Routes.LOGIN) { inclusive = true }
+                    }
+                },
+                onNavigateToRegister = { navController.navigate(Routes.REGISTER) },
+                onNavigateToForgotPassword = { navController.navigate(Routes.FORGOT_PASSWORD) }
+            )
+        }
+
+        composable(Routes.REGISTER) {
+            RegisterScreen(
+                viewModel = authViewModel,
+                isDarkMode = isDarkMode,
+                onRegisterSuccess = {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(Routes.REGISTER) { inclusive = true }
+                    }
+                },
+                onBackToLogin = { navController.popBackStack() }
+            )
+        }
+
+        composable(Routes.FORGOT_PASSWORD) {
+            ForgotPasswordScreen(
+                viewModel = authViewModel,
+                isDarkMode = isDarkMode,
+                onBackToLogin = { navController.popBackStack() },
+                onNavigateToOTP = {
+                    navController.navigate(Routes.VERIFY_OTP)
                 }
             )
         }
 
-        // 2. Màn hình Home
-        composable(Routes.HOME) {
-            HomeScreen(navController = navController)
-        }
-
-        // 3. Màn hình Menu Profile chính
-        composable(Routes.PROFILE) {
-            ProfileScreen(navController = navController)
-        }
-
-        // 4. Màn hình Thông tin cá nhân (Của bạn)
-        composable(Routes.EDIT_PROFILE) {
-            EditProfileScreen()
-        }
-
-        // 5. Màn hình Lịch sử đặt phòng (Của team)
-        // 5. Màn hình Lịch sử đặt phòng (Của team)
-        composable(Routes.BOOKING_HISTORY) {
-            BookingHistoryItem(
-                booking = BookingModel(
-                    id = 0,
-                    check_in_date = "",
-                    check_out_date = "",
-                    status = "",
-                    total_price = 0.0
-                )
+        composable(Routes.VERIFY_OTP) {
+            SendCodeOTPScreen(
+                navController = navController,
+                viewModel = authViewModel,
+                isDarkMode = isDarkMode
             )
         }
 
-        // 6. Màn hình Phương thức thanh toán (Của team)
-        composable(Routes.PAYMENT_METHOD) {
-            PaymentItem(navController = navController)
+        composable(Routes.RESET_PASSWORD) {
+            CreateNewPasswordScreen(
+                navController = navController,
+                viewModel = authViewModel,
+                isDarkMode = isDarkMode
+            )
         }
-    }
-}
 
-@Composable
-fun EditProfileScreen(
-    navController: NavController,
-    viewModel: ProfileViewModel = viewModel()
-) {
-    // 1. Tự động gọi API khi vào màn hình
-    LaunchedEffect(Unit) {
-        // Thay ID này bằng ID thật bạn copy từ bảng profile_users trên Supabase
-        viewModel.fetchUserProfile("8f187c60-14f3-48f8-a9c9-8f6177d...")
-    }
-
-    val state = viewModel.uiState
-
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        when (state) {
-            is ProfileUiState.Loading -> CircularProgressIndicator() // Đang tải dữ liệu
-            is ProfileUiState.Success -> {
-                // 2. KẾT NỐI API THÀNH CÔNG: Đổ dữ liệu từ Backend vào giao diện
-                ProfileSettingItem(
-                    fullName = state.user.full_name, // Dữ liệu từ API
-                    email = state.user.email,         // Dữ liệu từ API
-                    phone = state.user.phone,         // Dữ liệu từ API
-                    createdDate = state.user.created_at.substring(0, 10), // Cắt lấy YYYY-MM-DD
-                    password = "********" // Mật khẩu thường không trả về qua API này để bảo mật
-                )
-            }
-            is ProfileUiState.Error -> {
-                Text("Lỗi kết nối: ${state.message}", color = Color.Red)
-            }
+        composable(Routes.HOME) {
+            HomeScreen(
+                navController = navController,
+                isDarkMode = isDarkMode,
+                onThemeToggle = { isDarkMode = !isDarkMode }
+            )
         }
+
+        // --- ĐÂY LÀ ĐOẠN ĐÃ ĐƯỢC SỬA LẠI ĐỂ KHỚP VỚI HOMESCREEN VÀ DETAILSCREEN ---
+        composable(
+            route = "hotel_detail/{hotelId}", // Đổi từ hotelName sang hotelId
+            arguments = listOf(navArgument("hotelId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val hotelId = backStackEntry.arguments?.getString("hotelId") ?: ""
+
+            // Khởi tạo ViewModel cho màn hình chi tiết
+            val hotelDetailViewModel: HotelDetailViewModel = viewModel()
+
+            HotelDetailScreen(
+                navController = navController,
+                hotelId = hotelId, // Truyền hotelId
+                viewModel = hotelDetailViewModel, // Truyền ViewModel
+                isDarkMode = isDarkMode
+            )
+        }
+
     }
 }

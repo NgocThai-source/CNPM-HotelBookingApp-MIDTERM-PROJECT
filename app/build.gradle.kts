@@ -39,20 +39,18 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
     implementation(libs.androidx.navigation.compose)
     implementation("androidx.compose.material:material-icons-extended")
     implementation("io.coil-kt:coil-compose:2.5.0")
-    implementation("com.google.zxing:core:3.5.1")
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation(libs.okhttp.logging)
+    implementation(libs.okhttp.sse)
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+    
+    // Retrofit & Gson
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.gson)
 
-    // Gson Converter: Chuyển JSON từ Node.js sang Kotlin Object
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-
-    // ViewModel cho Compose: Quản lý logic dữ liệu cho giao diện
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
-
-    // Runtime Livedata/State (Nếu cần dùng collectAsState)
-    implementation("androidx.compose.runtime:runtime-livedata:1.5.0")
 }
