@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.hotelbooking.app.ui.navigation.Routes
 import com.hotelbooking.app.ui.screens.auth.components.*
+import com.hotelbooking.app.ui.theme.AppColors
 import kotlinx.coroutines.delay
 
 @Composable
@@ -59,7 +60,7 @@ fun SendCodeOTPScreen(
     }
 
     AuthScreenScaffold(isDarkMode = isDarkMode) {
-        // Header
+        // Header with logo
         AuthHeader(
             icon = Icons.Filled.MarkEmailRead,
             title = "Verify Email",
@@ -67,17 +68,17 @@ fun SendCodeOTPScreen(
             isDarkMode = isDarkMode
         )
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(6.dp))
 
         // Display email
         Text(
             text = viewModel.email,
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
-            color = AuthColors.CyanMain
+            color = AppColors.CyanMain
         )
 
-        Spacer(modifier = Modifier.height(28.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         // OTP Input – individual digit boxes
         OtpInputField(
@@ -86,7 +87,7 @@ fun SendCodeOTPScreen(
             isDarkMode = isDarkMode
         )
 
-        Spacer(modifier = Modifier.height(28.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         // Verify button
         AuthPrimaryButton(
@@ -108,7 +109,7 @@ fun SendCodeOTPScreen(
             enabled = authState !is AuthState.Loading
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         // Resend OTP
         TextButton(
@@ -126,7 +127,7 @@ fun SendCodeOTPScreen(
         ) {
             Text(
                 text = if (isTimerRunning) "Resend code (${timeLeft}s)" else "Resend code",
-                color = if (isTimerRunning) AuthColors.textSecondary(isDarkMode) else AuthColors.CyanMain,
+                color = if (isTimerRunning) AppColors.textSecondary(isDarkMode) else AppColors.CyanMain,
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp
             )
@@ -136,7 +137,7 @@ fun SendCodeOTPScreen(
         TextButton(onClick = { navController.popBackStack() }) {
             Text(
                 "Go Back",
-                color = AuthColors.textSecondary(isDarkMode),
+                color = AppColors.textSecondary(isDarkMode),
                 fontSize = 14.sp
             )
         }
@@ -144,7 +145,7 @@ fun SendCodeOTPScreen(
 }
 
 // ============================================================
-// Custom OTP Input with individual digit boxes
+// Custom OTP Input with individual digit boxes – refined design
 // ============================================================
 @Composable
 private fun OtpInputField(
@@ -163,7 +164,8 @@ private fun OtpInputField(
         decorationBox = {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
+                horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 repeat(6) { index ->
                     val char = otpValue.getOrNull(index)
@@ -171,31 +173,45 @@ private fun OtpInputField(
 
                     Box(
                         modifier = Modifier
-                            .size(48.dp)
-                            .clip(RoundedCornerShape(12.dp))
+                            .weight(1f)
+                            .aspectRatio(1f)
+                            .clip(RoundedCornerShape(14.dp))
                             .background(
-                                if (isDarkMode) Color(0xFF252525) else Color(0xFFF5F9FF)
+                                if (isDarkMode) AppColors.DarkElevated else AppColors.CyanSubtle
                             )
                             .border(
                                 width = if (isFocused) 2.dp else 1.dp,
                                 color = when {
-                                    isFocused -> AuthColors.CyanMain
-                                    char != null -> AuthColors.CyanMain.copy(alpha = 0.5f)
-                                    else -> if (isDarkMode) Color(0xFF3A3A3A) else Color(0xFFE0E0E0)
+                                    isFocused -> AppColors.CyanMain
+                                    char != null -> AppColors.CyanMain.copy(alpha = 0.5f)
+                                    else -> AppColors.border(isDarkMode)
                                 },
-                                shape = RoundedCornerShape(12.dp)
+                                shape = RoundedCornerShape(14.dp)
                             ),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = char?.toString() ?: "",
-                            style = TextStyle(
-                                fontSize = 22.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = AuthColors.textPrimary(isDarkMode),
-                                textAlign = TextAlign.Center
+                        if (char != null) {
+                            Text(
+                                text = char.toString(),
+                                style = TextStyle(
+                                    fontSize = 22.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = AppColors.textPrimary(isDarkMode),
+                                    textAlign = TextAlign.Center
+                                )
                             )
-                        )
+                        } else if (isFocused) {
+                            // Blinking cursor indicator
+                            Box(
+                                modifier = Modifier
+                                    .width(2.dp)
+                                    .height(24.dp)
+                                    .background(
+                                        AppColors.CyanMain,
+                                        RoundedCornerShape(1.dp)
+                                    )
+                            )
+                        }
                     }
                 }
             }

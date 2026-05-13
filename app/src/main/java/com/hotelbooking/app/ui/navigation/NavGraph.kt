@@ -23,6 +23,9 @@ import com.hotelbooking.app.ui.screens.auth.*
 import com.hotelbooking.app.ui.screens.detail.HotelDetailScreen
 import com.hotelbooking.app.ui.screens.home.HomeScreen
 
+// THÊM IMPORT VIEWMODEL CHO TRANG CHI TIẾT VÀO ĐÂY (Bạn có thể Alt + Enter nếu nó báo đỏ nhé)
+import com.hotelbooking.app.ui.screens.detail.HotelDetailViewModel
+
 @Composable
 fun NavGraph() {
     val navController = rememberNavController()
@@ -31,7 +34,7 @@ fun NavGraph() {
     val animationDuration = 850
     val easingCurve = FastOutSlowInEasing
 
-    // Shared dark mode state, survives configuration changes
+    // Dark mode state lives at NavGraph level, survives config changes via rememberSaveable
     var isDarkMode by rememberSaveable { mutableStateOf(false) }
 
     NavHost(
@@ -104,14 +107,21 @@ fun NavGraph() {
                 onThemeToggle = { isDarkMode = !isDarkMode }
             )
         }
+
+        // --- ĐÂY LÀ ĐOẠN ĐÃ ĐƯỢC SỬA LẠI ĐỂ KHỚP VỚI HOMESCREEN VÀ DETAILSCREEN ---
         composable(
-            route = "detail/{hotelName}",
-            arguments = listOf(navArgument("hotelName") { type = NavType.StringType })
+            route = "hotel_detail/{hotelId}", // Đổi từ hotelName sang hotelId
+            arguments = listOf(navArgument("hotelId") { type = NavType.StringType })
         ) { backStackEntry ->
-            val hotelName = backStackEntry.arguments?.getString("hotelName") ?: ""
+            val hotelId = backStackEntry.arguments?.getString("hotelId") ?: ""
+
+            // Khởi tạo ViewModel cho màn hình chi tiết
+            val hotelDetailViewModel: HotelDetailViewModel = viewModel()
+
             HotelDetailScreen(
-                hotelName = hotelName,
                 navController = navController,
+                hotelId = hotelId, // Truyền hotelId
+                viewModel = hotelDetailViewModel, // Truyền ViewModel
                 isDarkMode = isDarkMode
             )
         }

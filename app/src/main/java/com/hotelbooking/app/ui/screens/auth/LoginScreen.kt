@@ -9,15 +9,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.hotelbooking.app.data.model.LoginRequest
 import com.hotelbooking.app.ui.screens.auth.components.*
+import com.hotelbooking.app.ui.theme.AppColors
 
 @Composable
 fun LoginScreen(
@@ -37,16 +38,13 @@ fun LoginScreen(
     // Listen for auth state changes to show Toast messages
     LaunchedEffect(authState) {
         if (authState is AuthState.Error) {
-            Toast.makeText(context, authState.message, Toast.LENGTH_LONG).show()
-            viewModel.resetState()
-        } else if (authState is AuthState.Success) {
-            Toast.makeText(context, authState.message, Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, authState.message.ifEmpty { "Login failed" }, Toast.LENGTH_LONG).show()
             viewModel.resetState()
         }
     }
 
     AuthScreenScaffold(isDarkMode = isDarkMode) {
-        // Header
+        // Header with logo
         AuthHeader(
             icon = Icons.Filled.HomeWork,
             title = "Welcome Back!",
@@ -54,7 +52,7 @@ fun LoginScreen(
             isDarkMode = isDarkMode
         )
 
-        Spacer(modifier = Modifier.height(28.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         // Email field
         AuthTextField(
@@ -84,7 +82,8 @@ fun LoginScreen(
                     Icon(
                         imageVector = if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
                         contentDescription = if (passwordVisible) "Hide password" else "Show password",
-                        tint = AuthColors.CyanMain
+                        tint = AppColors.CyanMain,
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             }
@@ -99,12 +98,13 @@ fun LoginScreen(
         ) {
             Text(
                 "Forgot Password?",
-                color = AuthColors.CyanMain,
-                fontWeight = FontWeight.SemiBold
+                color = AppColors.CyanMain,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 13.sp
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         // Sign In button
         AuthPrimaryButton(
@@ -125,7 +125,7 @@ fun LoginScreen(
             enabled = authState !is AuthState.Loading
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         // Sign Up link
         AuthFooterLink(

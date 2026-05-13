@@ -11,7 +11,6 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -22,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.hotelbooking.app.ui.navigation.Routes
 import com.hotelbooking.app.ui.screens.auth.components.*
+import com.hotelbooking.app.ui.theme.AppColors
 
 @Composable
 fun CreateNewPasswordScreen(
@@ -46,7 +46,7 @@ fun CreateNewPasswordScreen(
     }
 
     AuthScreenScaffold(isDarkMode = isDarkMode) {
-        // Header
+        // Header with logo
         AuthHeader(
             icon = Icons.Filled.Shield,
             title = "Reset Password",
@@ -54,7 +54,7 @@ fun CreateNewPasswordScreen(
             isDarkMode = isDarkMode
         )
 
-        Spacer(modifier = Modifier.height(28.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         // New Password field
         AuthTextField(
@@ -71,7 +71,8 @@ fun CreateNewPasswordScreen(
                     Icon(
                         imageVector = if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
                         contentDescription = if (passwordVisible) "Hide password" else "Show password",
-                        tint = AuthColors.CyanMain
+                        tint = AppColors.CyanMain,
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             }
@@ -95,7 +96,8 @@ fun CreateNewPasswordScreen(
                     Icon(
                         imageVector = if (confirmPasswordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
                         contentDescription = if (confirmPasswordVisible) "Hide password" else "Show password",
-                        tint = AuthColors.CyanMain
+                        tint = AppColors.CyanMain,
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             }
@@ -105,7 +107,7 @@ fun CreateNewPasswordScreen(
         if (!passwordsMatch) {
             Text(
                 text = "Passwords do not match",
-                color = Color(0xFFEF5350),
+                color = AppColors.Error,
                 fontSize = 12.sp,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -137,13 +139,13 @@ fun CreateNewPasswordScreen(
                     && viewModel.newPassword == confirmPassword
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         // Back button
         TextButton(onClick = { navController.popBackStack() }) {
             Text(
                 "Go Back",
-                color = AuthColors.textSecondary(isDarkMode),
+                color = AppColors.textSecondary(isDarkMode),
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 14.sp
             )
