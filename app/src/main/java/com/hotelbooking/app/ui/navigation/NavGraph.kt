@@ -20,8 +20,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.hotelbooking.app.ui.screens.auth.*
+import com.hotelbooking.app.ui.screens.booking.BookingFormScreen
+import com.hotelbooking.app.ui.screens.booking.MyBookingsScreen
 import com.hotelbooking.app.ui.screens.detail.HotelDetailScreen
 import com.hotelbooking.app.ui.screens.home.HomeScreen
+import com.hotelbooking.app.ui.screens.payment.PaymentScreen
 
 @Composable
 fun NavGraph() {
@@ -110,9 +113,74 @@ fun NavGraph() {
             arguments = listOf(navArgument("hotelId") { type = NavType.StringType })
         ) { backStackEntry ->
             val hotelId = backStackEntry.arguments?.getString("hotelId") ?: ""
+            val detailViewModel: com.hotelbooking.app.ui.screens.detail.HotelDetailViewModel = viewModel(backStackEntry)
             HotelDetailScreen(
                 navController = navController,
                 hotelId = hotelId,
+                isDarkMode = isDarkMode,
+                viewModel = detailViewModel
+            )
+        }
+
+        composable(
+            route = Routes.BOOKING,
+            arguments = listOf(
+                navArgument("hotelId") { type = NavType.StringType },
+                navArgument("hotelTitle") { type = NavType.StringType },
+                navArgument("hotelPrice") { type = NavType.StringType },
+                navArgument("hotelImageUrl") { type = NavType.StringType },
+                navArgument("checkInAvailable") { type = NavType.StringType },
+                navArgument("checkOutAvailable") { type = NavType.StringType },
+                navArgument("exchangeRate") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val args = backStackEntry.arguments
+            BookingFormScreen(
+                navController = navController,
+                hotelId = args?.getString("hotelId") ?: "",
+                hotelTitle = Routes.decodeHotelTitle(args?.getString("hotelTitle") ?: ""),
+                hotelPrice = args?.getString("hotelPrice")?.toDoubleOrNull() ?: 0.0,
+                hotelImageUrl = Routes.decodeImageUrl(args?.getString("hotelImageUrl") ?: ""),
+                checkInAvailable = args?.getString("checkInAvailable") ?: "",
+                checkOutAvailable = args?.getString("checkOutAvailable") ?: "",
+                exchangeRate = args?.getString("exchangeRate")?.toDoubleOrNull() ?: 26000.0
+            )
+        }
+
+        composable(
+            route = Routes.PAYMENT,
+            arguments = listOf(
+                navArgument("bookingId") { type = NavType.StringType },
+                navArgument("hotelName") { type = NavType.StringType },
+                navArgument("hotelImageUrl") { type = NavType.StringType },
+                navArgument("guestName") { type = NavType.StringType },
+                navArgument("phone") { type = NavType.StringType },
+                navArgument("totalPriceUSD") { type = NavType.StringType },
+                navArgument("totalPriceVND") { type = NavType.StringType },
+                navArgument("checkInDate") { type = NavType.StringType },
+                navArgument("checkOutDate") { type = NavType.StringType },
+                navArgument("numberOfNights") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val args = backStackEntry.arguments
+            PaymentScreen(
+                navController = navController,
+                bookingId = args?.getString("bookingId") ?: "",
+                hotelName = Routes.decodeParam(args?.getString("hotelName") ?: ""),
+                hotelImageUrl = Routes.decodeParam(args?.getString("hotelImageUrl") ?: ""),
+                guestName = Routes.decodeParam(args?.getString("guestName") ?: ""),
+                phone = args?.getString("phone") ?: "",
+                totalPriceUSD = args?.getString("totalPriceUSD")?.toDoubleOrNull() ?: 0.0,
+                totalPriceVND = args?.getString("totalPriceVND")?.toLongOrNull() ?: 0L,
+                checkInDate = Routes.decodeParam(args?.getString("checkInDate") ?: ""),
+                checkOutDate = Routes.decodeParam(args?.getString("checkOutDate") ?: ""),
+                numberOfNights = args?.getString("numberOfNights")?.toIntOrNull() ?: 1
+            )
+        }
+
+        composable(Routes.MY_BOOKINGS) {
+            MyBookingsScreen(
+                navController = navController,
                 isDarkMode = isDarkMode
             )
         }

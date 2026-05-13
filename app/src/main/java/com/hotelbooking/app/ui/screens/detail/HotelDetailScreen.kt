@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.hotelbooking.app.ui.navigation.Routes
 import com.hotelbooking.app.ui.theme.AppColors
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -39,10 +40,11 @@ fun HotelDetailScreen(
     navController: NavController,
     hotelId: String,
     isDarkMode: Boolean = false,
-    viewModel: HotelDetailViewModel = viewModel()
+    viewModel: com.hotelbooking.app.ui.screens.detail.HotelDetailViewModel
 ) {
     val context = LocalContext.current
     val detailState = viewModel.detailState
+    val exchangeRate by viewModel.exchangeRate.collectAsState()
 
     LaunchedEffect(hotelId) { viewModel.fetchHotelDetail(hotelId) }
 
@@ -93,8 +95,18 @@ fun HotelDetailScreen(
                                 Text(text = "Price per night", color = subTextColor, fontSize = 12.sp)
                                 Text(text = "$${hotel.price.toInt()}", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = AppColors.CyanMain)
                             }
-                            Button(onClick = { /* TODO: Book now action */ },
-                                colors = ButtonDefaults.buttonColors(containerColor = AppColors.CyanMain),
+                            Button(onClick = {
+                                val route = Routes.bookingRoute(
+                                    hotelId = hotel.id,
+                                    hotelTitle = hotel.title,
+                                    hotelPrice = hotel.price,
+                                    hotelImageUrl = hotel.imageUrl,
+                                    checkInAvailable = hotel.checkInDate ?: "2026-01-01",
+                                    checkOutAvailable = hotel.checkOutDate ?: "2026-12-31",
+                                    exchangeRate = exchangeRate
+                                )
+                                navController.navigate(route)
+                            },
                                 shape = RoundedCornerShape(14.dp), modifier = Modifier.height(52.dp),
                                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 6.dp)
                             ) { Text(text = "Book Now", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White) }

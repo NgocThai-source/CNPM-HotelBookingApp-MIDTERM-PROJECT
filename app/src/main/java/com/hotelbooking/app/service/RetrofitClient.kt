@@ -1,7 +1,9 @@
 package com.hotelbooking.app.service
 
 import com.hotelbooking.app.data.repository.AuthRepository
+import com.hotelbooking.app.data.repository.BookingRepository
 import com.hotelbooking.app.data.repository.HotelRepository
+import com.hotelbooking.app.data.repository.SettingsRepository
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -9,7 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
-    private const val BASE_URL = "http://10.0.2.2:3000";
+    private const val BASE_URL = "http://10.0.2.2:3000/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
@@ -38,6 +40,14 @@ object RetrofitClient {
     // API dành cho Khách sạn (Lấy danh sách, tìm kiếm...)
     val hotelApi: HotelRepository by lazy {
         retrofit.create(HotelRepository::class.java)
+    }
+
+    val settingsApi: SettingsRepository by lazy {
+        retrofit.create(SettingsRepository::class.java)
+    }
+
+    val bookingApi: BookingRepository by lazy {
+        retrofit.create(BookingRepository::class.java)
     }
 
     // Giữ lại cái này để các code cũ (như màn hình Đăng nhập, OTP) đang dùng 'apiInterface' không bị báo lỗi đỏ

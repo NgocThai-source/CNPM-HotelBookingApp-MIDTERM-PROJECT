@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hotelbooking.app.data.model.Hotel
 import com.hotelbooking.app.data.repository.HotelListResponse
+import com.hotelbooking.app.data.repository.SettingsRepository
 import com.hotelbooking.app.service.RetrofitClient
 import com.hotelbooking.app.service.SSEService
 import com.google.gson.JsonSyntaxException
@@ -34,9 +35,14 @@ class HomeViewModel : ViewModel() {
     private val _rawResponse = MutableStateFlow<String?>(null)
     val rawResponse: StateFlow<String?> = _rawResponse
 
+    // Exchange rate: USD to VND (default 26000)
+    private val _exchangeRate = MutableStateFlow(26000.0)
+    val exchangeRate: StateFlow<Double> = _exchangeRate
+
     init {
         Log.d("HomeViewModel", ">>> INIT: HomeViewModel created, calling fetchHotels()")
         fetchHotels()
+        fetchSettings()
         connectSSE()
     }
 
@@ -95,6 +101,27 @@ class HomeViewModel : ViewModel() {
     /** Called by UI to consume the realtime-updated flag after showing the snackbar */
     fun onRealtimeSnackbarShown() {
         _realtimeUpdated.value = false
+    }
+
+    fun fetchSettings() {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.settingsApi.getSettings()
+                if (response.success && response.data != null) {
+                    response.data["exchange_rate_usd_to_vnd"]?.toDoubleOrNull()?.let {
+                        _exchangeRate.value = it
+                        Log.d("HomeViewModel", ">>> SETTINGS: exchange rate updated to $it")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("HomeViewModel", ">>> SETTINGS ERROR: ${e.message}")
+            }
+        }
+    }
+
+    fun refreshAll() {
+        fetchHotels()
+        fetchSettings()
     }
 
     override fun onCleared() {

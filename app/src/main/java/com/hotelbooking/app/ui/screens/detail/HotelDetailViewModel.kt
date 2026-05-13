@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hotelbooking.app.data.model.Hotel
 import com.hotelbooking.app.service.RetrofitClient
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 sealed class HotelDetailState {
@@ -18,6 +20,26 @@ sealed class HotelDetailState {
 class HotelDetailViewModel : ViewModel() {
     var detailState by mutableStateOf<HotelDetailState>(HotelDetailState.Loading)
         private set
+
+    private val _exchangeRate = MutableStateFlow(26000.0)
+    val exchangeRate: StateFlow<Double> = _exchangeRate
+
+    init {
+        fetchSettings()
+    }
+
+    fun fetchSettings() {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.settingsApi.getSettings()
+                if (response.success && response.data != null) {
+                    response.data["exchange_rate_usd_to_vnd"]?.toDoubleOrNull()?.let {
+                        _exchangeRate.value = it
+                    }
+                }
+            } catch (_: Exception) { }
+        }
+    }
 
     fun fetchHotelDetail(hotelId: String) {
         viewModelScope.launch {

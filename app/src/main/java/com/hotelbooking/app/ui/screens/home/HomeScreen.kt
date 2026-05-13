@@ -101,7 +101,7 @@ fun HomeScreen(navController: NavController, isDarkMode: Boolean, onThemeToggle:
 
 
     Scaffold(
-        bottomBar = { HomeBottomNav(isDarkMode) },
+        bottomBar = { HomeBottomNav(isDarkMode, "home") { route -> navController.navigate(route) } },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = AppColors.background(isDarkMode)
     ) { paddingValues ->
@@ -110,7 +110,7 @@ fun HomeScreen(navController: NavController, isDarkMode: Boolean, onThemeToggle:
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             item { Spacer(modifier = Modifier.height(12.dp)) }
-            item { HomeTopBar(isDarkMode, onThemeToggle, { viewModel.fetchHotels() }, isLoading) }
+            item { HomeTopBar(isDarkMode, onThemeToggle, { viewModel.refreshAll() }, isLoading) }
             item {
                 SearchAndFilterSection(
                     query = searchQuery, onQueryChange = { searchQuery = it },
@@ -498,16 +498,41 @@ fun PropertyCard(hotel: Hotel, isFavorite: Boolean, onFavoriteToggle: () -> Unit
 
 // ── Bottom Navigation ──
 @Composable
-fun HomeBottomNav(isDarkMode: Boolean) {
+fun HomeBottomNav(
+    isDarkMode: Boolean,
+    currentRoute: String = "home",
+    onNavigate: (String) -> Unit = {}
+) {
     NavigationBar(
         containerColor = AppColors.surface(isDarkMode),
         tonalElevation = if (isDarkMode) 0.dp else 8.dp
     ) {
-        NavigationBarItem(icon = { Icon(Icons.Filled.Search, contentDescription = null) }, label = { Text("Search", fontSize = 11.sp) }, selected = true, onClick = { },
-            colors = NavigationBarItemDefaults.colors(selectedIconColor = AppColors.CyanMain, selectedTextColor = AppColors.CyanMain,
-                indicatorColor = AppColors.CyanMain.copy(alpha = 0.12f), unselectedIconColor = AppColors.textTertiary(isDarkMode), unselectedTextColor = AppColors.textTertiary(isDarkMode)))
-        NavigationBarItem(icon = { Icon(Icons.Filled.DateRange, contentDescription = null) }, label = { Text("Bookings", fontSize = 11.sp) }, selected = false, onClick = { },
-            colors = NavigationBarItemDefaults.colors(unselectedIconColor = AppColors.textTertiary(isDarkMode), unselectedTextColor = AppColors.textTertiary(isDarkMode)))
+        NavigationBarItem(
+            icon = { Icon(Icons.Filled.Search, contentDescription = null) },
+            label = { Text("Search", fontSize = 11.sp) },
+            selected = currentRoute == "home",
+            onClick = { onNavigate("home") },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = AppColors.CyanMain,
+                selectedTextColor = AppColors.CyanMain,
+                indicatorColor = AppColors.CyanMain.copy(alpha = 0.12f),
+                unselectedIconColor = AppColors.textTertiary(isDarkMode),
+                unselectedTextColor = AppColors.textTertiary(isDarkMode)
+            )
+        )
+        NavigationBarItem(
+            icon = { Icon(Icons.Filled.DateRange, contentDescription = null) },
+            label = { Text("Bookings", fontSize = 11.sp) },
+            selected = currentRoute == Routes.MY_BOOKINGS,
+            onClick = { onNavigate(Routes.MY_BOOKINGS) },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = AppColors.CyanMain,
+                selectedTextColor = AppColors.CyanMain,
+                indicatorColor = AppColors.CyanMain.copy(alpha = 0.12f),
+                unselectedIconColor = AppColors.textTertiary(isDarkMode),
+                unselectedTextColor = AppColors.textTertiary(isDarkMode)
+            )
+        )
         NavigationBarItem(icon = { Icon(Icons.Filled.Chat, contentDescription = null) }, label = { Text("Chat", fontSize = 11.sp) }, selected = false, onClick = { },
             colors = NavigationBarItemDefaults.colors(unselectedIconColor = AppColors.textTertiary(isDarkMode), unselectedTextColor = AppColors.textTertiary(isDarkMode)))
         NavigationBarItem(icon = { Icon(Icons.Filled.Settings, contentDescription = null) }, label = { Text("Settings", fontSize = 11.sp) }, selected = false, onClick = { },

@@ -53,4 +53,7 @@ dependencies {
     implementation(libs.retrofit.converter.gson)
     implementation(libs.gson)
 
+    // ZXing for QR code generation
+    implementation("com.google.zxing:core:3.5.2")
+
 }
