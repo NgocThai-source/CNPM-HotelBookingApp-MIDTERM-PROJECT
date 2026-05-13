@@ -1,3 +1,4 @@
+
 package com.hotelbooking.app.ui.screens.profile
 
 import androidx.compose.foundation.*
@@ -195,3 +196,4 @@ fun CustomDivider() {
             .background(Color(0xFFF5F5F5))
     )
 }
+
