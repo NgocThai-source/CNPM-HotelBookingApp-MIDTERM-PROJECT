@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
-// Data class (Giữ nguyên hoặc thêm field)
+// Data class
 data class Hotel(
     val id: Int,
     val name: String,
@@ -37,18 +37,23 @@ data class Hotel(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WishlistScreen(navController: NavController) {
+    // Bảng màu yêu cầu
+    val primaryColor = Color(0xFF00E5FF)
+    val accentColor = Color(0xFFFFC107)
+    val dangerColor = Color(0xFFEF5350)
+
     val favoriteHotels = remember {
         mutableStateListOf(
-            Hotel(1, "InterContinental Danang", "Sơn Trà, Đà Nẵng", "5.500.000đ", 4.9, 1240),
-            Hotel(2, "Pullman Beach Resort", "Ngũ Hành Sơn, Đà Nẵng", "3.200.000đ", 4.7, 850),
-            Hotel(3, "Novotel Han River", "Hải Châu, Đà Nẵng", "2.800.000đ", 4.5, 920)
+            Hotel(1, "InterContinental Danang", "Son Tra, Da Nang", "$250.00", 4.9, 1240),
+            Hotel(2, "Pullman Beach Resort", "Ngu Hanh Son, Da Nang", "$145.00", 4.7, 850),
+            Hotel(3, "Novotel Han River", "Hai Chau, Da Nang", "$110.00", 4.5, 920)
         )
     }
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Yêu thích của tôi", fontWeight = FontWeight.ExtraBold, fontSize = 20.sp) },
+                title = { Text("My Wishlist", fontWeight = FontWeight.ExtraBold, fontSize = 20.sp) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = null, tint = Color.Black)
@@ -57,10 +62,10 @@ fun WishlistScreen(navController: NavController) {
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.White)
             )
         },
-        containerColor = Color(0xFFFBFBFB)
+        containerColor = Color(0xFFFDFDFD)
     ) { padding ->
         if (favoriteHotels.isEmpty()) {
-            EmptyWishlist()
+            EmptyWishlist(primaryColor)
         } else {
             LazyColumn(
                 modifier = Modifier
@@ -70,7 +75,7 @@ fun WishlistScreen(navController: NavController) {
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
                 items(favoriteHotels) { hotel ->
-                    ModernHotelWishlistItem(hotel) {
+                    ModernHotelWishlistItem(hotel, primaryColor, accentColor, dangerColor) {
                         favoriteHotels.remove(hotel)
                     }
                 }
@@ -80,34 +85,38 @@ fun WishlistScreen(navController: NavController) {
 }
 
 @Composable
-fun ModernHotelWishlistItem(hotel: Hotel, onRemove: () -> Unit) {
+fun ModernHotelWishlistItem(
+    hotel: Hotel,
+    primaryColor: Color,
+    accentColor: Color,
+    dangerColor: Color,
+    onRemove: () -> Unit
+) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { /* Detail navigation */ },
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        border = BorderStroke(1.dp, Color(0xFFF5F5F5))
     ) {
         Column {
-            // Phần hình ảnh lớn
+            // Image Section
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
             ) {
-                // Giả lập hình ảnh với Gradient và Placeholder
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(
                             Brush.linearGradient(
-                                listOf(Color(0xFFE0E0E0), Color(0xFFBDBDBD))
+                                listOf(primaryColor.copy(alpha = 0.2f), Color(0xFFE0E0E0))
                             )
                         )
                 )
 
-                // Nút xóa (Trái tim đỏ) ở góc ảnh
+                // Remove Button (Dùng màu Đỏ EF5350FF)
                 Surface(
                     modifier = Modifier
                         .padding(12.dp)
@@ -120,12 +129,12 @@ fun ModernHotelWishlistItem(hotel: Hotel, onRemove: () -> Unit) {
                     Icon(
                         Icons.Default.Favorite,
                         contentDescription = null,
-                        tint = Color.Red,
+                        tint = dangerColor,
                         modifier = Modifier.padding(8.dp)
                     )
                 }
 
-                // Badge đánh giá nổi trên ảnh
+                // Rating Badge (Dùng màu Vàng FFC107FF)
                 Surface(
                     modifier = Modifier
                         .padding(12.dp)
@@ -137,38 +146,30 @@ fun ModernHotelWishlistItem(hotel: Hotel, onRemove: () -> Unit) {
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Default.Star, null, tint = Color(0xFFFFD700), modifier = Modifier.size(14.dp))
+                        Icon(Icons.Default.Star, null, tint = accentColor, modifier = Modifier.size(14.dp))
                         Text(text = " ${hotel.rating}", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
 
-            // Phần nội dung bên dưới
+            // Content Section
             Column(modifier = Modifier.padding(16.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Top
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = hotel.name,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF1A1A1A),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.LocationOn, null, tint = Color.Gray, modifier = Modifier.size(14.dp))
-                            Text(text = hotel.location, fontSize = 13.sp, color = Color.Gray)
-                        }
-                    }
+                Text(
+                    text = hotel.name,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF1A1A1A),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.LocationOn, null, tint = primaryColor, modifier = Modifier.size(14.dp))
+                    Text(text = hotel.location, fontSize = 13.sp, color = Color.Gray)
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Dòng giá tiền
+                // Price Row
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -179,23 +180,24 @@ fun ModernHotelWishlistItem(hotel: Hotel, onRemove: () -> Unit) {
                             text = hotel.price,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.ExtraBold,
-                            color = Color(0xFF1976D2)
+                            color = Color(0xFF212121)
                         )
                         Text(
-                            text = " / đêm",
+                            text = " / night",
                             fontSize = 12.sp,
                             color = Color.Gray,
                             modifier = Modifier.padding(bottom = 2.dp)
                         )
                     }
 
+                    // Nút View Details (Dùng màu Cyan 00E5FFFF)
                     Text(
-                        text = "Xem chi tiết",
+                        text = "View Details",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black,
                         modifier = Modifier
-                            .background(Color(0xFFF5F5F5), RoundedCornerShape(8.dp))
+                            .background(primaryColor, RoundedCornerShape(8.dp))
                             .padding(horizontal = 12.dp, vertical = 6.dp)
                     )
                 }
@@ -205,7 +207,7 @@ fun ModernHotelWishlistItem(hotel: Hotel, onRemove: () -> Unit) {
 }
 
 @Composable
-fun EmptyWishlist() {
+fun EmptyWishlist(primaryColor: Color) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -214,19 +216,19 @@ fun EmptyWishlist() {
         Surface(
             modifier = Modifier.size(120.dp),
             shape = CircleShape,
-            color = Color(0xFFF5F5F5)
+            color = primaryColor.copy(alpha = 0.1f)
         ) {
             Icon(
                 Icons.Default.Favorite,
                 contentDescription = null,
                 modifier = Modifier.padding(30.dp),
-                tint = Color.LightGray
+                tint = primaryColor.copy(alpha = 0.4f)
             )
         }
         Spacer(modifier = Modifier.height(24.dp))
-        Text("Chưa có danh sách yêu thích", fontWeight = FontWeight.ExtraBold, fontSize = 20.sp)
+        Text("Your wishlist is empty", fontWeight = FontWeight.ExtraBold, fontSize = 20.sp)
         Text(
-            "Hãy nhấn vào biểu tượng trái tim để\nlưu lại những nơi bạn muốn đến.",
+            "Tap the heart icon on any hotel to\nsave your favorite places for later.",
             color = Color.Gray,
             fontSize = 14.sp,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center,

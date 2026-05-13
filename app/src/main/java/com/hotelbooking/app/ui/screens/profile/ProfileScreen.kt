@@ -1,4 +1,3 @@
-
 package com.hotelbooking.app.ui.screens.profile
 
 import androidx.compose.foundation.*
@@ -11,7 +10,6 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.*
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -23,20 +21,23 @@ import androidx.navigation.NavController
 
 @Composable
 fun ProfileScreen(navController: NavController) {
-    val name = "Nguyễn Văn A"
+    val name = "Alex Nguyen"
     val email = "vannguyen11a21@gmail.com"
 
-    // Sử dụng Column fillMaxSize mà không có verticalScroll trực tiếp ở đây
-    // để có thể dùng weight(1f) đẩy nút xuống dưới.
+    // Bảng màu yêu cầu
+    val primaryColor = Color(0xFF00E5FF)
+    val accentColor = Color(0xFFFFC107)
+    val dangerColor = Color(0xFFEF5350)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFFDFDFD))
     ) {
-        // --- PHẦN NỘI DUNG CÓ THỂ CUỘN ---
+        // --- SCROLLABLE CONTENT ---
         Column(
             modifier = Modifier
-                .weight(1f) // Chiếm toàn bộ không gian trống phía trên
+                .weight(1f)
                 .verticalScroll(rememberScrollState())
         ) {
             // --- HEADER ---
@@ -44,10 +45,10 @@ fun ProfileScreen(navController: NavController) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(140.dp)
+                        .height(160.dp)
                         .background(
                             Brush.verticalGradient(
-                                listOf(Color(0xFF1976D2).copy(alpha = 0.1f), Color.Transparent)
+                                listOf(primaryColor.copy(alpha = 0.15f), Color.Transparent)
                             )
                         )
                 )
@@ -57,53 +58,57 @@ fun ProfileScreen(navController: NavController) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Surface(
-                        modifier = Modifier.size(110.dp).shadow(8.dp, CircleShape),
+                        modifier = Modifier
+                            .size(110.dp)
+                            .shadow(12.dp, CircleShape),
                         shape = CircleShape,
-                        color = Color.White
+                        color = Color.White,
+                        border = BorderStroke(2.dp, primaryColor) // Viền màu chủ đạo quanh Avatar
                     ) {
                         Icon(
                             imageVector = Icons.Default.AccountCircle,
                             contentDescription = null,
                             modifier = Modifier.fillMaxSize().padding(4.dp),
-                            tint = Color(0xFFE0E0E0)
+                            tint = primaryColor.copy(alpha = 0.3f)
                         )
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(text = name, fontSize = 24.sp, fontWeight = FontWeight.ExtraBold)
+                    Text(text = name, fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF212121))
                     Text(text = email, fontSize = 14.sp, color = Color.Gray)
                 }
             }
 
-            // --- CÁC MỤC MENU ---
+            // --- MENU SECTIONS ---
             Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)) {
-                SectionTitle("TÀI KHOẢN CỦA TÔI")
+                SectionTitle("MY ACCOUNT", primaryColor)
                 ModernCard {
-                    MenuRow("Thông tin cá nhân", Icons.Outlined.Person) {
+                    MenuRow("Personal Information", Icons.Outlined.Person, primaryColor) {
                         navController.navigate("edit_profile")
                     }
                     CustomDivider()
-                    MenuRow("Danh sách yêu thích", Icons.Outlined.FavoriteBorder) {
+                    MenuRow("My Wishlist", Icons.Outlined.FavoriteBorder, primaryColor) {
                         navController.navigate("wishlist")
                     }
                     CustomDivider()
-                    MenuRow("Lịch sử đặt phòng", Icons.Outlined.ListAlt) {
+                    MenuRow("Booking History", Icons.Outlined.ListAlt, primaryColor) {
                         navController.navigate("booking_history")
                     }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                SectionTitle("CÀI ĐẶT & BẢO MẬT")
+                SectionTitle("SETTINGS & SECURITY", primaryColor)
                 ModernCard {
-                    MenuRow("Đổi Mật Khẩu", Icons.Outlined.Lock) {
+                    // Dùng màu vàng (Accent) cho bảo mật để tạo điểm nhấn
+                    MenuRow("Change Password", Icons.Outlined.Lock, accentColor) {
                         navController.navigate("privacy_security")
                     }
                 }
             }
         }
 
-        // --- NÚT ĐĂNG XUẤT (LUÔN Ở DƯỚI CÙNG) ---
+        // --- LOGOUT BUTTON ---
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -115,11 +120,16 @@ fun ProfileScreen(navController: NavController) {
                     .fillMaxWidth()
                     .height(56.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFF1F1))
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = dangerColor.copy(alpha = 0.1f) // Nền đỏ nhạt
+                ),
+                border = BorderStroke(1.dp, dangerColor.copy(alpha = 0.2f))
             ) {
+                Icon(Icons.Default.ExitToApp, contentDescription = null, tint = dangerColor, modifier = Modifier.size(20.dp))
+                Spacer(Modifier.width(8.dp))
                 Text(
-                    text = "Đăng xuất",
-                    color = Color(0xFFFF5252),
+                    text = "Logout",
+                    color = dangerColor,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
                 )
@@ -128,34 +138,31 @@ fun ProfileScreen(navController: NavController) {
     }
 }
 
-// --- THÀNH PHẦN UI TÙY CHỈNH (Giữ nguyên logic thiết kế) ---
-
 @Composable
 fun ModernCard(content: @Composable ColumnScope.() -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = BorderStroke(1.dp, Color(0xFFF0F0F0)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp), // Tăng nhẹ shadow cho nổi trên nền trắng
         content = content
     )
 }
 
 @Composable
-fun SectionTitle(title: String) {
+fun SectionTitle(title: String, color: Color) {
     Text(
         text = title,
         modifier = Modifier.padding(start = 4.dp, bottom = 12.dp),
         fontSize = 12.sp,
-        color = Color(0xFF9E9E9E),
+        color = color, // Dùng màu chủ đạo cho tiêu đề mục
         fontWeight = FontWeight.Bold,
-        letterSpacing = 1.sp
+        letterSpacing = 1.5.sp
     )
 }
 
 @Composable
-fun MenuRow(title: String, icon: ImageVector, onClick: () -> Unit) {
+fun MenuRow(title: String, icon: ImageVector, iconColor: Color, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -163,20 +170,31 @@ fun MenuRow(title: String, icon: ImageVector, onClick: () -> Unit) {
             .padding(18.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = Color(0xFF424242),
-            modifier = Modifier.size(24.dp)
-        )
+        // Icon được đổi màu theo bộ nhận diện
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .background(iconColor.copy(alpha = 0.1f), CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = iconColor,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+
         Spacer(modifier = Modifier.width(16.dp))
+
         Text(
             text = title,
             modifier = Modifier.weight(1f),
             fontSize = 16.sp,
-            fontWeight = FontWeight.Medium,
+            fontWeight = FontWeight.SemiBold,
             color = Color(0xFF212121)
         )
+
         Icon(
             imageVector = Icons.Default.KeyboardArrowRight,
             contentDescription = null,
@@ -196,4 +214,3 @@ fun CustomDivider() {
             .background(Color(0xFFF5F5F5))
     )
 }
-

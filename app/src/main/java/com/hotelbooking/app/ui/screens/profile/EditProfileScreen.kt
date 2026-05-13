@@ -32,15 +32,18 @@ import androidx.navigation.NavController
 fun EditProfileScreen(navController: NavController) {
     val context = LocalContext.current
 
-    // State quản lý dữ liệu nhập
-    var name by remember { mutableStateOf("Nguyễn Văn A") }
+    // Bảng màu yêu cầu
+    val primaryColor = Color(0xFF00E5FF)
+    val accentColor = Color(0xFFFFC107)
+
+    var name by remember { mutableStateOf("Alex Nguyen") }
     var phone by remember { mutableStateOf("0901234567") }
-    val email = "vannguyen11a21@gmail.com" // Không dùng State vì không cho đổi
+    val email = "vannguyen11a21@gmail.com"
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Thông tin cá nhân", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold) },
+                title = { Text("Personal Information", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = null, tint = Color.Black)
@@ -59,65 +62,73 @@ fun EditProfileScreen(navController: NavController) {
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // --- 1. AVATAR (GIỮ NGUYÊN) ---
+            // --- 1. AVATAR WITH PRIMARY COLOR BORDER ---
             Box(contentAlignment = Alignment.BottomEnd) {
-                Surface(modifier = Modifier.size(100.dp), shape = CircleShape, color = Color(0xFFF5F5F5)) {
-                    Icon(Icons.Outlined.Person, null, modifier = Modifier.padding(20.dp), tint = Color.LightGray)
+                Surface(
+                    modifier = Modifier.size(100.dp),
+                    shape = CircleShape,
+                    color = Color(0xFFF5F5F5),
+                    border = androidx.compose.foundation.BorderStroke(2.dp, primaryColor)
+                ) {
+                    Icon(Icons.Outlined.Person, null, modifier = Modifier.padding(20.dp), tint = primaryColor.copy(alpha = 0.4f))
                 }
-                Surface(modifier = Modifier.size(32.dp).clip(CircleShape), color = Color.Black, contentColor = Color.White) {
+                // Camera button with Accent Color (Vàng)
+                Surface(
+                    modifier = Modifier.size(32.dp).clip(CircleShape),
+                    color = accentColor,
+                    contentColor = Color.Black
+                ) {
                     Icon(Icons.Default.CameraAlt, null, modifier = Modifier.padding(8.dp).size(16.dp))
                 }
             }
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // --- 2. CÁC TRƯỜNG NHẬP LIỆU ---
-
-            // HỌ TÊN (Được sửa)
+            // --- 2. INPUT FIELDS ---
             ModernInputField(
                 value = name,
                 onValueChange = { name = it },
-                label = "Họ và tên",
+                label = "Full Name",
                 icon = Icons.Outlined.Person,
-                enabled = true
+                enabled = true,
+                primaryColor = primaryColor
             )
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // SỐ ĐIỆN THOẠI (Được sửa + Check 10 số)
             ModernInputField(
                 value = phone,
-                onValueChange = { if (it.length <= 10) phone = it }, // Giới hạn tối đa 10 số khi nhập
-                label = "Số điện thoại",
+                onValueChange = { if (it.length <= 10) phone = it },
+                label = "Phone Number",
                 icon = Icons.Outlined.PhoneIphone,
                 enabled = true,
-                keyboardType = KeyboardType.Number
+                keyboardType = KeyboardType.Number,
+                primaryColor = primaryColor
             )
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // EMAIL (KHÔNG ĐƯỢC SỬA)
             ModernInputField(
                 value = email,
                 onValueChange = {},
-                label = "Email (Không thể thay đổi)",
+                label = "Email Address (Read-only)",
                 icon = Icons.Outlined.Email,
-                enabled = false // Vô hiệu hóa chỉnh sửa
+                enabled = false,
+                primaryColor = primaryColor
             )
 
             Spacer(modifier = Modifier.weight(1f))
             Spacer(modifier = Modifier.height(40.dp))
 
-            // --- 3. NÚT LƯU VỚI LOGIC CHECK ---
+            // --- 3. SAVE BUTTON (PRIMARY COLOR) ---
             Button(
                 onClick = {
                     if (phone.length != 10) {
-                        Toast.makeText(context, "Số điện thoại phải đủ 10 chữ số", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Phone number must be exactly 10 digits", Toast.LENGTH_SHORT).show()
                     } else if (name.isBlank()) {
-                        Toast.makeText(context, "Vui lòng nhập họ tên", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Full name cannot be empty", Toast.LENGTH_SHORT).show()
                     } else {
-                        // Logic lưu thành công
-                        Toast.makeText(context, "Cập nhật thành công!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Profile updated successfully!", Toast.LENGTH_SHORT).show()
                         navController.popBackStack()
                     }
                 },
@@ -125,9 +136,9 @@ fun EditProfileScreen(navController: NavController) {
                     .fillMaxWidth()
                     .height(56.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+                colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
             ) {
-                Text("Lưu thay đổi", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text("Save Changes", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 16.sp)
             }
         }
     }
@@ -141,6 +152,7 @@ fun ModernInputField(
     label: String,
     icon: ImageVector,
     enabled: Boolean,
+    primaryColor: Color,
     keyboardType: KeyboardType = KeyboardType.Text
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -148,7 +160,7 @@ fun ModernInputField(
             text = label,
             fontSize = 13.sp,
             fontWeight = FontWeight.Bold,
-            color = if (enabled) Color.Gray else Color.LightGray,
+            color = if (enabled) primaryColor else Color.LightGray,
             modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
         )
         OutlinedTextField(
@@ -161,17 +173,17 @@ fun ModernInputField(
                     imageVector = icon,
                     contentDescription = null,
                     modifier = Modifier.size(20.dp),
-                    tint = if (enabled) Color.Black else Color.LightGray
+                    tint = if (enabled) primaryColor else Color.LightGray
                 )
             },
             shape = RoundedCornerShape(16.dp),
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = Color.Black,
+                focusedBorderColor = primaryColor,
                 unfocusedBorderColor = Color(0xFFEEEEEE),
                 disabledBorderColor = Color(0xFFF5F5F5),
-                containerColor = if (enabled) Color(0xFFFBFBFB) else Color(0xFFF5F5F5),
+                containerColor = if (enabled) primaryColor.copy(alpha = 0.03f) else Color(0xFFF5F5F5),
                 disabledTextColor = Color.Gray
             )
         )

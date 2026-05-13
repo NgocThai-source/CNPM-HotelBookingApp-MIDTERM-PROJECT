@@ -1,6 +1,7 @@
 package com.hotelbooking.app.ui.screens.profile
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,12 +30,16 @@ import androidx.navigation.NavController
 fun PrivacySecurityScreen(navController: NavController) {
     val context = LocalContext.current
 
+    // Bảng màu đồng bộ
+    val primaryColor = Color(0xFF00E5FF) // Cyan
+    val accentColor = Color(0xFFFFC107)  // Yellow
+
     // State cho các trường mật khẩu
     var currentPassword by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
 
-    // State ẩn/hiện mật khẩu
+    // Trạng thái hiển thị mật khẩu
     var isCurrentPasswordVisible by remember { mutableStateOf(false) }
     var isNewPasswordVisible by remember { mutableStateOf(false) }
     var isConfirmPasswordVisible by remember { mutableStateOf(false) }
@@ -42,7 +47,7 @@ fun PrivacySecurityScreen(navController: NavController) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Đổi mật khẩu", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold) },
+                title = { Text("Change Password", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = null, tint = Color.Black)
@@ -61,72 +66,72 @@ fun PrivacySecurityScreen(navController: NavController) {
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Biểu tượng khóa trang trí
+            // Icon ổ khóa trang trí với màu nhấn (Vàng)
             Surface(
                 modifier = Modifier.size(80.dp),
                 shape = RoundedCornerShape(24.dp),
-                color = Color(0xFFF5F5F5)
+                color = accentColor.copy(alpha = 0.1f)
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Lock,
                     contentDescription = null,
                     modifier = Modifier.padding(20.dp),
-                    tint = Color.Black
+                    tint = accentColor
                 )
             }
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // --- TRƯỜNG MẬT KHẨU HIỆN TẠI ---
+            // --- CÁC TRƯỜNG NHẬP LIỆU ---
             PasswordInputField(
                 value = currentPassword,
                 onValueChange = { currentPassword = it },
-                label = "Mật khẩu hiện tại",
+                label = "Current Password",
                 isVisible = isCurrentPasswordVisible,
-                onVisibilityChange = { isCurrentPasswordVisible = !isCurrentPasswordVisible }
+                onVisibilityChange = { isCurrentPasswordVisible = !isCurrentPasswordVisible },
+                primaryColor = primaryColor
             )
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // --- TRƯỜNG MẬT KHẨU MỚI ---
             PasswordInputField(
                 value = newPassword,
                 onValueChange = { newPassword = it },
-                label = "Mật khẩu mới",
+                label = "New Password",
                 isVisible = isNewPasswordVisible,
-                onVisibilityChange = { isNewPasswordVisible = !isNewPasswordVisible }
+                onVisibilityChange = { isNewPasswordVisible = !isNewPasswordVisible },
+                primaryColor = primaryColor
             )
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // --- XÁC NHẬN MẬT KHẨU MỚI ---
             PasswordInputField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
-                label = "Xác nhận mật khẩu mới",
+                label = "Confirm New Password",
                 isVisible = isConfirmPasswordVisible,
-                onVisibilityChange = { isConfirmPasswordVisible = !isConfirmPasswordVisible }
+                onVisibilityChange = { isConfirmPasswordVisible = !isConfirmPasswordVisible },
+                primaryColor = primaryColor
             )
 
             Spacer(modifier = Modifier.weight(1f))
             Spacer(modifier = Modifier.height(40.dp))
 
-            // --- NÚT LƯU ---
+            // --- NÚT LƯU MẬT KHẨU (Màu Cyan) ---
             Button(
                 onClick = {
                     when {
                         currentPassword.isBlank() || newPassword.isBlank() || confirmPassword.isBlank() -> {
-                            Toast.makeText(context, "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Please fill in all fields", Toast.LENGTH_SHORT).show()
                         }
                         newPassword.length < 6 -> {
-                            Toast.makeText(context, "Mật khẩu mới phải từ 6 ký tự trở lên", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "New password must be at least 6 characters", Toast.LENGTH_SHORT).show()
                         }
                         newPassword != confirmPassword -> {
-                            Toast.makeText(context, "Mật khẩu xác nhận không khớp", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
                         }
                         else -> {
-                            // Logic gọi API đổi mật khẩu ở đây
-                            Toast.makeText(context, "Đổi mật khẩu thành công!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Password changed successfully!", Toast.LENGTH_SHORT).show()
                             navController.popBackStack()
                         }
                     }
@@ -135,9 +140,14 @@ fun PrivacySecurityScreen(navController: NavController) {
                     .fillMaxWidth()
                     .height(56.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+                colors = ButtonDefaults.buttonColors(containerColor = primaryColor)
             ) {
-                Text("Lưu mật khẩu mới", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(
+                    "Save New Password",
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp
+                )
             }
         }
     }
@@ -150,14 +160,15 @@ fun PasswordInputField(
     onValueChange: (String) -> Unit,
     label: String,
     isVisible: Boolean,
-    onVisibilityChange: () -> Unit
+    onVisibilityChange: () -> Unit,
+    primaryColor: Color
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = label,
             fontSize = 13.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Gray,
+            color = primaryColor,
             modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
         )
         OutlinedTextField(
@@ -173,14 +184,14 @@ fun PasswordInputField(
                     Icon(
                         imageVector = if (isVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
                         contentDescription = null,
-                        tint = Color.Gray
+                        tint = primaryColor
                     )
                 }
             },
             colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = Color.Black,
+                focusedBorderColor = primaryColor,
                 unfocusedBorderColor = Color(0xFFEEEEEE),
-                containerColor = Color(0xFFFBFBFB)
+                containerColor = primaryColor.copy(alpha = 0.02f)
             )
         )
     }

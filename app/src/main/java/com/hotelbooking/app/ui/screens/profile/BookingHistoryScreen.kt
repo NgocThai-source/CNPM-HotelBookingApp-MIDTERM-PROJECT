@@ -9,7 +9,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.outlined.CalendarMonth
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -21,11 +20,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
-// --- 1. MODEL DỮ LIỆU (Giữ nguyên hoặc thêm field) ---
+// --- 1. DATA MODEL ---
 data class Booking(
     val id: String,
     val hotelName: String,
-    val location: String, // Thêm địa điểm cho chuyên nghiệp
+    val location: String,
     val date: String,
     val price: String,
     val status: String,
@@ -35,16 +34,21 @@ data class Booking(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookingHistoryScreen(navController: NavController) {
+    // Bảng màu yêu cầu
+    val primaryColor = Color(0xFF00E5FF) // Cyan
+    val accentColor = Color(0xFFFFC107)  // Yellow
+    val dangerColor = Color(0xFFEF5350)  // Red
+
     val bookings = listOf(
-        Booking("#BK1024", "InterContinental Danang", "Sơn Trà, Đà Nẵng", "12/05 - 15/05/2026", "16.500.000đ", "Hoàn thành", Color(0xFF2E7D32)),
-        Booking("#BK1055", "Pullman Beach Resort", "Ngũ Hành Sơn, Đà Nẵng", "20/06 - 22/06/2026", "6.400.000đ", "Sắp tới", Color(0xFF1565C0)),
-        Booking("#BK0988", "Novotel Han River", "Hải Châu, Đà Nẵng", "01/04 - 02/04/2026", "2.800.000đ", "Đã hủy", Color(0xFFC62828))
+        Booking("#BK1024", "InterContinental Danang", "Son Tra, Da Nang", "May 12 - May 15, 2026", "$650.00", "Completed", Color(0xFF2E7D32)),
+        Booking("#BK1055", "Pullman Beach Resort", "Ngu Hanh Son, Da Nang", "Jun 20 - Jun 22, 2026", "$250.00", "Upcoming", primaryColor),
+        Booking("#BK0988", "Novotel Han River", "Hai Chau, Da Nang", "Apr 01 - Apr 02, 2026", "$110.00", "Cancelled", dangerColor)
     )
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar( // Dùng CenterAligned cho app quốc tế
-                title = { Text("Lịch sử chuyến đi", fontWeight = FontWeight.ExtraBold, fontSize = 20.sp) },
+            CenterAlignedTopAppBar(
+                title = { Text("Booking History", fontWeight = FontWeight.ExtraBold, fontSize = 20.sp) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = null, tint = Color.Black)
@@ -53,7 +57,7 @@ fun BookingHistoryScreen(navController: NavController) {
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.White)
             )
         },
-        containerColor = Color(0xFFFBFBFB) // Màu nền trắng ngà nhẹ
+        containerColor = Color(0xFFFDFDFD)
     ) { padding ->
         LazyColumn(
             modifier = Modifier
@@ -63,21 +67,20 @@ fun BookingHistoryScreen(navController: NavController) {
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             items(bookings) { booking ->
-                ModernBookingItem(booking)
+                ModernBookingItem(booking, primaryColor)
             }
         }
     }
 }
 
 @Composable
-fun ModernBookingItem(booking: Booking) {
+fun ModernBookingItem(booking: Booking, primaryColor: Color) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(1.dp, Color(0xFFF0F0F0), RoundedCornerShape(24.dp)), // Border mỏng thay vì shadow đậm
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(0.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        border = BorderStroke(1.dp, Color(0xFFF5F5F5))
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             // Header: Status Badge & ID
@@ -88,13 +91,13 @@ fun ModernBookingItem(booking: Booking) {
             ) {
                 Surface(
                     color = booking.statusColor.copy(alpha = 0.1f),
-                    shape = CircleShape // Badge bo tròn hoàn toàn nhìn hiện đại hơn
+                    shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
                         text = booking.status,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                         color = booking.statusColor,
-                        fontSize = 12.sp,
+                        fontSize = 11.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -103,63 +106,86 @@ fun ModernBookingItem(booking: Booking) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Tên khách sạn & Địa điểm
+            // Hotel Name
             Text(
                 text = booking.hotelName,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = Color(0xFF1A1A1A)
+                color = Color(0xFF212121)
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
+            // Location with Primary Cyan Color
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Outlined.LocationOn, null, tint = Color.Gray, modifier = Modifier.size(14.dp))
+                Icon(
+                    Icons.Outlined.LocationOn,
+                    null,
+                    tint = primaryColor,
+                    modifier = Modifier.size(16.dp)
+                )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(text = booking.location, fontSize = 13.sp, color = Color.Gray)
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Thời gian lưu trú
+            // Stay Period with Light Cyan Background
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFFF8F9FA))
+                    .background(primaryColor.copy(alpha = 0.08f))
                     .padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(Icons.Outlined.CalendarMonth, null, tint = Color(0xFF424242), modifier = Modifier.size(18.dp))
+                Icon(
+                    Icons.Outlined.CalendarMonth,
+                    null,
+                    tint = primaryColor,
+                    modifier = Modifier.size(18.dp)
+                )
                 Spacer(modifier = Modifier.width(10.dp))
-                Text(text = booking.date, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color(0xFF424242))
+                Text(
+                    text = booking.date,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color(0xFF424242)
+                )
             }
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Footer: Tổng tiền & Action
+            // Footer: Price & Action
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text("Tổng thanh toán", fontSize = 12.sp, color = Color.Gray)
+                    Text("Total Price", fontSize = 12.sp, color = Color.Gray)
                     Text(
                         text = booking.price,
                         fontWeight = FontWeight.Black,
-                        color = Color(0xFF1976D2),
-                        fontSize = 18.sp
+                        color = Color(0xFF212121),
+                        fontSize = 20.sp
                     )
                 }
 
                 Button(
-                    onClick = { /* Logic */ },
+                    onClick = { /* Detail Logic */ },
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black), // Nút đen nhìn rất "Lux"
-                    contentPadding = PaddingValues(horizontal = 20.dp)
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = primaryColor
+                    ),
+                    contentPadding = PaddingValues(horizontal = 24.dp)
                 ) {
-                    Text("Chi tiết", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        "Details",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
                 }
             }
         }

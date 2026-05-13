@@ -1,4 +1,3 @@
-
 package com.hotelbooking.app
 
 import android.annotation.SuppressLint
@@ -32,27 +31,27 @@ class MainActivity : ComponentActivity() {
                         navController = navController,
                         startDestination = "profile"
                     ) {
-                        // 1. Màn hình Profile chính
+                        // 1. Main Profile Screen
                         composable("profile") {
                             ProfileScreen(navController = navController)
                         }
 
-                        // 2. Màn hình Chỉnh sửa thông tin
+                        // 2. Edit Profile Information Screen
                         composable("edit_profile") {
                             EditProfileScreen(navController = navController)
                         }
 
-                        // 3. Màn hình Lịch sử đặt phòng
+                        // 3. Booking History Screen
                         composable("booking_history") {
                             BookingHistoryScreen(navController = navController)
                         }
 
-                        // 4. Màn hình Danh sách yêu thích
+                        // 4. Wishlist Screen
                         composable("wishlist") {
                             WishlistScreen(navController = navController)
-                        } // <--- Bạn từng thiếu/sai dấu đóng ngoặc ở đây
+                        }
 
-                        // 5. Màn hình Quyền riêng tư và bảo mật
+                        // 5. Privacy and Security Screen
                         composable("privacy_security") {
                             PrivacySecurityScreen(navController = navController)
                         }
@@ -62,4 +61,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
