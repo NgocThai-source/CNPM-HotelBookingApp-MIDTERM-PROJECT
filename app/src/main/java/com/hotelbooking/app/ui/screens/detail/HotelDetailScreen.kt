@@ -30,10 +30,14 @@ import coil.compose.AsyncImage
 import com.hotelbooking.app.ui.navigation.Routes
 import com.hotelbooking.app.ui.theme.AppColors
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 
 data class Review(val name: String, val date: String, val content: String, val avatarUrl: String)
+
+fun getDefaultAvatarUrl(userName: String): String {
+    val encodedName = java.net.URLEncoder.encode(userName.ifBlank { "User" }, "UTF-8")
+    return "https://ui-avatars.com/api/?name=$encodedName&background=random&color=fff&size=128"
+}
 
 @Composable
 fun HotelDetailScreen(
@@ -45,19 +49,14 @@ fun HotelDetailScreen(
     val context = LocalContext.current
     val detailState = viewModel.detailState
     val exchangeRate by viewModel.exchangeRate.collectAsState()
+    val reviews by viewModel.reviews.collectAsState()
+    val hasUserReviewed by viewModel.hasUserReviewed.collectAsState()
+    val isSubmittingReview by viewModel.isSubmittingReview.collectAsState()
 
     LaunchedEffect(hotelId) { viewModel.fetchHotelDetail(hotelId) }
 
     var userReview by remember { mutableStateOf("") }
     var isFavorite by remember { mutableStateOf(false) }
-
-    val currentReviews = remember {
-        mutableStateListOf(
-            Review("Mr. Tung", "04/28/2026",
-                "The room was extremely clean, the view was stunning. Staff was very helpful 24/7. Will definitely come back!",
-                "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg")
-        )
-    }
 
     val textColor = AppColors.textPrimary(isDarkMode)
     val subTextColor = AppColors.textSecondary(isDarkMode)
@@ -216,10 +215,9 @@ fun HotelDetailScreen(
 
                         // Host Info
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            if (!hotel.hostAvatarUrl.isNullOrEmpty()) {
-                                AsyncImage(model = hotel.hostAvatarUrl, contentDescription = "Host", modifier = Modifier.size(50.dp).clip(CircleShape), contentScale = ContentScale.Crop)
-                                Spacer(modifier = Modifier.width(16.dp))
-                            }
+                            val hostAvatar = hotel.hostAvatarUrl?.takeIf { it.isNotBlank() } ?: getDefaultAvatarUrl(hotel.hostName.orEmpty())
+                            AsyncImage(model = hostAvatar, contentDescription = "Host", modifier = Modifier.size(50.dp).clip(CircleShape), contentScale = ContentScale.Crop)
+                            Spacer(modifier = Modifier.width(16.dp))
                             Column {
                                 Text(text = "Hosted by", color = subTextColor, fontSize = 12.sp)
                                 Text(text = hotel.hostName.orEmpty().ifEmpty { "Host" }, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = textColor)
@@ -244,43 +242,101 @@ fun HotelDetailScreen(
                         HorizontalDivider(color = dividerColor, thickness = 6.dp)
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        // Reviews
+                        // Reviews Section
                         Text(text = "Guest Reviews", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = textColor)
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        currentReviews.forEach { review ->
-                            ReviewItem(review, isDarkMode)
+                        reviews.forEach { review ->
+                            DetailReviewItem(
+                                name = review.userName,
+                                date = formatDate(review.createdAt),
+                                content = review.content,
+                                avatarUrl = review.userAvatarUrl?.takeIf { it.isNotBlank() } ?: getDefaultAvatarUrl(review.userName),
+                                isDarkMode = isDarkMode
+                            )
                             Spacer(modifier = Modifier.height(16.dp))
                             HorizontalDivider(color = dividerColor.copy(alpha = 0.3f))
                             Spacer(modifier = Modifier.height(16.dp))
                         }
 
-                        OutlinedTextField(
-                            value = userReview, onValueChange = { userReview = it },
-                            placeholder = { Text("Share your experience...", color = subTextColor, fontSize = 14.sp) },
-                            modifier = Modifier.fillMaxWidth().height(100.dp), shape = RoundedCornerShape(14.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                unfocusedBorderColor = dividerColor, focusedBorderColor = AppColors.CyanMain,
-                                focusedTextColor = textColor, unfocusedTextColor = textColor,
-                                cursorColor = AppColors.CyanMain,
-                                unfocusedContainerColor = AppColors.card(isDarkMode), focusedContainerColor = AppColors.card(isDarkMode)
+                        if (reviews.isEmpty()) {
+                            Text(
+                                text = "No reviews yet. Be the first to review!",
+                                fontSize = 14.sp,
+                                color = subTextColor,
+                                modifier = Modifier.padding(vertical = 8.dp)
                             )
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                            Button(onClick = {
-                                if (userReview.isNotBlank()) {
-                                    val date = SimpleDateFormat("MM/dd/yyyy", Locale.US).format(Date())
-                                    currentReviews.add(0, Review("You", date, userReview, "https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg"))
-                                    userReview = ""
-                                    Toast.makeText(context, "Review submitted!", Toast.LENGTH_SHORT).show()
-                                }
-                            }, colors = ButtonDefaults.buttonColors(containerColor = AppColors.CyanMain),
-                                shape = RoundedCornerShape(14.dp), elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+
+                        // Review Form
+                        if (hasUserReviewed) {
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(14.dp),
+                                color = AppColors.CyanMain.copy(alpha = 0.1f)
                             ) {
-                                Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null, modifier = Modifier.size(16.dp))
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("Submit Review", fontWeight = FontWeight.Bold)
+                                Row(
+                                    modifier = Modifier.padding(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(Icons.Filled.CheckCircle, contentDescription = null, tint = AppColors.CyanMain, modifier = Modifier.size(24.dp))
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Text(
+                                        text = "You have reviewed this hotel",
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = AppColors.CyanMain
+                                    )
+                                }
+                            }
+                        } else {
+                            OutlinedTextField(
+                                value = userReview, onValueChange = { userReview = it },
+                                placeholder = { Text("Share your experience...", color = subTextColor, fontSize = 14.sp) },
+                                modifier = Modifier.fillMaxWidth().height(100.dp), shape = RoundedCornerShape(14.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    unfocusedBorderColor = dividerColor, focusedBorderColor = AppColors.CyanMain,
+                                    focusedTextColor = textColor, unfocusedTextColor = textColor,
+                                    cursorColor = AppColors.CyanMain,
+                                    unfocusedContainerColor = AppColors.card(isDarkMode), focusedContainerColor = AppColors.card(isDarkMode)
+                                )
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                                Button(
+                                    onClick = {
+                                        if (userReview.isNotBlank()) {
+                                            viewModel.submitReview(
+                                                hotelId = hotel.id,
+                                                content = userReview,
+                                                onSuccess = {
+                                                    userReview = ""
+                                                    Toast.makeText(context, "Review submitted!", Toast.LENGTH_SHORT).show()
+                                                },
+                                                onError = { error ->
+                                                    Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+                                                }
+                                            )
+                                        }
+                                    },
+                                    colors = ButtonDefaults.buttonColors(containerColor = AppColors.CyanMain),
+                                    shape = RoundedCornerShape(14.dp),
+                                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
+                                    enabled = !isSubmittingReview && userReview.isNotBlank()
+                                ) {
+                                    if (isSubmittingReview) {
+                                        CircularProgressIndicator(
+                                            color = Color.White,
+                                            modifier = Modifier.size(16.dp),
+                                            strokeWidth = 2.dp
+                                        )
+                                    } else {
+                                        Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null, modifier = Modifier.size(16.dp))
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text("Submit Review", fontWeight = FontWeight.Bold)
+                                    }
+                                }
                             }
                         }
                         Spacer(modifier = Modifier.height(32.dp))
@@ -288,6 +344,17 @@ fun HotelDetailScreen(
                 }
             }
         }
+    }
+}
+
+private fun formatDate(isoDate: String): String {
+    return try {
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
+        val outputFormat = SimpleDateFormat("MM/dd/yyyy", Locale.US)
+        val date = inputFormat.parse(isoDate)
+        date?.let { outputFormat.format(it) } ?: isoDate
+    } catch (_: Exception) {
+        isoDate.take(10).replace("-", "/")
     }
 }
 
@@ -307,17 +374,22 @@ fun FacilityItem(icon: ImageVector, label: String, isDarkMode: Boolean) {
 }
 
 @Composable
-fun ReviewItem(review: Review, isDarkMode: Boolean) {
+fun DetailReviewItem(name: String, date: String, content: String, avatarUrl: String, isDarkMode: Boolean) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            AsyncImage(model = review.avatarUrl, contentDescription = null, modifier = Modifier.size(40.dp).clip(CircleShape), contentScale = ContentScale.Crop)
+            AsyncImage(
+                model = avatarUrl,
+                contentDescription = null,
+                modifier = Modifier.size(40.dp).clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
             Spacer(modifier = Modifier.width(12.dp))
             Column {
-                Text(text = review.name, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = AppColors.textPrimary(isDarkMode))
-                Text(text = review.date, fontSize = 12.sp, color = AppColors.textTertiary(isDarkMode))
+                Text(text = name, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = AppColors.textPrimary(isDarkMode))
+                Text(text = date, fontSize = 12.sp, color = AppColors.textTertiary(isDarkMode))
             }
         }
         Spacer(modifier = Modifier.height(10.dp))
-        Text(text = review.content, color = AppColors.textSecondary(isDarkMode), fontSize = 14.sp, lineHeight = 22.sp)
+        Text(text = content, color = AppColors.textSecondary(isDarkMode), fontSize = 14.sp, lineHeight = 22.sp)
     }
 }

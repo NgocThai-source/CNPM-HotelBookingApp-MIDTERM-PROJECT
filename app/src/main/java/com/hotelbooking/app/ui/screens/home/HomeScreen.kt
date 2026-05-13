@@ -38,6 +38,7 @@ import coil.compose.AsyncImage
 import com.hotelbooking.app.R
 import com.hotelbooking.app.data.model.Hotel
 import com.hotelbooking.app.ui.navigation.Routes
+import com.hotelbooking.app.ui.screens.profile.FavoritesViewModel
 import com.hotelbooking.app.ui.theme.AppColors
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -57,6 +58,7 @@ fun HomeScreen(navController: NavController, isDarkMode: Boolean, onThemeToggle:
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
     val realtimeUpdated by viewModel.realtimeUpdated.collectAsState()
+    val favoritesState by FavoritesViewModel.state.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -82,7 +84,6 @@ fun HomeScreen(navController: NavController, isDarkMode: Boolean, onThemeToggle:
     var showDateDialog by remember { mutableStateOf(false) }
     var showFilterSheet by remember { mutableStateOf(false) }
     var priceRange by remember { mutableStateOf(0f..500000f) }
-    var favorites by remember { mutableStateOf(setOf<String>()) }
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val dateRangePickerState = rememberDateRangePickerState()
@@ -165,12 +166,12 @@ fun HomeScreen(navController: NavController, isDarkMode: Boolean, onThemeToggle:
                 items(displayedHotels) { hotel ->
                     PropertyCard(
                         hotel = hotel,
-                        isFavorite = favorites.contains(hotel.id),
+                        isFavorite = favoritesState.favorites.any { it.id == hotel.id },
                         onFavoriteToggle = {
-                            favorites = if (favorites.contains(hotel.id)) {
-                                favorites - hotel.id
+                            if (favoritesState.favorites.any { it.id == hotel.id }) {
+                                FavoritesViewModel.removeFavorite(hotel.id)
                             } else {
-                                favorites + hotel.id
+                                FavoritesViewModel.addFavorite(hotel.id)
                             }
                         },
                         isDarkMode = isDarkMode,
@@ -438,6 +439,21 @@ fun PropertyCard(hotel: Hotel, isFavorite: Boolean, onFavoriteToggle: () -> Unit
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(hotel.location, fontSize = 12.sp, color = AppColors.textSecondary(isDarkMode))
                 }
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Filled.Star, contentDescription = null, tint = Color(0xFFFFB800), modifier = Modifier.size(14.dp))
+                    Spacer(modifier = Modifier.width(3.dp))
+                    Text(
+                        if (hotel.rating > 0) String.format(Locale.US, "%.1f", hotel.rating) else "New",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = if (hotel.rating > 0) AppColors.textPrimary(isDarkMode) else AppColors.textTertiary(isDarkMode)
+                    )
+                    if (hotel.reviewCount > 0) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("(${hotel.reviewCount})", fontSize = 12.sp, color = AppColors.textTertiary(isDarkMode))
+                    }
+                }
                 // Check-in / Check-out dates
                 if (!hotel.checkInDate.isNullOrEmpty() || !hotel.checkOutDate.isNullOrEmpty()) {
                     Spacer(modifier = Modifier.height(6.dp))
@@ -533,9 +549,29 @@ fun HomeBottomNav(
                 unselectedTextColor = AppColors.textTertiary(isDarkMode)
             )
         )
-        NavigationBarItem(icon = { Icon(Icons.Filled.Chat, contentDescription = null) }, label = { Text("Chat", fontSize = 11.sp) }, selected = false, onClick = { },
-            colors = NavigationBarItemDefaults.colors(unselectedIconColor = AppColors.textTertiary(isDarkMode), unselectedTextColor = AppColors.textTertiary(isDarkMode)))
-        NavigationBarItem(icon = { Icon(Icons.Filled.Settings, contentDescription = null) }, label = { Text("Settings", fontSize = 11.sp) }, selected = false, onClick = { },
+        NavigationBarItem(
+            icon = {
+                Box {
+                    Icon(Icons.Filled.Notifications, contentDescription = null)
+                    if (com.hotelbooking.app.ui.screens.notification.NotificationViewModel.sharedUnreadCount.collectAsState().value > 0) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .align(Alignment.TopEnd)
+                                .background(Color(0xFFF44336), CircleShape)
+                        )
+                    }
+                }
+            },
+            label = { Text("Notification", fontSize = 11.sp) },
+            selected = false,
+            onClick = { onNavigate("notifications") },
+            colors = NavigationBarItemDefaults.colors(
+                unselectedIconColor = AppColors.textTertiary(isDarkMode),
+                unselectedTextColor = AppColors.textTertiary(isDarkMode)
+            )
+        )
+        NavigationBarItem(icon = { Icon(Icons.Filled.Settings, contentDescription = null) }, label = { Text("Settings", fontSize = 11.sp) }, selected = false, onClick = { onNavigate(Routes.PROFILE_SETTING) },
             colors = NavigationBarItemDefaults.colors(unselectedIconColor = AppColors.textTertiary(isDarkMode), unselectedTextColor = AppColors.textTertiary(isDarkMode)))
     }
 }

@@ -31,6 +31,23 @@ data class UserData(
     val email: String,
     val fullName: String,
     val phone: String,
+    val token: String? = null,
+)
+
+data class ChangePasswordRequest(
+    val oldPassword: String,
+    val newPassword: String
+)
+
+data class UpdateProfileRequest(
+    val fullName: String,
+    val phone: String? = null
+)
+
+data class ProfileResponse(
+    val success: Boolean,
+    val message: String,
+    val data: UserData? = null
 )
 
 

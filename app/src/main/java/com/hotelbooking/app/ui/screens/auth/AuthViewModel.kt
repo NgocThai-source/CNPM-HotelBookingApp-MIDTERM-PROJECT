@@ -11,6 +11,7 @@ import com.hotelbooking.app.data.model.RegisterRequest
 import com.hotelbooking.app.data.model.ResetPasswordRequest
 import com.hotelbooking.app.data.model.VerifyOtpRequest
 import com.hotelbooking.app.service.RetrofitClient
+import com.hotelbooking.app.util.TokenManager
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.launch
@@ -76,6 +77,9 @@ class AuthViewModel : ViewModel() {
             try {
                 val response = RetrofitClient.apiInterface.loginUser(request)
                 if (response.success) {
+                    response.data?.token?.let { TokenManager.saveToken(it) }
+                        ?: response.token?.let { TokenManager.saveToken(it) }
+                    response.data?.userId?.let { TokenManager.saveUserId(it) }
                     authState = AuthState.Success(response.message)
                     onResult(true)
                 } else {

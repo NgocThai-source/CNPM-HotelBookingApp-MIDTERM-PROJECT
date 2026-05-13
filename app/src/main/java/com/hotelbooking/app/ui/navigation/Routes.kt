@@ -13,8 +13,10 @@ object Routes {
     const val RESET_PASSWORD = "reset_password"
 
     const val HOME = "home"
+    const val PROFILE_SETTING = "profile_setting"
     const val DETAIL = "detail/{hotelId}"
     const val MY_BOOKINGS = "my_bookings"
+    const val NOTIFICATIONS = "notifications"
 
     const val BOOKING = "booking/{hotelId}/{hotelTitle}/{hotelPrice}/{hotelImageUrl}/{checkInAvailable}/{checkOutAvailable}/{exchangeRate}"
 

@@ -9,10 +9,12 @@ import androidx.compose.ui.Modifier
 import com.hotelbooking.app.ui.navigation.NavGraph
 import com.hotelbooking.app.ui.theme.AppColors
 import com.hotelbooking.app.ui.theme.HotelBookingTheme
+import com.hotelbooking.app.util.TokenManager
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        TokenManager.init(this)
         setContent {
             HotelBookingTheme {
                 Surface(

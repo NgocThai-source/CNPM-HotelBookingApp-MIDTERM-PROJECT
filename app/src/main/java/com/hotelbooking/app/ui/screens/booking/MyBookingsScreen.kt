@@ -499,10 +499,22 @@ private fun MyBookingsBottomNav(
             )
         )
         NavigationBarItem(
-            icon = { Icon(Icons.Filled.Chat, contentDescription = null) },
-            label = { Text("Chat", fontSize = 11.sp) },
+            icon = {
+                Box {
+                    Icon(Icons.Filled.Notifications, contentDescription = null)
+                    if (com.hotelbooking.app.ui.screens.notification.NotificationViewModel.sharedUnreadCount.collectAsState().value > 0) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .align(Alignment.TopEnd)
+                                .background(Color(0xFFF44336), CircleShape)
+                        )
+                    }
+                }
+            },
+            label = { Text("Notification", fontSize = 11.sp) },
             selected = false,
-            onClick = { },
+            onClick = { onNavigate("notifications") },
             colors = NavigationBarItemDefaults.colors(
                 unselectedIconColor = AppColors.textTertiary(isDarkMode),
                 unselectedTextColor = AppColors.textTertiary(isDarkMode)

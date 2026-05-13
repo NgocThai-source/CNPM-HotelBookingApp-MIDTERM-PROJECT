@@ -18,8 +18,7 @@ enum class BottomNavItem(
 ) {
     SEARCH("home", "Search", Icons.Filled.Search),
     BOOKINGS("bookings", "Bookings", Icons.Filled.DateRange),
-    CHAT("chat", "Chat", Icons.Filled.Chat),
-    ADMIN("admin", "Admin", Icons.Filled.VerifiedUser),
+    NOTIFICATION("notifications", "Notification", Icons.Filled.Notifications),
     SETTINGS("settings", "Settings", Icons.Filled.Settings)
 }
 

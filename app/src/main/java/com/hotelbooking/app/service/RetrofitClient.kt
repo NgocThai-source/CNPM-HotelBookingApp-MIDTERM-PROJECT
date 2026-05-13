@@ -3,7 +3,11 @@ package com.hotelbooking.app.service
 import com.hotelbooking.app.data.repository.AuthRepository
 import com.hotelbooking.app.data.repository.BookingRepository
 import com.hotelbooking.app.data.repository.HotelRepository
+import com.hotelbooking.app.data.repository.NotificationRepository
+import com.hotelbooking.app.data.repository.ReviewRepository
 import com.hotelbooking.app.data.repository.SettingsRepository
+import com.hotelbooking.app.util.TokenManager
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -17,8 +21,22 @@ object RetrofitClient {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
+    // Auth interceptor: injects Bearer token for protected endpoints
+    private val authInterceptor = Interceptor { chain ->
+        val token = TokenManager.getToken()
+        val request = if (!token.isNullOrEmpty()) {
+            chain.request().newBuilder()
+                .addHeader("Authorization", "Bearer $token")
+                .build()
+        } else {
+            chain.request()
+        }
+        chain.proceed(request)
+    }
+
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(loggingInterceptor)
+        .addInterceptor(authInterceptor)
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
         .writeTimeout(30, TimeUnit.SECONDS)
@@ -48,6 +66,14 @@ object RetrofitClient {
 
     val bookingApi: BookingRepository by lazy {
         retrofit.create(BookingRepository::class.java)
+    }
+
+    val reviewApi: ReviewRepository by lazy {
+        retrofit.create(ReviewRepository::class.java)
+    }
+
+    val notificationApi: NotificationRepository by lazy {
+        retrofit.create(NotificationRepository::class.java)
     }
 
     // Giữ lại cái này để các code cũ (như màn hình Đăng nhập, OTP) đang dùng 'apiInterface' không bị báo lỗi đỏ

@@ -73,7 +73,7 @@ fun BookingFormScreen(
 
     LaunchedEffect(formState.submitSuccess) {
         if (formState.submitSuccess) {
-            Toast.makeText(context, "Dat phong thanh cong! Ma: ${formState.bookingId ?: "N/A"}", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Booking confirmed! ID: ${formState.bookingId ?: "N/A"}", Toast.LENGTH_LONG).show()
             val dateFormatDisplay = SimpleDateFormat("MMM dd, yyyy", Locale.US)
             val checkInFormatted = formState.checkInDate?.let { dateFormatDisplay.format(Date(it)) } ?: ""
             val checkOutFormatted = formState.checkOutDate?.let { dateFormatDisplay.format(Date(it)) } ?: ""

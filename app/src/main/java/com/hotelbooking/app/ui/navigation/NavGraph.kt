@@ -24,7 +24,10 @@ import com.hotelbooking.app.ui.screens.booking.BookingFormScreen
 import com.hotelbooking.app.ui.screens.booking.MyBookingsScreen
 import com.hotelbooking.app.ui.screens.detail.HotelDetailScreen
 import com.hotelbooking.app.ui.screens.home.HomeScreen
+import com.hotelbooking.app.ui.screens.notification.NotificationScreen
 import com.hotelbooking.app.ui.screens.payment.PaymentScreen
+import com.hotelbooking.app.ui.screens.profile.ProfileSettingScreen
+import com.hotelbooking.app.ui.screens.profile.ProfileSettingViewModel
 
 @Composable
 fun NavGraph() {
@@ -182,6 +185,30 @@ fun NavGraph() {
             MyBookingsScreen(
                 navController = navController,
                 isDarkMode = isDarkMode
+            )
+        }
+
+        composable(Routes.NOTIFICATIONS) {
+            NotificationScreen(
+                navController = navController,
+                isDarkMode = isDarkMode,
+                onNavigateToBookings = {
+                    navController.navigate(Routes.MY_BOOKINGS)
+                }
+            )
+        }
+
+        composable(Routes.PROFILE_SETTING) {
+            val profileViewModel: ProfileSettingViewModel = viewModel()
+            ProfileSettingScreen(
+                viewModel = profileViewModel,
+                isDarkMode = isDarkMode,
+                onLogout = {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                },
+                onBack = { navController.popBackStack() }
             )
         }
     }

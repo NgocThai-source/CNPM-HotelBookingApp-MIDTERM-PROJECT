@@ -18,4 +18,6 @@ data class Hotel(
     @SerializedName("check_out_date") val checkOutDate: String? = "",
     @SerializedName("is_favorite") val isFavorite: Boolean = false,
     @SerializedName("created_at") val createdAt: String? = null,
+    @SerializedName("rating") val rating: Double = 0.0,
+    @SerializedName("review_count") val reviewCount: Int = 0,
 )
