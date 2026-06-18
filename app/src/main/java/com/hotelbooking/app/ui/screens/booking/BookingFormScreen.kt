@@ -46,6 +46,7 @@ import java.net.URLEncoder
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookingFormScreen(
+    userId: String,
     navController: NavController,
     hotelId: String,
     hotelTitle: String,
@@ -317,7 +318,7 @@ fun BookingFormScreen(
 
                 // Confirm Booking Button
                 Button(
-                    onClick = { viewModel.submitBooking() },
+                    onClick = { viewModel.submitBooking(userId) }, // <--- TRUYỀN USER ID TẠI ĐÂY LÀ ĐÚNG CHUẨN
                     enabled = viewModel.isFormValid && !formState.isSubmitting,
                     modifier = Modifier
                         .fillMaxWidth()

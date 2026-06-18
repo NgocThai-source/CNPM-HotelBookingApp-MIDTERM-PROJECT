@@ -76,6 +76,7 @@ class AuthViewModel : ViewModel() {
             authState = AuthState.Loading
             try {
                 val response = RetrofitClient.apiInterface.loginUser(request)
+                println("LOGIN RESPONSE = $response")
                 if (response.success) {
                     response.data?.token?.let { TokenManager.saveToken(it) }
                         ?: response.token?.let { TokenManager.saveToken(it) }

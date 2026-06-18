@@ -1,5 +1,6 @@
 package com.hotelbooking.app.ui.screens.booking
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -9,6 +10,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.EventNote
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -16,7 +18,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -25,56 +26,52 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.hotelbooking.app.data.repository.BookingItem
 import com.hotelbooking.app.ui.components.BottomNavBar
 import com.hotelbooking.app.ui.components.BottomNavItem
 import com.hotelbooking.app.ui.components.CyanMain
 import com.hotelbooking.app.ui.components.CyanLight
+import java.text.NumberFormat
+import java.util.Locale
 
-// ── Booking Status Enum ──
+// ── Đã xóa ONGOING và CANCELLED để dọn cảnh báo (Warning) ──
 enum class BookingStatus(val label: String, val color: Color, val bgColor: Color, val icon: ImageVector) {
     UPCOMING("Upcoming", Color(0xFF2196F3), Color(0xFFE3F2FD), Icons.Filled.Schedule),
-    ONGOING("Ongoing", Color(0xFF4CAF50), Color(0xFFE8F5E9), Icons.Filled.PlayCircle),
-    COMPLETED("Completed", Color(0xFF9E9E9E), Color(0xFFF5F5F5), Icons.Filled.CheckCircle),
-    CANCELLED("Cancelled", Color(0xFFF44336), Color(0xFFFFEBEE), Icons.Filled.Cancel)
+    COMPLETED("Completed", Color(0xFF4CAF50), Color(0xFFE8F5E9), Icons.Filled.CheckCircle)
 }
 
-// ── Mock Booking Data ──
-data class BookingItem(
-    val id: String,
-    val hotelName: String,
-    val location: String,
-    val imageUrl: String,
-    val checkIn: String,
-    val checkOut: String,
-    val guests: Int,
-    val rooms: Int,
-    val totalPrice: String,
-    val status: BookingStatus,
-    val rating: String,
-    val roomType: String
-)
+fun getUiStatusFromPayment(paymentStatus: String?): BookingStatus {
+    return if (paymentStatus == "paid") BookingStatus.COMPLETED else BookingStatus.UPCOMING
+}
 
-private val mockBookings = listOf(
-    BookingItem("BK001", "The Azure Grand Resort", "Maldives", "https://images.pexels.com/photos/189296/pexels-photo-189296.jpeg", "May 15, 2026", "May 18, 2026", 2, 1, "$1,350", BookingStatus.UPCOMING, "4.9", "Deluxe Ocean Suite"),
-    BookingItem("BK002", "Emerald Isle Resort", "Bora Bora", "https://images.pexels.com/photos/1001965/pexels-photo-1001965.jpeg", "May 10, 2026", "May 12, 2026", 2, 1, "$1,240", BookingStatus.ONGOING, "5.0", "Overwater Bungalow"),
-    BookingItem("BK003", "Lumiere Heritage Hotel", "Paris", "https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg", "Apr 20, 2026", "Apr 23, 2026", 1, 1, "$960", BookingStatus.COMPLETED, "4.7", "Classic Double Room"),
-    BookingItem("BK004", "The Ritz-Carlton Sky", "Tokyo", "https://images.pexels.com/photos/164595/pexels-photo-164595.jpeg", "Apr 5, 2026", "Apr 8, 2026", 2, 1, "$1,800", BookingStatus.COMPLETED, "4.9", "Sky Premium Suite"),
-    BookingItem("BK005", "Golden Coast Palace", "Miami", "https://images.pexels.com/photos/2034335/pexels-photo-2034335.jpeg", "Mar 28, 2026", "Mar 30, 2026", 3, 2, "$1,100", BookingStatus.CANCELLED, "4.6", "Beachfront Villa"),
-    BookingItem("BK006", "Silver Peak Mountain Inn", "Colorado", "https://images.pexels.com/photos/1457842/pexels-photo-1457842.jpeg", "Jun 1, 2026", "Jun 5, 2026", 4, 2, "$1,120", BookingStatus.UPCOMING, "4.8", "Mountain View Cabin")
-)
-
-// ── Main BookingScreen ──
 @Composable
-fun BookingScreen(onNavigate: (String) -> Unit = {}) {
+fun BookingScreen(
+    userId: String,
+    onNavigate: (String) -> Unit = {},
+    viewModel: MyBookingsViewModel = viewModel()
+) {
+    val bookings by viewModel.bookings.collectAsState()
+
+    LaunchedEffect(userId) {
+        viewModel.fetchBookings(userId) // LƯU Ý: Phải sửa MyBookingsViewModel mới hết báo đỏ dòng này
+    }
+
     var selectedFilter by remember { mutableStateOf("All") }
     var searchQuery by remember { mutableStateOf("") }
-    val filters = listOf("All", "Upcoming", "Ongoing", "Completed", "Cancelled")
+    val filters = listOf("All", "Upcoming", "Completed")
 
-    val filteredBookings = remember(selectedFilter, searchQuery) {
-        mockBookings.filter { 
-            (selectedFilter == "All" || it.status.label == selectedFilter) &&
-            (searchQuery.isEmpty() || it.hotelName.contains(searchQuery, ignoreCase = true) || it.id.contains(searchQuery, ignoreCase = true))
+    val filteredBookings = remember(selectedFilter, searchQuery, bookings) {
+        bookings.filter { booking ->
+            val uiStatus = getUiStatusFromPayment(booking.paymentStatus)
+
+            val matchFilter = selectedFilter == "All" || uiStatus.label == selectedFilter
+            val matchSearch = searchQuery.isEmpty() ||
+                    booking.hotelTitle.contains(searchQuery, ignoreCase = true) ||
+                    booking.bookingId.contains(searchQuery, ignoreCase = true)
+
+            matchFilter && matchSearch
         }
     }
 
@@ -96,10 +93,8 @@ fun BookingScreen(onNavigate: (String) -> Unit = {}) {
         ) {
             item { Spacer(modifier = Modifier.height(16.dp)) }
 
-            // ── Top Bar ──
             item { BookingTopBar() }
 
-            // ── Search Bar ──
             item {
                 BookingSearchBar(
                     query = searchQuery,
@@ -107,10 +102,8 @@ fun BookingScreen(onNavigate: (String) -> Unit = {}) {
                 )
             }
 
-            // ── Stats Summary Cards ──
-            item { BookingStatsRow() }
+            item { BookingStatsRow(bookings) }
 
-            // ── Filter Chips ──
             item {
                 BookingCategoryChips(
                     currentFilter = selectedFilter,
@@ -119,7 +112,6 @@ fun BookingScreen(onNavigate: (String) -> Unit = {}) {
                 )
             }
 
-            // ── Section Header ──
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -141,11 +133,10 @@ fun BookingScreen(onNavigate: (String) -> Unit = {}) {
                 }
             }
 
-            // ── Booking Cards or Empty State ──
             if (filteredBookings.isEmpty()) {
                 item { EmptyBookingState(selectedFilter) }
             } else {
-                items(filteredBookings, key = { it.id }) { booking ->
+                items(filteredBookings, key = { it.bookingId }) { booking ->
                     BookingCard(booking = booking)
                 }
             }
@@ -155,7 +146,6 @@ fun BookingScreen(onNavigate: (String) -> Unit = {}) {
     }
 }
 
-// ── Top Bar ──
 @Composable
 private fun BookingTopBar() {
     Row(
@@ -170,7 +160,8 @@ private fun BookingTopBar() {
                 .background(Color.Black),
             contentAlignment = Alignment.Center
         ) {
-            Icon(Icons.Filled.EventNote, contentDescription = "Logo", tint = Color.White, modifier = Modifier.size(24.dp))
+            // Đã sửa cảnh báo Icons.Filled.EventNote thành AutoMirrored
+            Icon(Icons.AutoMirrored.Filled.EventNote, contentDescription = "Logo", tint = Color.White, modifier = Modifier.size(24.dp))
         }
         Text("My Reservations", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Black)
         IconButton(
@@ -184,7 +175,6 @@ private fun BookingTopBar() {
     }
 }
 
-// ── Search Bar ──
 @Composable
 private fun BookingSearchBar(query: String, onQueryChange: (String) -> Unit) {
     OutlinedTextField(
@@ -211,9 +201,11 @@ private fun BookingSearchBar(query: String, onQueryChange: (String) -> Unit) {
     )
 }
 
-// ── Stats Row ──
 @Composable
-private fun BookingStatsRow() {
+private fun BookingStatsRow(bookings: List<BookingItem>) {
+    val upcomingCount = bookings.count { getUiStatusFromPayment(it.paymentStatus) == BookingStatus.UPCOMING }
+    val completedCount = bookings.count { getUiStatusFromPayment(it.paymentStatus) == BookingStatus.COMPLETED }
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -221,22 +213,22 @@ private fun BookingStatsRow() {
         StatCard(
             modifier = Modifier.weight(1f),
             icon = Icons.Filled.Schedule,
-            value = "${mockBookings.count { it.status == BookingStatus.UPCOMING }}",
-            label = "Upcoming",
+            value = "$upcomingCount",
+            label = "Pending",
             color = Color(0xFF2196F3)
         )
         StatCard(
             modifier = Modifier.weight(1f),
-            icon = Icons.Filled.PlayCircle,
-            value = "${mockBookings.count { it.status == BookingStatus.ONGOING }}",
-            label = "Ongoing",
+            icon = Icons.Filled.CheckCircle,
+            value = "$completedCount",
+            label = "Paid",
             color = Color(0xFF4CAF50)
         )
         StatCard(
             modifier = Modifier.weight(1f),
-            icon = Icons.Filled.CheckCircle,
-            value = "${mockBookings.count { it.status == BookingStatus.COMPLETED }}",
-            label = "Done",
+            icon = Icons.Filled.Hotel,
+            value = "${bookings.size}",
+            label = "Total",
             color = Color(0xFF9E9E9E)
         )
     }
@@ -276,7 +268,6 @@ private fun StatCard(
     }
 }
 
-// ── Category Chips ──
 @Composable
 private fun BookingCategoryChips(currentFilter: String, onFilterSelected: (String) -> Unit, filters: List<String>) {
     LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -300,9 +291,11 @@ private fun BookingCategoryChips(currentFilter: String, onFilterSelected: (Strin
     }
 }
 
-// ── Booking Card ──
 @Composable
 private fun BookingCard(booking: BookingItem) {
+    val uiStatus = getUiStatusFromPayment(booking.paymentStatus)
+    val currencyFormatter = remember { NumberFormat.getNumberInstance(Locale.US) }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
@@ -310,37 +303,34 @@ private fun BookingCard(booking: BookingItem) {
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column {
-            // Hotel Image with Status Badge
             Box {
                 AsyncImage(
-                    model = booking.imageUrl,
-                    contentDescription = booking.hotelName,
+                    model = booking.hotelImageUrl,
+                    contentDescription = booking.hotelTitle,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(180.dp)
                         .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)),
                     contentScale = ContentScale.Crop
                 )
-                
-                // Status Badge (Top-Right)
+
                 Surface(
                     modifier = Modifier
                         .padding(12.dp)
                         .align(Alignment.TopEnd),
                     shape = RoundedCornerShape(10.dp),
-                    color = booking.status.bgColor.copy(alpha = 0.9f)
+                    color = uiStatus.bgColor.copy(alpha = 0.9f)
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        Icon(booking.status.icon, contentDescription = null, tint = booking.status.color, modifier = Modifier.size(14.dp))
-                        Text(booking.status.label, fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = booking.status.color)
+                        Icon(uiStatus.icon, contentDescription = null, tint = uiStatus.color, modifier = Modifier.size(14.dp))
+                        Text(if (booking.paymentStatus == "paid") "Paid" else "Pending", fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = uiStatus.color)
                     }
                 }
 
-                // Rating Badge (Top-Left)
                 Surface(
                     modifier = Modifier
                         .padding(12.dp)
@@ -354,11 +344,10 @@ private fun BookingCard(booking: BookingItem) {
                     ) {
                         Icon(Icons.Filled.Star, contentDescription = null, tint = Color(0xFFFFC107), modifier = Modifier.size(14.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text(booking.rating, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                        Text("4.5", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Black)
                     }
                 }
 
-                // Booking ID Badge (Bottom-Left)
                 Surface(
                     modifier = Modifier
                         .padding(12.dp)
@@ -367,25 +356,23 @@ private fun BookingCard(booking: BookingItem) {
                     color = Color.Black.copy(alpha = 0.6f)
                 ) {
                     Text(
-                        "#${booking.id}", 
+                        "#${booking.bookingId}",
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        fontSize = 10.sp, 
-                        fontWeight = FontWeight.Bold, 
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
                 }
             }
 
-            // Info Section
             Column(modifier = Modifier.padding(20.dp)) {
-                // Hotel Name & Price
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        booking.hotelName,
+                        booking.hotelTitle,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black,
@@ -393,10 +380,9 @@ private fun BookingCard(booking: BookingItem) {
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    Text(booking.totalPrice, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = CyanMain)
+                    Text("$${currencyFormatter.format(booking.totalPrice)}", fontSize = 20.sp, fontWeight = FontWeight.ExtraBold, color = CyanMain)
                 }
 
-                // Location & Room Type
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -405,36 +391,33 @@ private fun BookingCard(booking: BookingItem) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Filled.LocationOn, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(14.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text(booking.location, fontSize = 13.sp, color = Color.Gray)
+                        Text("Vietnam", fontSize = 13.sp, color = Color.Gray)
                     }
                     Text("TOTAL PRICE", fontSize = 10.sp, color = Color.Gray, fontWeight = FontWeight.Bold)
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Dates & Guest Info Row
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    BookingDetailItem(Icons.Outlined.CalendarToday, "Check-in", booking.checkIn, Modifier.weight(1f))
-                    BookingDetailItem(Icons.Outlined.EventAvailable, "Check-out", booking.checkOut, Modifier.weight(1f))
-                    BookingDetailItem(Icons.Outlined.Groups, "Guests", "${booking.guests} Pax", Modifier.weight(0.8f))
+                    BookingDetailItem(Icons.Outlined.CalendarToday, "Check-in", booking.checkInDate, Modifier.weight(1f))
+                    BookingDetailItem(Icons.Outlined.EventAvailable, "Check-out", booking.checkOutDate, Modifier.weight(1f))
+                    BookingDetailItem(Icons.Outlined.Groups, "Guests", "${booking.guestCount} Pax", Modifier.weight(0.8f))
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Action Buttons
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    when (booking.status) {
+                    when (uiStatus) {
                         BookingStatus.UPCOMING -> {
                             OutlinedButton(
                                 onClick = { },
                                 modifier = Modifier.weight(1f).height(48.dp),
                                 shape = RoundedCornerShape(12.dp),
-                                border = ButtonDefaults.outlinedButtonBorder.copy(
-                                    brush = Brush.linearGradient(listOf(Color(0xFFF44336), Color(0xFFF44336)))
-                                ),
+                                // Đã sửa cảnh báo deprecated BorderStroke
+                                border = BorderStroke(1.dp, Color(0xFFF44336)),
                                 colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFF44336))
                             ) {
                                 Text("Cancel", fontWeight = FontWeight.Bold, fontSize = 14.sp)
@@ -445,19 +428,7 @@ private fun BookingCard(booking: BookingItem) {
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = CyanMain)
                             ) {
-                                Text("Details", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.White)
-                            }
-                        }
-                        BookingStatus.ONGOING -> {
-                            Button(
-                                onClick = { },
-                                modifier = Modifier.fillMaxWidth().height(48.dp),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
-                            ) {
-                                Icon(Icons.Filled.Chat, contentDescription = null, modifier = Modifier.size(18.dp), tint = Color.White)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("Contact Support", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.White)
+                                Text("Pay Now", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.White)
                             }
                         }
                         BookingStatus.COMPLETED -> {
@@ -465,6 +436,7 @@ private fun BookingCard(booking: BookingItem) {
                                 onClick = { },
                                 modifier = Modifier.weight(1f).height(48.dp),
                                 shape = RoundedCornerShape(12.dp),
+                                border = BorderStroke(1.dp, CyanMain),
                                 colors = ButtonDefaults.outlinedButtonColors(contentColor = CyanMain)
                             ) {
                                 Text("Review", fontWeight = FontWeight.Bold, fontSize = 14.sp)
@@ -478,18 +450,6 @@ private fun BookingCard(booking: BookingItem) {
                                 Text("Book Again", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.White)
                             }
                         }
-                        BookingStatus.CANCELLED -> {
-                            Button(
-                                onClick = { },
-                                modifier = Modifier.fillMaxWidth().height(48.dp),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = CyanMain)
-                            ) {
-                                Icon(Icons.Filled.Refresh, contentDescription = null, modifier = Modifier.size(18.dp), tint = Color.White)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("Try Rebooking", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.White)
-                            }
-                        }
                     }
                 }
             }
@@ -497,7 +457,6 @@ private fun BookingCard(booking: BookingItem) {
     }
 }
 
-// ── Detail Item ──
 @Composable
 private fun BookingDetailItem(icon: ImageVector, label: String, value: String, modifier: Modifier = Modifier) {
     Surface(
@@ -517,7 +476,6 @@ private fun BookingDetailItem(icon: ImageVector, label: String, value: String, m
     }
 }
 
-// ── Empty State ──
 @Composable
 private fun EmptyBookingState(filter: String) {
     Column(

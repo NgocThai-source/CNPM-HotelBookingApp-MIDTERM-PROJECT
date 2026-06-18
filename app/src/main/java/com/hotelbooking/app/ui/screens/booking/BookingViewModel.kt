@@ -2,7 +2,6 @@ package com.hotelbooking.app.ui.screens.booking
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.hotelbooking.app.data.repository.BookingRepository
 import com.hotelbooking.app.data.repository.BookingSubmitRequest
 import com.hotelbooking.app.data.repository.BookingSubmitResponse
 import com.hotelbooking.app.service.RetrofitClient
@@ -10,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+// ĐÃ XÓA `userId` khỏi BookingFormState vì không cần thiết lưu trong UI State
 data class BookingFormState(
     val hotelId: String = "",
     val hotelTitle: String = "",
@@ -107,7 +107,7 @@ class BookingViewModel : ViewModel() {
         _formState.value = _formState.value.copy(exchangeRate = rate)
     }
 
-    fun submitBooking() {
+    fun submitBooking(userId: String) {
         val state = _formState.value
         if (!isFormValid) return
 
@@ -116,6 +116,7 @@ class BookingViewModel : ViewModel() {
             try {
                 val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
                 val request = BookingSubmitRequest(
+                    userId = userId, // Truyền trực tiếp từ parameter của hàm vào Request
                     hotelId = state.hotelId,
                     hotelTitle = state.hotelTitle,
                     hotelImageUrl = state.hotelImageUrl,

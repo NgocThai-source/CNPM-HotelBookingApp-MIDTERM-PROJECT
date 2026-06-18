@@ -28,6 +28,7 @@ import com.hotelbooking.app.ui.screens.notification.NotificationScreen
 import com.hotelbooking.app.ui.screens.payment.PaymentScreen
 import com.hotelbooking.app.ui.screens.profile.ProfileSettingScreen
 import com.hotelbooking.app.ui.screens.profile.ProfileSettingViewModel
+import com.hotelbooking.app.util.TokenManager
 
 @Composable
 fun NavGraph() {
@@ -138,7 +139,9 @@ fun NavGraph() {
             )
         ) { backStackEntry ->
             val args = backStackEntry.arguments
+            println("TOKEN USER ID = ${TokenManager.getUserId()}")
             BookingFormScreen(
+                userId = TokenManager.getUserId() ?: "",
                 navController = navController,
                 hotelId = args?.getString("hotelId") ?: "",
                 hotelTitle = Routes.decodeHotelTitle(args?.getString("hotelTitle") ?: ""),
@@ -184,6 +187,7 @@ fun NavGraph() {
         composable(Routes.MY_BOOKINGS) {
             MyBookingsScreen(
                 navController = navController,
+                userId = TokenManager.getUserId() ?: "",
                 isDarkMode = isDarkMode
             )
         }

@@ -20,16 +20,15 @@ class MyBookingsViewModel : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
-    init {
-        fetchBookings()
-    }
 
-    fun fetchBookings() {
+
+    fun fetchBookings(userId: String) { // Thêm tham số userId
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
             try {
-                val response: BookingListResponse = RetrofitClient.bookingApi.getBookings()
+                // Truyền userId vào API
+                val response: BookingListResponse = RetrofitClient.bookingApi.getBookings(userId)
                 if (response.success) {
                     _bookings.value = response.data ?: emptyList()
                 } else {
@@ -37,7 +36,6 @@ class MyBookingsViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 _error.value = e.message ?: "Network error"
-                // Fallback to empty list on error
                 _bookings.value = emptyList()
             } finally {
                 _isLoading.value = false

@@ -6,8 +6,10 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query // 👈 Đã thêm import này
 
 data class BookingSubmitRequest(
+    @SerializedName("userId") val userId: String, // 👈 THÊM DÒNG NÀY ĐỂ FIX LỖI BOOKING VIEW MODEL
     @SerializedName("hotelId") val hotelId: String,
     @SerializedName("hotelTitle") val hotelTitle: String,
     @SerializedName("hotelImageUrl") val hotelImageUrl: String,
@@ -55,8 +57,9 @@ interface BookingRepository {
     @POST("api/bookings")
     suspend fun submitBooking(@Body request: BookingSubmitRequest): BookingSubmitResponse
 
+    // 👈 THÊM @Query("userId") ĐỂ FIX LỖI MY BOOKINGS VIEW MODEL
     @GET("api/bookings")
-    suspend fun getBookings(): BookingListResponse
+    suspend fun getBookings(@Query("userId") userId: String): BookingListResponse
 
     @PUT("api/bookings/{bookingId}/pay")
     suspend fun markAsPaid(@Path("bookingId") bookingId: String): BookingSubmitResponse
