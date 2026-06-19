@@ -5,6 +5,7 @@ import com.hotelbooking.app.data.model.GenericResponse
 import com.hotelbooking.app.data.model.NotificationCountResponse
 import com.hotelbooking.app.data.model.NotificationListResponse
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -22,6 +23,9 @@ interface NotificationRepository {
 
     @PUT("api/notifications/read-all")
     suspend fun markAllAsRead(@Query("user_id") userId: String): GenericResponse
+
+    @DELETE("api/notifications/{id}")
+    suspend fun deleteNotification(@Path("id") id: Int): GenericResponse
 
 
     @GET("api/notifications/unread-count")

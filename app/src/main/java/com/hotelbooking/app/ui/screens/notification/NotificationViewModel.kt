@@ -126,4 +126,22 @@ class NotificationViewModel : ViewModel() {
             }
         }
     }
+
+    fun deleteNotification(notificationId: Int) {
+        viewModelScope.launch {
+            try {
+                val response = notificationApi.deleteNotification(notificationId)
+                if (response.success) {
+                    val deleted = _notifications.value.find { it.id == notificationId }
+                    _notifications.value = _notifications.value.filter { it.id != notificationId }
+                    if (deleted?.is_read == false) {
+                        _unreadCount.value = maxOf(0, _unreadCount.value - 1)
+                        sharedUnreadCount.value = maxOf(0, sharedUnreadCount.value - 1)
+                    }
+                }
+            } catch (_: Exception) {
+                // Silently fail
+            }
+        }
+    }
 }

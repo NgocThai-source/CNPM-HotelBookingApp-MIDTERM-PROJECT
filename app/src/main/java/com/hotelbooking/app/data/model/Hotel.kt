@@ -11,6 +11,7 @@ data class Hotel(
     @SerializedName("category") val category: String = "",
     @SerializedName("badge_text") val badgeText: String? = "",
     @SerializedName("host_name") val hostName: String? = "",
+    @SerializedName("hostName") val hostNameAlt: String? = "",
     @SerializedName("host_avt_url") val hostAvatarUrl: String? = "",
     @SerializedName("description") val description: String? = "",
     @SerializedName("amenities") val amenities: List<String>? = emptyList(),
@@ -20,4 +21,13 @@ data class Hotel(
     @SerializedName("created_at") val createdAt: String? = null,
     @SerializedName("rating") val rating: Double = 0.0,
     @SerializedName("review_count") val reviewCount: Int = 0,
-)
+    @SerializedName("host_email") val hostEmail: String? = null,
+    @SerializedName("rooms") val rooms: List<Room>? = emptyList(),
+    @SerializedName("status") val status: String? = null,
+) {
+    // Resolve hostName from either snake_case or camelCase JSON key
+    val resolvedHostName: String
+        get() = hostName?.takeIf { it.isNotBlank() }
+            ?: hostNameAlt?.takeIf { it.isNotBlank() }
+            ?: ""
+}

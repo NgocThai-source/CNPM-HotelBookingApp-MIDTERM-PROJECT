@@ -5,6 +5,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 /**
  * API response wrapper from the backend.
@@ -27,7 +28,7 @@ data class FavoriteResponse(
 
 interface HotelRepository {
     @GET("api/hotels")
-    suspend fun getAllHotels(): HotelListResponse
+    suspend fun getAllHotels(@Query("status") status: String = "approved"): HotelListResponse
 
     @GET("api/hotels/{id}")
     suspend fun getHotelById(@Path("id") id: String): HotelDetailResponse

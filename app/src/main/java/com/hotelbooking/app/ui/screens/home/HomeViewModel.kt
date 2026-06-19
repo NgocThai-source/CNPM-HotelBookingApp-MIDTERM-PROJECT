@@ -56,7 +56,7 @@ class HomeViewModel : ViewModel() {
             .onEach { event ->
                 Log.d("HomeViewModel", ">>> SSE EVENT received: ${event.event}")
                 when (event.event) {
-                    "hotel_created", "hotel_updated", "hotel_deleted", "connected" -> {
+                    "hotel_created", "hotel_updated", "hotel_deleted", "hotel_approved", "connected" -> {
                         _realtimeUpdated.value = true
                         fetchHotels()
                     }
