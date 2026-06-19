@@ -1,26 +1,27 @@
 package com.hotelbooking.app.ui.screens.auth
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
+import com.hotelbooking.app.R
 import com.hotelbooking.app.data.model.RegisterRequest
 import com.hotelbooking.app.ui.screens.auth.components.*
 import com.hotelbooking.app.ui.theme.AppColors
@@ -34,7 +35,6 @@ fun RegisterScreen(
     viewModel: AuthViewModel,
     isDarkMode: Boolean = false
 ) {
-
     var fullName by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -42,299 +42,177 @@ fun RegisterScreen(
     var passwordVisible by remember { mutableStateOf(false) }
 
     val authState = viewModel.authState
-
-    val snackbarHostState = remember {
-        SnackbarHostState()
-    }
-
+    val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
-    // Listen auth state
+    // Navigation and error handling
     LaunchedEffect(authState) {
-
         when (authState) {
-
             is AuthState.Error -> {
-
-                snackbarHostState.showSnackbar(
-                    (authState as AuthState.Error).message
-                )
-
+                snackbarHostState.showSnackbar(authState.message)
                 viewModel.resetState()
             }
-
             is AuthState.Success -> {
-
-                snackbarHostState.showSnackbar(
-                    (authState as AuthState.Success).message
-                )
-
-                delay(1200)
-
+                snackbarHostState.showSnackbar(authState.message)
+                delay(1000)
                 onRegisterSuccess()
-
                 viewModel.resetState()
             }
-
             else -> {}
         }
     }
 
-    Scaffold(
-        snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState)
-        },
-        containerColor = AppColors.background(isDarkMode)
-    ) { padding ->
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-
-            ScrollableAuthScreenScaffold(
-                isDarkMode = isDarkMode
-            ) {
-
-                Column(
+    Box(modifier = Modifier.fillMaxSize()) {
+        LuxuryAuthScaffold(
+            isDarkMode = isDarkMode,
+            backgroundRes = R.drawable.auth_hero,
+            heroContent = {
+                Image(
+                    painter = painterResource(id = R.drawable.app_logo),
+                    contentDescription = "Hotel Booking App",
                     modifier = Modifier
-                        .verticalScroll(rememberScrollState())
-                ) {
+                        .size(72.dp)
+                        .clip(RoundedCornerShape(18.dp)),
+                    contentScale = ContentScale.Crop
+                )
 
-                    // Header
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
+                Spacer(modifier = Modifier.height(20.dp))
 
-                        AuthHeader(
-                            icon = Icons.Filled.PersonAdd,
-                            title = "Create Account",
-                            subtitle = "Experience premium hotel booking",
-                            isDarkMode = isDarkMode
-                        )
-                    }
+                Text(
+                    text = "Create Account",
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color.White,
+                    letterSpacing = (-0.5).sp
+                )
 
-                    Spacer(modifier = Modifier.height(28.dp))
+                Spacer(modifier = Modifier.height(6.dp))
 
-                    // Full Name
-                    AuthTextField(
-                        value = fullName,
-                        onValueChange = {
-                            fullName = it
-                        },
-                        label = "Full Name",
-                        leadingIcon = Icons.Filled.Person,
-                        isDarkMode = isDarkMode,
-                        enabled = authState !is AuthState.Loading
-                    )
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    // Phone
-                    AuthTextField(
-                        value = phone,
-                        onValueChange = {
-                            phone = it
-                        },
-                        label = "Phone Number",
-                        leadingIcon = Icons.Filled.Phone,
-                        isDarkMode = isDarkMode,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Phone
-                        ),
-                        enabled = authState !is AuthState.Loading
-                    )
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    // Email
-                    AuthTextField(
-                        value = email,
-                        onValueChange = {
-                            email = it
-                        },
-                        label = "Email Address",
-                        leadingIcon = Icons.Filled.Email,
-                        isDarkMode = isDarkMode,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Email
-                        ),
-                        enabled = authState !is AuthState.Loading
-                    )
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    // Password
-                    AuthTextField(
-                        value = password,
-                        onValueChange = {
-                            password = it
-                        },
-                        label = "Password",
-                        leadingIcon = Icons.Filled.Lock,
-                        isDarkMode = isDarkMode,
-
-                        visualTransformation =
-                            if (passwordVisible)
-                                VisualTransformation.None
-                            else
-                                PasswordVisualTransformation(),
-
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Password
-                        ),
-
-                        enabled = authState !is AuthState.Loading,
-
-                        trailingIcon = {
-
-                            IconButton(
-                                onClick = {
-                                    passwordVisible = !passwordVisible
-                                }
-                            ) {
-
-                                Icon(
-                                    imageVector =
-                                        if (passwordVisible)
-                                            Icons.Filled.VisibilityOff
-                                        else
-                                            Icons.Filled.Visibility,
-
-                                    contentDescription =
-                                        if (passwordVisible)
-                                            "Hide password"
-                                        else
-                                            "Show password",
-
-                                    tint = AppColors.CyanMain,
-
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
-                        }
-                    )
-
-                    Spacer(modifier = Modifier.height(28.dp))
-
-                    // Register Button
-                    AuthPrimaryButton(
-                        text = "Sign Up",
-
-                        onClick = {
-
-                            when {
-
-                                fullName.isBlank() ||
-                                        phone.isBlank() ||
-                                        email.isBlank() ||
-                                        password.isBlank() -> {
-
-                                    coroutineScope.launch {
-
-                                        snackbarHostState.showSnackbar(
-                                            "Please fill in all fields"
-                                        )
-                                    }
-                                }
-
-                                password.length < 6 -> {
-
-                                    coroutineScope.launch {
-
-                                        snackbarHostState.showSnackbar(
-                                            "Password must be at least 6 characters"
-                                        )
-                                    }
-                                }
-
-                                else -> {
-
-                                    val request = RegisterRequest(
-                                        email = email.trim(),
-                                        password = password,
-                                        fullName = fullName.trim(),
-                                        phone = phone.trim()
-                                    )
-
-                                    viewModel.register(request) {
-
-                                        // handled in LaunchedEffect
-                                    }
-                                }
-                            }
-                        },
-
-                        isLoading = authState is AuthState.Loading,
-
-                        enabled = authState !is AuthState.Loading
-                    )
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    // Footer Link FIX
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-
-                        val annotatedText = buildAnnotatedString {
-
-                            withStyle(
-                                style = SpanStyle(
-                                    color =
-                                        if (isDarkMode)
-                                            Color.LightGray
-                                        else
-                                            Color.DarkGray
-                                )
-                            ) {
-                                append("Already have an account? ")
-                            }
-
-                            pushStringAnnotation(
-                                tag = "SIGN_IN",
-                                annotation = "signin"
-                            )
-
-                            withStyle(
-                                style = SpanStyle(
-                                    color = AppColors.CyanMain,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            ) {
-                                append("Sign In")
-                            }
-
-                            pop()
-                        }
-
-                        ClickableText(
-                            text = annotatedText,
-
-                            style = LocalTextStyle.current.copy(
-                                textAlign = TextAlign.Center
-                            ),
-
-                            onClick = { offset ->
-
-                                annotatedText.getStringAnnotations(
-                                    tag = "SIGN_IN",
-                                    start = offset,
-                                    end = offset
-                                ).firstOrNull()?.let {
-
-                                    onBackToLogin()
-                                }
-                            }
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(20.dp))
-                }
+                Text(
+                    text = "Experience premium hotel booking",
+                    fontSize = 14.sp,
+                    color = Color.White.copy(alpha = 0.75f)
+                )
             }
+        ) {
+            // Form section label
+            Text(
+                text = "Your Details",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = AppColors.textPrimary(isDarkMode),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 20.dp)
+            )
+
+            LuxuryTextField(
+                value = fullName,
+                onValueChange = { fullName = it },
+                label = "Full name",
+                leadingIcon = Icons.Filled.Person,
+                isDarkMode = isDarkMode,
+                enabled = authState !is AuthState.Loading
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            LuxuryTextField(
+                value = phone,
+                onValueChange = { phone = it },
+                label = "Phone number",
+                leadingIcon = Icons.Filled.Phone,
+                isDarkMode = isDarkMode,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                enabled = authState !is AuthState.Loading
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            LuxuryTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = "Email address",
+                leadingIcon = Icons.Filled.Email,
+                isDarkMode = isDarkMode,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                enabled = authState !is AuthState.Loading
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            LuxuryTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = "Password",
+                leadingIcon = Icons.Filled.Lock,
+                isDarkMode = isDarkMode,
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                enabled = authState !is AuthState.Loading,
+                trailingIcon = {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            imageVector = if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
+                            contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                            tint = AppColors.SkyBrand,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+            )
+
+            Spacer(modifier = Modifier.height(28.dp))
+
+            LuxuryPrimaryButton(
+                text = "Create Account",
+                onClick = {
+                    when {
+                        fullName.isBlank() || phone.isBlank() || email.isBlank() || password.isBlank() -> {
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("Please fill in all fields")
+                            }
+                        }
+                        password.length < 6 -> {
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("Password must be at least 6 characters")
+                            }
+                        }
+                        else -> {
+                            viewModel.register(
+                                RegisterRequest(
+                                    email = email.trim(),
+                                    password = password,
+                                    fullName = fullName.trim(),
+                                    phone = phone.trim()
+                                )
+                            ) { /* navigation handled by LaunchedEffect(authState) */ }
+                        }
+                    }
+                },
+                isLoading = authState is AuthState.Loading,
+                enabled = authState !is AuthState.Loading
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            AuthFooterLink(
+                normalText = "Already have an account? ",
+                linkText = "Sign In",
+                onClick = onBackToLogin,
+                isDarkMode = isDarkMode
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
         }
+
+        // Snackbar overlaid on top of everything
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .zIndex(1f)
+                .padding(bottom = 16.dp)
+        )
     }
 }

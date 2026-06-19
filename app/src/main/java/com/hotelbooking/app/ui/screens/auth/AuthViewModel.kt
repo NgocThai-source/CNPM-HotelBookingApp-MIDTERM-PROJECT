@@ -16,7 +16,6 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
-import com.hotelbooking.app.data.repository.NotificationCreateRequest
 
 sealed class AuthState { // Định nghĩa các trạng thái cho AuthViewModel
     object Idle : AuthState() // Nằm im chờ đợi, lúc user gõ email, pass
@@ -58,6 +57,10 @@ class AuthViewModel : ViewModel() {
             try {
                 val response = RetrofitClient.apiInterface.registerUser(request)
                 if (response.success) {
+                    // Persist the freshly-issued userId (and token, when backend supplies one)
+                    // so the notification link is preserved through the next session.
+                    response.data?.userId?.let { TokenManager.saveUserId(it) }
+                    response.data?.token?.let { TokenManager.saveToken(it) }
                     authState = AuthState.Success(response.message)
                     onResult(true)
                 } else {
@@ -164,27 +167,6 @@ class AuthViewModel : ViewModel() {
             }
         }
     }
-    fun createPasswordResetNotification() {
-        viewModelScope.launch {
-            try {
-                val userId = TokenManager.getUserId()
-
-                if (userId.isNullOrEmpty()) return@launch
-
-                RetrofitClient.notificationApi.createNotification(
-                    NotificationCreateRequest(
-                        userId = userId,
-                        type = "password_reset",
-                        title = "Khôi phục mật khẩu thành công",
-                        body = "Mật khẩu tài khoản của bạn đã được cập nhật thành công."
-                    )
-                )
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-
     // --- RESET TRẠNG THÁI ---
     fun resetState() {
         authState = AuthState.Idle

@@ -12,9 +12,10 @@ import androidx.compose.runtime.Composable
  * ============================================================
  */
 private val DarkColorScheme = darkColorScheme(
-    primary = AppColors.CyanMain,
+    primary = AppColors.SkyBrand,
     onPrimary = AppColors.TextDark,
-    secondary = AppColors.CyanDark,
+    secondary = AppColors.NavyDeep,
+    tertiary = AppColors.GoldPrimary,
     background = AppColors.DarkBackground,
     surface = AppColors.DarkSurface,
     onBackground = AppColors.TextOnDark,
@@ -23,9 +24,10 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = AppColors.CyanMain,
+    primary = AppColors.SkyBrand,
     onPrimary = AppColors.TextDark,
-    secondary = AppColors.CyanDark,
+    secondary = AppColors.NavyDeep,
+    tertiary = AppColors.GoldPrimary,
     background = AppColors.LightBackground,
     surface = AppColors.LightSurface,
     onBackground = AppColors.TextDark,

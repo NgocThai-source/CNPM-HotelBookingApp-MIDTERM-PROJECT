@@ -15,7 +15,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -23,10 +25,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.hotelbooking.app.R
 import com.hotelbooking.app.ui.navigation.Routes
 import com.hotelbooking.app.ui.screens.auth.components.*
 import com.hotelbooking.app.ui.theme.AppColors
 import kotlinx.coroutines.delay
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.shape.RoundedCornerShape as RS
 
 @Composable
 fun SendCodeOTPScreen(
@@ -40,7 +45,6 @@ fun SendCodeOTPScreen(
     var timeLeft by remember { mutableStateOf(60) }
     var isTimerRunning by remember { mutableStateOf(true) }
 
-    // Listen for error state to show Toast
     LaunchedEffect(authState) {
         if (authState is AuthState.Error) {
             Toast.makeText(context, authState.message, Toast.LENGTH_LONG).show()
@@ -48,8 +52,7 @@ fun SendCodeOTPScreen(
         }
     }
 
-    // Countdown timer
-    LaunchedEffect(key1 = isTimerRunning) {
+    LaunchedEffect(isTimerRunning) {
         if (isTimerRunning) {
             while (timeLeft > 0) {
                 delay(1000L)
@@ -59,28 +62,69 @@ fun SendCodeOTPScreen(
         }
     }
 
-    AuthScreenScaffold(isDarkMode = isDarkMode) {
-        // Header with logo
-        AuthHeader(
-            icon = Icons.Filled.MarkEmailRead,
-            title = "Verify Email",
-            subtitle = "Enter the 6-digit code sent to:",
-            isDarkMode = isDarkMode
-        )
+    LuxuryAuthScaffold(
+        isDarkMode = isDarkMode,
+        backgroundRes = R.drawable.auth_background,
+        heroContent = {
+            Image(
+                painter = painterResource(id = R.drawable.app_logo),
+                contentDescription = "Hotel Booking App",
+                modifier = Modifier
+                    .size(72.dp)
+                    .clip(RoundedCornerShape(18.dp)),
+                contentScale = ContentScale.Crop
+            )
 
-        Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-        // Display email
+            Text(
+                text = "Verify Email",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = Color.White,
+                letterSpacing = (-0.5).sp
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Text(
+                text = "Check your inbox for the recovery code",
+                fontSize = 14.sp,
+                color = Color.White.copy(alpha = 0.75f)
+            )
+        }
+    ) {
         Text(
-            text = viewModel.email,
-            fontSize = 14.sp,
+            text = "Enter Verification Code",
+            fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = AppColors.CyanMain
+            color = AppColors.textPrimary(isDarkMode),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 6.dp)
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        // Sent-to hint
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 28.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Code sent to  ",
+                fontSize = 14.sp,
+                color = AppColors.textSecondary(isDarkMode)
+            )
+            Text(
+                text = viewModel.email,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = AppColors.SkyBrand
+            )
+        }
 
-        // OTP Input – individual digit boxes
+        // OTP input
         OtpInputField(
             otpValue = viewModel.otp,
             onOtpChange = { if (it.length <= 6) viewModel.otp = it },
@@ -89,14 +133,12 @@ fun SendCodeOTPScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Verify button
-        AuthPrimaryButton(
-            text = "Verify OTP",
+        LuxuryPrimaryButton(
+            text = "Verify Code",
             onClick = {
                 if (viewModel.otp.length == 6) {
                     viewModel.verifyOTP { isSuccess ->
                         if (isSuccess) {
-                            // Reset state before navigating to prevent stale Success state
                             viewModel.resetState()
                             navController.navigate(Routes.RESET_PASSWORD)
                         }
@@ -111,41 +153,48 @@ fun SendCodeOTPScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Resend OTP
-        TextButton(
-            onClick = {
-                viewModel.forgotPassword { isSuccess ->
-                    if (isSuccess) {
-                        Toast.makeText(context, "OTP code resent!", Toast.LENGTH_SHORT).show()
-                        timeLeft = 60
-                        isTimerRunning = true
-                        viewModel.resetState()
-                    }
-                }
-            },
-            enabled = !isTimerRunning && authState !is AuthState.Loading
+        // Resend + back row
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = if (isTimerRunning) "Resend code (${timeLeft}s)" else "Resend code",
-                color = if (isTimerRunning) AppColors.textSecondary(isDarkMode) else AppColors.CyanMain,
-                fontWeight = FontWeight.Bold,
-                fontSize = 14.sp
-            )
+            TextButton(onClick = { navController.popBackStack() }) {
+                Text(
+                    text = "Go Back",
+                    color = AppColors.textSecondary(isDarkMode),
+                    fontSize = 14.sp
+                )
+            }
+
+            TextButton(
+                onClick = {
+                    viewModel.forgotPassword { isSuccess ->
+                        if (isSuccess) {
+                            Toast.makeText(context, "Code resent!", Toast.LENGTH_SHORT).show()
+                            timeLeft = 60
+                            isTimerRunning = true
+                            viewModel.resetState()
+                        }
+                    }
+                },
+                enabled = !isTimerRunning && authState !is AuthState.Loading
+            ) {
+                Text(
+                    text = if (isTimerRunning) "Resend (${timeLeft}s)" else "Resend Code",
+                    color = if (isTimerRunning) AppColors.textTertiary(isDarkMode) else AppColors.SkyBrand,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
+                )
+            }
         }
 
-        // Back button
-        TextButton(onClick = { navController.popBackStack() }) {
-            Text(
-                "Go Back",
-                color = AppColors.textSecondary(isDarkMode),
-                fontSize = 14.sp
-            )
-        }
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 
 // ============================================================
-// Custom OTP Input with individual digit boxes – refined design
+// OTP Input — 6 individual digit boxes with gold focus
 // ============================================================
 @Composable
 private fun OtpInputField(
@@ -170,6 +219,7 @@ private fun OtpInputField(
                 repeat(6) { index ->
                     val char = otpValue.getOrNull(index)
                     val isFocused = otpValue.length == index
+                    val isFilled = char != null
 
                     Box(
                         modifier = Modifier
@@ -177,14 +227,18 @@ private fun OtpInputField(
                             .aspectRatio(1f)
                             .clip(RoundedCornerShape(14.dp))
                             .background(
-                                if (isDarkMode) AppColors.DarkElevated else AppColors.CyanSubtle
+                                when {
+                                    isFocused -> AppColors.SkyBrand.copy(alpha = 0.06f)
+                                    isFilled -> AppColors.SkyBrand.copy(alpha = 0.04f)
+                                    else -> if (isDarkMode) AppColors.DarkElevated else Color(0xFFFBF9F6)
+                                }
                             )
                             .border(
-                                width = if (isFocused) 2.dp else 1.dp,
+                                width = if (isFocused || isFilled) 2.dp else 1.5.dp,
                                 color = when {
-                                    isFocused -> AppColors.CyanMain
-                                    char != null -> AppColors.CyanMain.copy(alpha = 0.5f)
-                                    else -> AppColors.border(isDarkMode)
+                                    isFocused -> AppColors.SkyBrand
+                                    isFilled -> AppColors.SkyBrand.copy(alpha = 0.6f)
+                                    else -> if (isDarkMode) AppColors.DarkBorder else AppColors.WarmBorder
                                 },
                                 shape = RoundedCornerShape(14.dp)
                             ),
@@ -201,15 +255,11 @@ private fun OtpInputField(
                                 )
                             )
                         } else if (isFocused) {
-                            // Blinking cursor indicator
                             Box(
                                 modifier = Modifier
                                     .width(2.dp)
-                                    .height(24.dp)
-                                    .background(
-                                        AppColors.CyanMain,
-                                        RoundedCornerShape(1.dp)
-                                    )
+                                    .height(22.dp)
+                                    .background(AppColors.SkyBrand, RoundedCornerShape(1.dp))
                             )
                         }
                     }

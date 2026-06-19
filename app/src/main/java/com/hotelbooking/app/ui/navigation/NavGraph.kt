@@ -20,6 +20,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.hotelbooking.app.ui.screens.auth.*
+import com.hotelbooking.app.ui.screens.chat.ChatListScreen
+import com.hotelbooking.app.ui.screens.chat.ChatDetailScreen
 import com.hotelbooking.app.ui.screens.booking.BookingFormScreen
 import com.hotelbooking.app.ui.screens.booking.MyBookingsScreen
 import com.hotelbooking.app.ui.screens.detail.HotelDetailScreen
@@ -198,6 +200,60 @@ fun NavGraph() {
                 isDarkMode = isDarkMode,
                 onNavigateToBookings = {
                     navController.navigate(Routes.MY_BOOKINGS)
+                }
+            )
+        }
+
+        composable(Routes.CHAT_LIST) {
+            ChatListScreen(
+                isDarkMode = isDarkMode,
+                onNavigateToDetail = { conversationId, participantName ->
+                    navController.navigate(Routes.chatDetailRoute(conversationId, participantName))
+                },
+                onNavigate = { route ->
+                    if (route == Routes.CHAT_LIST) return@ChatListScreen
+                    navController.navigate(route) {
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        composable(
+            route = Routes.CHAT_DETAIL,
+            arguments = listOf(
+                navArgument("conversationId") { type = NavType.StringType },
+                navArgument("participantName") { type = NavType.StringType }
+            ),
+            enterTransition = {
+                slideInHorizontally(initialOffsetX = { it / 4 }, animationSpec = tween(850, easing = FastOutSlowInEasing)) +
+                    fadeIn(tween(850))
+            },
+            exitTransition = {
+                slideOutHorizontally(targetOffsetX = { -it / 4 }, animationSpec = tween(850, easing = FastOutSlowInEasing)) +
+                    fadeOut(tween(850))
+            },
+            popEnterTransition = {
+                slideInHorizontally(initialOffsetX = { -it / 4 }, animationSpec = tween(850, easing = FastOutSlowInEasing)) +
+                    fadeIn(tween(850))
+            },
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { it / 4 }, animationSpec = tween(850, easing = FastOutSlowInEasing)) +
+                    fadeOut(tween(850))
+            }
+        ) { backStackEntry ->
+            val conversationId = backStackEntry.arguments?.getString("conversationId") ?: ""
+            val participantName = Routes.decodeParam(backStackEntry.arguments?.getString("participantName") ?: "")
+            ChatDetailScreen(
+                conversationId = conversationId,
+                participantName = participantName,
+                isDarkMode = isDarkMode,
+                onBack = { navController.popBackStack() },
+                onNavigate = { route ->
+                    if (route == Routes.CHAT_DETAIL) return@ChatDetailScreen
+                    navController.navigate(route) {
+                        launchSingleTop = true
+                    }
                 }
             )
         }

@@ -17,6 +17,8 @@ object Routes {
     const val DETAIL = "detail/{hotelId}"
     const val MY_BOOKINGS = "my_bookings"
     const val NOTIFICATIONS = "notifications"
+    const val CHAT_LIST = "chat_list"
+    const val CHAT_DETAIL = "chat_detail/{conversationId}/{participantName}"
 
     const val BOOKING = "booking/{hotelId}/{hotelTitle}/{hotelPrice}/{hotelImageUrl}/{checkInAvailable}/{checkOutAvailable}/{exchangeRate}"
 
@@ -39,4 +41,9 @@ object Routes {
     fun decodeHotelTitle(encoded: String): String = URLDecoder.decode(encoded, "UTF-8")
     fun decodeImageUrl(encoded: String): String = URLDecoder.decode(encoded, "UTF-8")
     fun decodeParam(encoded: String): String = URLDecoder.decode(encoded, "UTF-8")
+
+    fun chatDetailRoute(conversationId: String, participantName: String): String {
+        val encodedName = URLEncoder.encode(participantName, "UTF-8")
+        return "chat_detail/$conversationId/$encodedName"
+    }
 }

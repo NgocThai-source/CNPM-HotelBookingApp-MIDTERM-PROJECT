@@ -1,22 +1,28 @@
 package com.hotelbooking.app.ui.screens.auth.components
 
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -27,8 +33,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hotelbooking.app.R
 import com.hotelbooking.app.ui.theme.AppColors
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 
 
 // ============================================================
@@ -77,9 +81,9 @@ fun AuthScreenScaffold(
                 } else {
                     Brush.verticalGradient(
                         colors = listOf(
-                            Color(0xFFE0F7FA),
-                            AppColors.LightBackground,
-                            Color(0xFFE8EDF5)
+                            AppColors.NavyDeep,
+                            AppColors.NavyMid,
+                            AppColors.CreamSurface
                         )
                     )
                 }
@@ -94,8 +98,8 @@ fun AuthScreenScaffold(
                 .shadow(
                     elevation = if (isDarkMode) 0.dp else 12.dp,
                     shape = RoundedCornerShape(28.dp),
-                    ambientColor = AppColors.CyanMain.copy(alpha = 0.08f),
-                    spotColor = AppColors.CyanMain.copy(alpha = 0.12f)
+                    ambientColor = AppColors.SkyBrand.copy(alpha = 0.12f),
+                    spotColor = AppColors.SkyBrand.copy(alpha = 0.18f)
                 ),
             shape = RoundedCornerShape(28.dp),
             colors = CardDefaults.cardColors(
@@ -147,9 +151,9 @@ fun ScrollableAuthScreenScaffold(
                 } else {
                     Brush.verticalGradient(
                         colors = listOf(
-                            Color(0xFFE0F7FA),
-                            AppColors.LightBackground,
-                            Color(0xFFE8EDF5)
+                            AppColors.NavyDeep,
+                            AppColors.NavyMid,
+                            AppColors.CreamSurface
                         )
                     )
                 }
@@ -164,8 +168,8 @@ fun ScrollableAuthScreenScaffold(
                 .shadow(
                     elevation = if (isDarkMode) 0.dp else 12.dp,
                     shape = RoundedCornerShape(28.dp),
-                    ambientColor = AppColors.CyanMain.copy(alpha = 0.08f),
-                    spotColor = AppColors.CyanMain.copy(alpha = 0.12f)
+                    ambientColor = AppColors.SkyBrand.copy(alpha = 0.12f),
+                    spotColor = AppColors.SkyBrand.copy(alpha = 0.18f)
                 ),
             shape = RoundedCornerShape(28.dp),
             colors = CardDefaults.cardColors(
@@ -302,8 +306,8 @@ fun AuthPrimaryButton(
             .height(56.dp),
         shape = RoundedCornerShape(16.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = AppColors.CyanMain,
-            disabledContainerColor = AppColors.CyanMain.copy(alpha = 0.35f)
+            containerColor = AppColors.SkyBrand,
+            disabledContainerColor = AppColors.SkyBrand.copy(alpha = 0.35f)
         ),
         enabled = enabled && !isLoading,
         elevation = ButtonDefaults.buttonElevation(
@@ -353,10 +357,246 @@ fun AuthFooterLink(
         TextButton(onClick = onClick) {
             Text(
                 text = linkText,
-                color = AppColors.CyanMain,
+                color = AppColors.SkyBrand,
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp
             )
+        }
+    }
+}
+
+// ============================================================
+// LuxuryAuthScaffold — full-screen hero image + bottom-sheet form
+// ============================================================
+@Composable
+fun LuxuryAuthScaffold(
+    isDarkMode: Boolean,
+    @DrawableRes backgroundRes: Int,
+    heroContent: @Composable ColumnScope.() -> Unit,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    // Form panel slides up from below on first composition
+    var launched by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { launched = true }
+
+    val formOffset by animateFloatAsState(
+        targetValue = if (launched) 0f else 80f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMediumLow
+        ),
+        label = "form_slide"
+    )
+
+    val heroAlpha by animateFloatAsState(
+        targetValue = if (launched) 1f else 0f,
+        animationSpec = tween(durationMillis = 500, delayMillis = 150),
+        label = "hero_fade"
+    )
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Background image
+        Image(
+            painter = painterResource(id = backgroundRes),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+
+        // Dark overlay gradient (navy top → transparent mid → opaque surface bottom)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        0.0f to AppColors.HeroGradientTop,
+                        0.45f to AppColors.HeroGradientMid,
+                        0.65f to Color.Transparent
+                    )
+                )
+        )
+
+        // Bottom surface fade-in so form background blends
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        0.55f to Color.Transparent,
+                        0.72f to AppColors.heroOverlayBottom(isDarkMode)
+                    )
+                )
+        )
+
+        Column(modifier = Modifier.fillMaxSize()) {
+            // Hero zone — centered vertically and horizontally in the image space
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .alpha(heroAlpha)
+                    .padding(horizontal = 28.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    heroContent()
+                }
+            }
+
+            // Form bottom sheet — slides up on enter
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .graphicsLayer { translationY = formOffset.dp.toPx() },
+                shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+                color = AppColors.surface(isDarkMode),
+                shadowElevation = 24.dp,
+                tonalElevation = 0.dp
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                        .imePadding()
+                        .padding(horizontal = 28.dp, vertical = 32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    content = content
+                )
+            }
+        }
+    }
+}
+
+// ============================================================
+// LuxuryTextField — navy unfocused / gold focused input
+// ============================================================
+@Composable
+fun LuxuryTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    leadingIcon: ImageVector,
+    modifier: Modifier = Modifier,
+    isDarkMode: Boolean,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    singleLine: Boolean = true,
+    enabled: Boolean = true,
+    isError: Boolean = false
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label, fontSize = 13.sp) },
+        leadingIcon = {
+            Icon(
+                imageVector = leadingIcon,
+                contentDescription = label,
+                tint = if (isError) AppColors.Error else AppColors.SkyBrand,
+                modifier = Modifier.size(20.dp)
+            )
+        },
+        trailingIcon = trailingIcon,
+        visualTransformation = visualTransformation,
+        keyboardOptions = keyboardOptions,
+        singleLine = singleLine,
+        enabled = enabled,
+        isError = isError,
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(14.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = AppColors.SkyBrand,
+            unfocusedBorderColor = if (isDarkMode) AppColors.DarkBorder else AppColors.WarmBorder,
+            focusedContainerColor = AppColors.SkyBrand.copy(alpha = 0.05f),
+            unfocusedContainerColor = if (isDarkMode) AppColors.DarkSurface else Color(0xFFFAF6EF),
+            focusedTextColor = AppColors.textPrimary(isDarkMode),
+            unfocusedTextColor = AppColors.textPrimary(isDarkMode),
+            focusedLabelColor = AppColors.SkyBrand,
+            unfocusedLabelColor = AppColors.textSecondary(isDarkMode),
+            cursorColor = AppColors.SkyBrand,
+            errorBorderColor = AppColors.Error,
+            errorContainerColor = AppColors.Error.copy(alpha = 0.05f),
+            disabledBorderColor = AppColors.border(isDarkMode).copy(alpha = 0.5f),
+            disabledContainerColor = if (isDarkMode) AppColors.DarkBackground else Color(0xFFF0EEE9),
+            disabledTextColor = AppColors.textTertiary(isDarkMode),
+            disabledLabelColor = AppColors.textTertiary(isDarkMode)
+        )
+    )
+}
+
+// ============================================================
+// LuxuryPrimaryButton — navy gradient with scale press effect
+// ============================================================
+@Composable
+fun LuxuryPrimaryButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    isLoading: Boolean = false,
+    enabled: Boolean = true
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.97f else 1.0f,
+        animationSpec = spring(stiffness = Spring.StiffnessHigh),
+        label = "btn_scale"
+    )
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .scale(scale)
+            .clip(RoundedCornerShape(16.dp))
+            .background(
+                if (enabled && !isLoading)
+                    Brush.horizontalGradient(
+                        listOf(AppColors.NavyPrimary, AppColors.NavyLight)
+                    )
+                else
+                    Brush.horizontalGradient(
+                        listOf(
+                            AppColors.NavyPrimary.copy(alpha = 0.4f),
+                            AppColors.NavyLight.copy(alpha = 0.4f)
+                        )
+                    )
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Button(
+            onClick = onClick,
+            modifier = Modifier.fillMaxSize(),
+            shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent
+            ),
+            elevation = ButtonDefaults.buttonElevation(
+                defaultElevation = 0.dp,
+                pressedElevation = 0.dp
+            ),
+            enabled = enabled && !isLoading,
+            interactionSource = interactionSource
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator(
+                    color = Color.White,
+                    modifier = Modifier.size(22.dp),
+                    strokeWidth = 2.5.dp
+                )
+            } else {
+                Text(
+                    text = text,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    letterSpacing = 0.3.sp
+                )
+            }
         }
     }
 }

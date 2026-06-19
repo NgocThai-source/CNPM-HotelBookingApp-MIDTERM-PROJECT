@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hotelbooking.app.data.model.Hotel
+import com.hotelbooking.app.data.model.UserData
 import com.hotelbooking.app.data.repository.HotelListResponse
 import com.hotelbooking.app.data.repository.SettingsRepository
 import com.hotelbooking.app.service.RetrofitClient
@@ -39,10 +40,14 @@ class HomeViewModel : ViewModel() {
     private val _exchangeRate = MutableStateFlow(26000.0)
     val exchangeRate: StateFlow<Double> = _exchangeRate
 
+    private val _userProfile = MutableStateFlow<UserData?>(null)
+    val userProfile: StateFlow<UserData?> = _userProfile
+
     init {
         Log.d("HomeViewModel", ">>> INIT: HomeViewModel created, calling fetchHotels()")
         fetchHotels()
         fetchSettings()
+        fetchUserProfile()
         connectSSE()
     }
 
@@ -115,6 +120,19 @@ class HomeViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 Log.e("HomeViewModel", ">>> SETTINGS ERROR: ${e.message}")
+            }
+        }
+    }
+
+    private fun fetchUserProfile() {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.authApi.getProfile()
+                if (response.success && response.data != null) {
+                    _userProfile.value = response.data
+                }
+            } catch (e: Exception) {
+                Log.e("HomeViewModel", ">>> PROFILE ERROR: ${e.message}")
             }
         }
     }
