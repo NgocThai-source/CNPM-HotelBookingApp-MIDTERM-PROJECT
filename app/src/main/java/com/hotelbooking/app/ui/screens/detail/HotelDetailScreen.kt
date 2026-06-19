@@ -197,13 +197,10 @@ fun HotelDetailScreen(
                                         )
                                     )
                                     .clickable {
-                                        val route = Routes.bookingRoute(
+                                        val route = Routes.roomSelectRoute(
                                             hotelId = hotel.id,
                                             hotelTitle = hotel.title,
-                                            hotelPrice = hotel.price,
                                             hotelImageUrl = hotel.imageUrl,
-                                            checkInAvailable = hotel.checkInDate ?: "2026-01-01",
-                                            checkOutAvailable = hotel.checkOutDate ?: "2026-12-31",
                                             exchangeRate = exchangeRate
                                         )
                                         navController.navigate(route)

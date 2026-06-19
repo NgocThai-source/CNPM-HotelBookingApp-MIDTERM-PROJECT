@@ -24,6 +24,7 @@ import com.hotelbooking.app.ui.screens.chat.ChatListScreen
 import com.hotelbooking.app.ui.screens.chat.ChatDetailScreen
 import com.hotelbooking.app.ui.screens.booking.BookingFormScreen
 import com.hotelbooking.app.ui.screens.booking.MyBookingsScreen
+import com.hotelbooking.app.ui.screens.booking.RoomSelectionScreen
 import com.hotelbooking.app.ui.screens.detail.HotelDetailScreen
 import com.hotelbooking.app.ui.screens.home.HomeScreen
 import com.hotelbooking.app.ui.screens.notification.NotificationScreen
@@ -129,6 +130,26 @@ fun NavGraph() {
         }
 
         composable(
+            route = Routes.ROOM_SELECT,
+            arguments = listOf(
+                navArgument("hotelId") { type = NavType.StringType },
+                navArgument("hotelTitle") { type = NavType.StringType },
+                navArgument("hotelImageUrl") { type = NavType.StringType },
+                navArgument("exchangeRate") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val args = backStackEntry.arguments
+            RoomSelectionScreen(
+                navController = navController,
+                hotelId = args?.getString("hotelId") ?: "",
+                hotelTitle = Routes.decodeParam(args?.getString("hotelTitle") ?: ""),
+                hotelImageUrl = Routes.decodeParam(args?.getString("hotelImageUrl") ?: ""),
+                exchangeRate = args?.getString("exchangeRate")?.toDoubleOrNull() ?: 26000.0,
+                isDarkMode = isDarkMode
+            )
+        }
+
+        composable(
             route = Routes.BOOKING,
             arguments = listOf(
                 navArgument("hotelId") { type = NavType.StringType },
@@ -137,7 +158,9 @@ fun NavGraph() {
                 navArgument("hotelImageUrl") { type = NavType.StringType },
                 navArgument("checkInAvailable") { type = NavType.StringType },
                 navArgument("checkOutAvailable") { type = NavType.StringType },
-                navArgument("exchangeRate") { type = NavType.StringType }
+                navArgument("exchangeRate") { type = NavType.StringType },
+                navArgument("roomId") { type = NavType.StringType; defaultValue = "none" },
+                navArgument("roomType") { type = NavType.StringType; defaultValue = "" }
             )
         ) { backStackEntry ->
             val args = backStackEntry.arguments
@@ -151,7 +174,9 @@ fun NavGraph() {
                 hotelImageUrl = Routes.decodeImageUrl(args?.getString("hotelImageUrl") ?: ""),
                 checkInAvailable = args?.getString("checkInAvailable") ?: "",
                 checkOutAvailable = args?.getString("checkOutAvailable") ?: "",
-                exchangeRate = args?.getString("exchangeRate")?.toDoubleOrNull() ?: 26000.0
+                exchangeRate = args?.getString("exchangeRate")?.toDoubleOrNull() ?: 26000.0,
+                roomId = args?.getString("roomId") ?: "",
+                roomType = Routes.decodeParam(args?.getString("roomType") ?: "")
             )
         }
 

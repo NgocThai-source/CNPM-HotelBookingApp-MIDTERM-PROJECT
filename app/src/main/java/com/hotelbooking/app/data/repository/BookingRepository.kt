@@ -9,7 +9,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query // 👈 Đã thêm import này
 
 data class BookingSubmitRequest(
-    @SerializedName("userId") val userId: String, // 👈 THÊM DÒNG NÀY ĐỂ FIX LỖI BOOKING VIEW MODEL
+    @SerializedName("userId") val userId: String,
     @SerializedName("hotelId") val hotelId: String,
     @SerializedName("hotelTitle") val hotelTitle: String,
     @SerializedName("hotelImageUrl") val hotelImageUrl: String,
@@ -21,7 +21,9 @@ data class BookingSubmitRequest(
     @SerializedName("guestCount") val guestCount: Int,
     @SerializedName("pricePerNight") val pricePerNight: Double,
     @SerializedName("totalPrice") val totalPrice: Double,
-    @SerializedName("exchangeRate") val exchangeRate: Double
+    @SerializedName("exchangeRate") val exchangeRate: Double,
+    @SerializedName("roomId") val roomId: String? = null,
+    @SerializedName("roomType") val roomType: String? = null
 )
 
 data class BookingSubmitResponse(

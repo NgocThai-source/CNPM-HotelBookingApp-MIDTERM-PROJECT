@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-// ĐÃ XÓA `userId` khỏi BookingFormState vì không cần thiết lưu trong UI State
 data class BookingFormState(
     val hotelId: String = "",
     val hotelTitle: String = "",
@@ -17,6 +16,8 @@ data class BookingFormState(
     val hotelImageUrl: String = "",
     val checkInAvailable: String = "",
     val checkOutAvailable: String = "",
+    val roomId: String = "",
+    val roomType: String = "",
     val guestName: String = "",
     val phone: String = "",
     val checkInDate: Long? = null,
@@ -43,10 +44,7 @@ class BookingViewModel : ViewModel() {
         }
 
     val totalPriceUSD: Double
-        get() {
-            val state = _formState.value
-            return state.hotelPrice * numberOfNights
-        }
+        get() = _formState.value.hotelPrice * numberOfNights
 
     val totalPriceVND: Long
         get() = (totalPriceUSD * _formState.value.exchangeRate).toLong()
@@ -68,7 +66,9 @@ class BookingViewModel : ViewModel() {
         hotelImageUrl: String,
         checkInAvailable: String,
         checkOutAvailable: String,
-        exchangeRate: Double
+        exchangeRate: Double,
+        roomId: String = "",
+        roomType: String = ""
     ) {
         _formState.value = BookingFormState(
             hotelId = hotelId,
@@ -77,7 +77,9 @@ class BookingViewModel : ViewModel() {
             hotelImageUrl = hotelImageUrl,
             checkInAvailable = checkInAvailable,
             checkOutAvailable = checkOutAvailable,
-            exchangeRate = exchangeRate
+            exchangeRate = exchangeRate,
+            roomId = roomId,
+            roomType = roomType
         )
     }
 
@@ -116,7 +118,7 @@ class BookingViewModel : ViewModel() {
             try {
                 val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
                 val request = BookingSubmitRequest(
-                    userId = userId, // Truyền trực tiếp từ parameter của hàm vào Request
+                    userId = userId,
                     hotelId = state.hotelId,
                     hotelTitle = state.hotelTitle,
                     hotelImageUrl = state.hotelImageUrl,
@@ -128,15 +130,16 @@ class BookingViewModel : ViewModel() {
                     guestCount = state.guestCount,
                     pricePerNight = state.hotelPrice,
                     totalPrice = totalPriceUSD,
-                    exchangeRate = state.exchangeRate
+                    exchangeRate = state.exchangeRate,
+                    roomId = state.roomId.takeIf { it.isNotBlank() && it != "none" },
+                    roomType = state.roomType.takeIf { it.isNotBlank() }
                 )
                 val response: BookingSubmitResponse = RetrofitClient.bookingApi.submitBooking(request)
                 if (response.success) {
-                    val returnedBookingId = response.data?.bookingId ?: "BK-XXXXX"
                     _formState.value = _formState.value.copy(
                         isSubmitting = false,
                         submitSuccess = true,
-                        bookingId = returnedBookingId
+                        bookingId = response.data?.bookingId ?: "BK-XXXXX"
                     )
                 } else {
                     _formState.value = _formState.value.copy(

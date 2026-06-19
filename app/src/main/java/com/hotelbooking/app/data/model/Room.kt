@@ -13,7 +13,7 @@ data class Room(
     @SerializedName("description") val description: String? = null,
     @SerializedName("amenities") val amenities: List<String>? = emptyList(),
     @SerializedName("images") val images: List<String>? = emptyList(),
-    @SerializedName("is_active") val isActive: Boolean = true,
+    @SerializedName("is_active") val isActive: Boolean? = null,
     @SerializedName("room_name") val roomName: String? = null,
     @SerializedName("room_type") val roomType: String? = null,
     @SerializedName("check_in_date") val checkInDate: String? = null,

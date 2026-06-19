@@ -5,6 +5,7 @@ import com.hotelbooking.app.data.repository.BookingRepository
 import com.hotelbooking.app.data.repository.HotelRepository
 import com.hotelbooking.app.data.repository.NotificationRepository
 import com.hotelbooking.app.data.repository.ReviewRepository
+import com.hotelbooking.app.data.repository.RoomRepository
 import com.hotelbooking.app.data.repository.SettingsRepository
 import com.hotelbooking.app.util.TokenManager
 import okhttp3.Interceptor
@@ -74,6 +75,10 @@ object RetrofitClient {
 
     val notificationApi: NotificationRepository by lazy {
         retrofit.create(NotificationRepository::class.java)
+    }
+
+    val roomApi: RoomRepository by lazy {
+        retrofit.create(RoomRepository::class.java)
     }
 
     // Giữ lại cái này để các code cũ (như màn hình Đăng nhập, OTP) đang dùng 'apiInterface' không bị báo lỗi đỏ

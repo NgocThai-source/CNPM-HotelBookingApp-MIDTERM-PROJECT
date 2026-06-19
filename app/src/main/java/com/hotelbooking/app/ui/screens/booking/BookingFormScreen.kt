@@ -55,6 +55,8 @@ fun BookingFormScreen(
     checkInAvailable: String,
     checkOutAvailable: String,
     exchangeRate: Double,
+    roomId: String = "",
+    roomType: String = "",
     viewModel: BookingViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -68,7 +70,9 @@ fun BookingFormScreen(
             hotelImageUrl = hotelImageUrl,
             checkInAvailable = checkInAvailable,
             checkOutAvailable = checkOutAvailable,
-            exchangeRate = exchangeRate
+            exchangeRate = exchangeRate,
+            roomId = roomId,
+            roomType = roomType
         )
     }
 
@@ -178,7 +182,26 @@ fun BookingFormScreen(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(6.dp))
+                // Room type badge (shown when a room was selected)
+                val effectiveRoomType = roomType.takeIf { it.isNotBlank() && it != "Standard" } ?: formState.roomType.takeIf { it.isNotBlank() && it != "Standard" }
+                if (!effectiveRoomType.isNullOrBlank()) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Box(
+                            modifier = Modifier
+                                .size(6.dp)
+                                .clip(CircleShape)
+                                .background(AppColors.NavyDeep)
+                        )
+                        Text(
+                            text = effectiveRoomType,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = AppColors.NavyDeep
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = "$${currencyFormatter.format(hotelPrice)} / night",
