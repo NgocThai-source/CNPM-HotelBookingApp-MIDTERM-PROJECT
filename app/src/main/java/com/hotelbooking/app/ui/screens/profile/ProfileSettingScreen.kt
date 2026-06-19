@@ -42,6 +42,8 @@ import com.hotelbooking.app.data.model.Hotel
 import com.hotelbooking.app.ui.theme.AppColors
 import com.hotelbooking.app.util.TokenManager
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 // ─────────────────────────────────────────────────────────────
 // ProfileSettingScreen
@@ -872,9 +874,11 @@ private fun ChangePasswordBottomSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .navigationBarsPadding()
+                .imePadding()
                 .padding(horizontal = 24.dp)
-                .padding(bottom = 40.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+                .padding(bottom = 40.dp)
+                .verticalScroll(rememberScrollState()),
         ) {
             // Handle bar
             Box(

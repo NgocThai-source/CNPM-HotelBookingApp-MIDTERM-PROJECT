@@ -27,6 +27,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hotelbooking.app.R
 import com.hotelbooking.app.ui.theme.AppColors
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+
 
 // ============================================================
 // Design tokens – re-exported for backward compatibility
@@ -104,6 +107,7 @@ fun AuthScreenScaffold(
                 modifier = Modifier
                     .padding(horizontal = 24.dp, vertical = 32.dp)
                     .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
                     .animateContentSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 content = content

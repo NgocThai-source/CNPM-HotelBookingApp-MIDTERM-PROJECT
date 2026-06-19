@@ -10,7 +10,6 @@ import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
-
 interface NotificationRepository {
     @GET("api/notifications")
     suspend fun getNotifications(@Query("user_id") userId: String): NotificationListResponse
@@ -24,9 +23,11 @@ interface NotificationRepository {
     @PUT("api/notifications/read-all")
     suspend fun markAllAsRead(@Query("user_id") userId: String): GenericResponse
 
+
     @GET("api/notifications/unread-count")
     suspend fun getUnreadCount(@Query("user_id") userId: String): NotificationCountResponse
 }
+
 
 data class NotificationCreateRequest(
     @SerializedName("user_id") val userId: String,
@@ -34,3 +35,4 @@ data class NotificationCreateRequest(
     val title: String,
     val body: String
 )
+
